@@ -1,0 +1,43 @@
+-- Tabla de Pedidos
+CREATE TABLE Pedidos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT,
+    fecha_compra DATE,
+    fecha_envio DATE,
+    estado_pedido ENUM('En Proceso', 'Enviado', 'Entregado') NOT NULL,
+    direccion_envio VARCHAR(255) NOT NULL
+
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id)
+);
+
+-- Tabla de Detalles de Pedido
+CREATE TABLE Detalles_Pedido (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT,
+    id_articulo INT,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10, 2) NOT NULL,
+    subtotal DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (id_pedido) REFERENCES Pedidos(id)
+);
+
+
+-- Tabla de Devoluciones y Reembolsos
+CREATE TABLE Devoluciones_Reembolsos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT,
+    motivo VARCHAR(255) NOT NULL,
+    estado_devolucion ENUM('Pendiente', 'Aceptada', 'Rechazada') NOT NULL,
+    fecha_solicitud DATE,
+    FOREIGN KEY (id_pedido) REFERENCES Pedidos(id)
+);
+
+-- Tabla de Historial de Transacciones
+CREATE TABLE Historial_Transacciones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT,
+    tipo_transaccion ENUM('Compra', 'Cancelación', 'Devolución', 'Cambio') NOT NULL,
+    fecha_transaccion DATETIME,
+    monto DECIMAL(10, 2),
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id)
+);
