@@ -59,7 +59,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
     $UserId = isset($_POST['userId']) ? cleanInput($_POST['userId']) : '';
     $Name = isset($_POST['name']) ? cleanInput($_POST['name']) : '';
     $Surnames = isset($_POST['surnames']) ? cleanInput($_POST['surnames']) : '';
-    $Address = isset($_POST['address']) ? cleanInput($_POST['address']) : '';
     $Email = isset($_POST['email']) ? cleanInput($_POST['email']) : '';
     $Phone = isset($_POST['phone']) ? cleanInput($_POST['phone']) : '';
 
@@ -67,8 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
     // Update information in the database
     // Prepare the SQL statement for updating user information
     $sql = "UPDATE pps_users SET 
-    usu_name = ?, 
-    usu_address = ?, 
+    usu_name = ?,  
     usu_surnames = ?,
     usu_email = ?, 
     usu_phone = ? 
@@ -78,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
     $stmt = $conn->prepare($sql);
 
     // Bind the parameters
-    $stmt->bind_param("ssssii", $Name, $Address, $Surnames, $Email, $Phone, $UserId);
+    $stmt->bind_param("sssii", $Name, $Address, $Surnames, $Email, $Phone, $UserId);
 
 
     if ($stmt->execute()) {
@@ -117,7 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil Personal</title>
+    <title>Gestión de información Personal</title>
 </head>
 
 <body>
@@ -139,9 +137,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
             <br>
             <label for="Apellidos">Apellidos:</label>
             <input type="text" name="surnames" value="<?php echo $UserRow['usu_surnames']; ?>">
-            <br>
-            <label for="Dirección">Dirección:</label>
-            <input type="text" name="address" value="<?php echo $UserRow['usu_address']; ?>">
             <br>
             <label for="email">Email:</label>
             <input type="email" name="email" value="<?php echo $UserRow['usu_email']; ?>">

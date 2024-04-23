@@ -92,6 +92,22 @@ CREATE TABLE `pps_users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Users';
 
 --
+-- Estructura de tabla para la tabla `pps_users_addresses`
+--
+CREATE TABLE pps_user_addresses (
+  addr_id INT AUTO_INCREMENT PRIMARY KEY,
+  addr_user_id INT NOT NULL,
+  addr_line1 VARCHAR(200) NOT NULL,
+  addr_line2 VARCHAR(200),
+  addr_city VARCHAR(100) NOT NULL,
+  addr_state VARCHAR(100),
+  addr_postal_code VARCHAR(20) NOT NULL,
+  addr_country VARCHAR(100) NOT NULL,
+  addr_is_main BOOLEAN NOT NULL DEFAULT FALSE,
+  FOREIGN KEY (addr_user_id) REFERENCES pps_users(usu_id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Addresses Users';
+
+--
 -- Índices para tablas volcadas
 --
 
@@ -151,3 +167,8 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+--
+-- ALTER TABLE pps_users DROP COLUMN usu_address;
+--
+--Borro el campo de usu_address, debido a que ahora va a ser una tabal independiente.
