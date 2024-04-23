@@ -1,10 +1,12 @@
 <?php
 
-// PHP creado por
-// Twitter: @javiersureda
-// Github: @javiersureda
-// Youtube: @javiersureda3
+    // PHP creado por
+    // Twitter: @javiersureda
+    // Github: @javiersureda
+    // Youtube: @javiersureda3
 
+    // Incluye el archivo de conexión a la base de datos
+    include 'db.php'; 
 
 ?>
 <!DOCTYPE html>
@@ -30,7 +32,7 @@
         <title>Frutería del Barrio</title>
 
         <!-- CSS / Hoja de estilos Bootstrap -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     </head>
 
     <body>
@@ -66,70 +68,45 @@
             </div>
 
             <div class="row row-cols-1 row-cols-md-3 g-4">
-                <div class="col">
-                    <div class="card">
-                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Manzanas">
-                        <div class="card-body">
-                            <h5 class="card-title">Manzanas</h5>
-                            <p class="card-text">Frescas y jugosas manzanas rojas listas para tu consumo.</p>
-                            <a href="#" class="btn btn-primary">Comprar</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Naranjas">
-                        <div class="card-body">
-                            <h5 class="card-title">Naranjas</h5>
-                            <p class="card-text">Perfectas para un jugo lleno de vitaminas por las mañanas.</p>
-                            <a href="#" class="btn btn-primary">Comprar</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Plátanos">
-                        <div class="card-body">
-                            <h5 class="card-title">Plátanos</h5>
-                            <p class="card-text">Dulces y nutritivos, ideales para cualquier hora del día.</p>
-                            <a href="#" class="btn btn-primary">Comprar</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Manzanas">
-                        <div class="card-body">
-                            <h5 class="card-title">Manzanas</h5>
-                            <p class="card-text">Frescas y jugosas manzanas rojas listas para tu consumo.</p>
-                            <a href="#" class="btn btn-primary">Comprar</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Naranjas">
-                        <div class="card-body">
-                            <h5 class="card-title">Naranjas</h5>
-                            <p class="card-text">Perfectas para un jugo lleno de vitaminas por las mañanas.</p>
-                            <a href="#" class="btn btn-primary">Comprar</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Plátanos">
-                        <div class="card-body">
-                            <h5 class="card-title">Plátanos</h5>
-                            <p class="card-text">Dulces y nutritivos, ideales para cualquier hora del día.</p>
-                            <a href="#" class="btn btn-primary">Comprar</a>
-                        </div>
-                    </div>
-                </div>
+            <?php
+            $stmt = $conn->prepare("SELECT prd_name, prd_details, prd_image, prd_price, prd_stock, prd_id FROM pps_products");
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    echo '<div class="col">';
+                    echo '<div class="card">';
+                    // Utiliza htmlspecialchars para evitar XSS
+                    echo '<img src="' . htmlspecialchars($row["prd_image"]) . '" class="card-img-top" alt="' . htmlspecialchars($row["prd_name"]) . '">';
+                    echo '<div class="card-body">';
+                    echo '<h5 class="card-title">' . htmlspecialchars($row["prd_name"]) . '</h5>';
+                    echo '<p class="card-text">' . htmlspecialchars($row["prd_details"]) . '</p>';
+                    // Añadir el formulario con la cantidad máxima basada en el stock
+                    echo '<form action="comprar.php" method="post">';
+                    echo '<button type="submit" class="btn btn-primary">Comprar</button>';
+                    echo '<input type="hidden" name="product_id" value="' . $row["prd_id"] . '">';
+                    echo '<input type="number" style="margin-left: 10px;" name="quantity" min="1" max="' . $row["prd_stock"] . '" value="1">';
+                    echo '<p>En stock: ' . $row["prd_stock"] . '</p>';
+                    echo '</form>';
+                    echo '</div></div></div>';
+                }
+            } else {
+                // Mensaje de no resultados de manera visualmente atractiva
+                echo '<div class="col-12">';
+                echo '<div class="alert alert-info" role="alert">';
+                echo '<h4 class="alert-heading">¡Ups! No hay productos disponibles.</h4>';
+                echo '<p>Actualmente no tenemos productos en stock. Por favor, vuelve más tarde o contacta con nosotros para más información.</p>';
+                echo '<hr>';
+                echo '<p class="mb-0">Mientras tanto, visita nuestras redes sociales o nuestra página de contacto para estar al día.</p>';
+                echo '</div>';
+                echo '</div>';
+            }
+            $stmt->close();
+            ?>
             </div>
         </div>
 
         <!-- Script de Bootstrap -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
