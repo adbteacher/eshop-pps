@@ -8,6 +8,7 @@
         }
     ],
     "require": {
-        "twbs/bootstrap": "^5.3"
+        "twbs/bootstrap": "^5.3",
+        "robthree/twofactorauth": "^2.1"
     }
 }

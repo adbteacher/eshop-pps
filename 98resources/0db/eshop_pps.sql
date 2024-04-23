@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 19, 2024 at 05:57 PM
+-- Generation Time: Apr 23, 2024 at 06:20 PM
 -- Server version: 10.6.5-MariaDB
 -- PHP Version: 8.1.0
 
@@ -80,11 +80,12 @@ DROP TABLE IF EXISTS `pps_records_login`;
 CREATE TABLE IF NOT EXISTS `pps_records_login` (
   `rlo_id` int(11) NOT NULL AUTO_INCREMENT,
   `rlo_user` int(11) NOT NULL,
-  `rlo_ip` int(11) NOT NULL,
-  `rlo_was_correct_login` int(11) NOT NULL,
-  `rlo_datetime` int(11) NOT NULL,
-  PRIMARY KEY (`rlo_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `rlo_ip` varchar(16) NOT NULL,
+  `rlo_was_correct_login` tinyint(1) NOT NULL COMMENT 'True si el login fue exitoso, False si fue fallido',
+  `rlo_datetime` int(16) NOT NULL COMMENT 'Fecha y hora del intento de login',
+  PRIMARY KEY (`rlo_id`),
+  KEY `rlo_user` (`rlo_user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Registro de intentos de login';
 
 -- --------------------------------------------------------
 
@@ -130,15 +131,14 @@ DROP TABLE IF EXISTS `pps_users`;
 CREATE TABLE IF NOT EXISTS `pps_users` (
   `usu_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id_autoincremental',
   `usu_type` varchar(1) NOT NULL,
-  `usu_rol` varchar(1) NOT NULL,
-  `usu_status` varchar(1) NOT NULL,
+  `usu_rol` varchar(1) NOT NULL COMMENT 'U,V,S,A',
+  `usu_status` varchar(1) NOT NULL COMMENT 'N,A,B',
   `usu_verification_code` varchar(250) NOT NULL,
-  `usu_datetime` int(11) NOT NULL COMMENT 'YYYYMMDDhhmmss',
+  `usu_datetime` int(16) NOT NULL COMMENT 'YYYYMMDDhhmmss',
   `usu_name` varchar(100) NOT NULL,
   `usu_surnames` varchar(200) NOT NULL,
   `usu_prefix` varchar(5) NOT NULL,
   `usu_phone` int(11) NOT NULL,
-  `usu_address` varchar(200) NOT NULL,
   `usu_email` varchar(200) NOT NULL,
   `usu_password` varchar(300) NOT NULL,
   `usu_company` varchar(100) NOT NULL,
@@ -147,6 +147,16 @@ CREATE TABLE IF NOT EXISTS `pps_users` (
   `usu_documents` varchar(200) NOT NULL,
   PRIMARY KEY (`usu_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Users';
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `pps_records_login`
+--
+ALTER TABLE `pps_records_login`
+  ADD CONSTRAINT `pps_records_login_ibfk_1` FOREIGN KEY (`rlo_user`) REFERENCES `pps_users` (`usu_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
