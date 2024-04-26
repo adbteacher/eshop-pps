@@ -1,6 +1,7 @@
 <?php
 require 'database.php';
-require 'jwt.php';  // JWT handling library
+require 'jwt.php'; // JWT handling library
+
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Email'])) {
@@ -18,9 +19,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Email'])) {
     $Stmt->execute();
     $User = $Stmt->fetch(PDO::FETCH_ASSOC);
 
+    // Check if the account is temporarily locked
     if ($User) {
         $current_time = new DateTime();
-        // Check if the account is temporarily locked
         if ($User['lock_until'] !== NULL && new DateTime($User['lock_until']) > $current_time) {
             echo "Your account is temporarily locked. Please try again later.";
             exit;
@@ -31,8 +32,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Email'])) {
         $Stmt->bindParam(':User_Id', $User['Id'], PDO::PARAM_INT);
         $Stmt->execute();
 
+        $Payload = [
+            'sub' => $User['Id'],  // Subject
+            'iat' => time(),       // Issued at
+            'exp' => time() + 3600 // Expiration time
+        ];
         // Generate a JWT for the password reset link
-        $Token = createJWT(['sub' => $User['Id']], '+1 hour');  // JWT expires in 1 hour
+        $Token = JWTHandler::CreateToken($Payload);
 
         // Construct the password reset link using the JWT
         $ResetLink = "https://eshop-pps-whatever.com/update_password.php?token=" . urlencode($Token);
@@ -43,6 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Email'])) {
 
         echo "If your account exists, a password reset link will be sent to your email.";
     } else {
-        echo "If your account exists, a password reset link will be sent to your email."; // Maintain ambiguity
+        echo "If your account exists, a password reset link will be sent to your email.";
     }
 }
