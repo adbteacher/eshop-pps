@@ -1,7 +1,8 @@
 <?php
 session_start();
 require_once 'funciones.php';
-require_once 'vendor/autoload.php';
+require_once '../vendor/autoload.php';
+
 use RobThree\Auth\TwoFactorAuth;
 
 AddSecurityHeaders();
@@ -24,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $Secret = $Result['usu_verification_code'];
 
     if ($Tfa->verifyCode($Secret, $Code2FA)) {
-        header('Location: activate_2fa.php');
+        header('Location: ../index.php');
         exit;
     } else {
         echo "Código 2FA incorrecto.";
@@ -34,11 +35,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Verificar 2FA</title>
     <link rel="stylesheet" type="text/css" href="estilo.css">
 </head>
+
 <body>
     <div class="form-box">
         <h1>Verificar 2FA</h1>
@@ -48,4 +51,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </form>
     </div>
 </body>
+
 </html>

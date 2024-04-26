@@ -149,6 +149,23 @@ CREATE TABLE IF NOT EXISTS `pps_users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Users';
 
 --
+-- Table structure for table `pps_users_addresses`
+--
+DROP TABLE IF EXISTS `pps_user_addresses`;
+CREATE TABLE pps_user_addresses (
+  addr_id INT AUTO_INCREMENT PRIMARY KEY,
+  addr_user_id INT NOT NULL,
+  addr_line1 VARCHAR(200) NOT NULL,
+  addr_line2 VARCHAR(200),
+  addr_city VARCHAR(100) NOT NULL,
+  addr_state VARCHAR(100),
+  addr_postal_code VARCHAR(20) NOT NULL,
+  addr_country VARCHAR(100) NOT NULL,
+  addr_is_main BOOLEAN NOT NULL DEFAULT FALSE,
+  FOREIGN KEY (addr_user_id) REFERENCES pps_users(usu_id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Addresses Users';
+
+--
 -- Constraints for dumped tables
 --
 

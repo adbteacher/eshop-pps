@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Gestión de la conexión a la base de datos utilizando PDO.
  *
@@ -12,7 +13,8 @@
  * @return PDO Objeto PDO para la conexión a la base de datos.
  * @throws PDOException Si la conexión falla, se maneja lanzando una excepción.
  */
-function GetDatabaseConnection() {
+function GetDatabaseConnection()
+{
     $Server = getenv('DB_HOST') ?: 'localhost';
     $DatabaseName = getenv('DB_NAME') ?: 'eshop_pps';
     $User = getenv('DB_USER') ?: 'root';
@@ -35,4 +37,3 @@ function GetDatabaseConnection() {
         die('Error de conexión con la base de datos.');
     }
 }
-?>

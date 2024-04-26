@@ -1,9 +1,11 @@
 <?php
 require_once 'db.php';
-require_once 'vendor/autoload.php';
+require_once '../vendor/autoload.php';
+
 use RobThree\Auth\TwoFactorAuth;
 
-function AddSecurityHeaders() {
+function AddSecurityHeaders()
+{
     header('X-Frame-Options: DENY');
     header('X-XSS-Protection: 1; mode=block');
     header("Content-Security-Policy: default-src 'self'; img-src 'self' data:;");
@@ -11,14 +13,16 @@ function AddSecurityHeaders() {
     header('X-Content-Type-Options: nosniff');
 }
 
-function SanitizeInput($Input) {
+function SanitizeInput($Input)
+{
     $Input = trim($Input);
     $Input = stripslashes($Input);
     $Input = htmlspecialchars($Input);
     return $Input;
 }
 
-function CheckLoginAttempts() {
+function CheckLoginAttempts()
+{
     $Connection = GetDatabaseConnection();
     $Ip = $_SERVER['REMOTE_ADDR'];
     $WaitTime = 5;  // Tiempo de espera reducido a 5 minutos.
@@ -37,7 +41,8 @@ function CheckLoginAttempts() {
 }
 
 
-function GetUserIdByUsername($Username) {
+function GetUserIdByUsername($Username)
+{
     $Connection = GetDatabaseConnection();
     $Query = $Connection->prepare("SELECT usu_id FROM pps_users WHERE usu_name = ?");
     $Query->bindParam(1, $Username);
@@ -52,7 +57,8 @@ function GetUserIdByUsername($Username) {
 }
 
 
-function UserExists($Username) {
+function UserExists($Username)
+{
     $Connection = GetDatabaseConnection();
     $Query = $Connection->prepare("SELECT COUNT(*) FROM pps_users WHERE usu_name = ?");
     $Query->bindParam(1, $Username);
@@ -65,7 +71,8 @@ function UserExists($Username) {
     }
 }
 
-function RegisterUser($Username, $Password) {
+function RegisterUser($Username, $Password)
+{
     // Verificar si el usuario ya existe en la base de datos.
     if (UserExists($Username)) {
         echo "Error: El usuario ya existe.";
@@ -93,7 +100,8 @@ function RegisterUser($Username, $Password) {
 }
 
 
-function VerifyUser($Username, $Password) {
+function VerifyUser($Username, $Password)
+{
     $Connection = GetDatabaseConnection();
     $Query = $Connection->prepare("SELECT usu_password FROM pps_users WHERE usu_name = ?");
     $Query->bindParam(1, $Username);
@@ -116,7 +124,8 @@ function VerifyUser($Username, $Password) {
 }
 
 
-function LogAttempt($Username, $Success) {
+function LogAttempt($Username, $Success)
+{
     $Connection = GetDatabaseConnection();
     $Ip = $_SERVER['REMOTE_ADDR'];
     $Status = $Success ? 1 : 0;
@@ -141,7 +150,8 @@ function LogAttempt($Username, $Success) {
 }
 
 // Función para verificar si el usuario tiene 2FA activado
-function Has2FA($Username) {
+function Has2FA($Username)
+{
     $Connection = GetDatabaseConnection();
     $Query = $Connection->prepare("SELECT usu_verification_code FROM pps_users WHERE usu_name = ?");
     $Query->bindParam(1, $Username);
@@ -154,5 +164,3 @@ function Has2FA($Username) {
         return false;
     }
 }
-
-?>

@@ -1,109 +1,79 @@
 <?php
-// Database connection data
-$ServerName = "localhost";
-$UserName = "root";
-$Password = "";
-$Database = "qajh438";
+require_once 'db.php';
+session_start();
 
-// Create connection
-$conn = new mysqli($ServerName, $UserName, $Password, $Database);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Verificar si el usuario está autenticado
+if (!isset($_SESSION['user_id'])) {
+    // Redireccionar al usuario a la página de inicio de sesión si no está autenticado
+    header("Location: ../1login/login.php");
+    exit;
 }
 
-//Functions
+$user_id = $_SESSION['user_id'];
 
-function cleanInput($input) //Function to clean inputs.
+// Función para obtener las direcciones del usuario
+function getUserAddresses($user_id)
 {
-    $input = trim($input);
-    $input = stripslashes($input);
-    $input = str_replace(["'", '"', ";", "|", "[", "]", "x00", "<", ">", "~", "´", "/", "\\", "¿"], '', $input);
-    $input = str_replace(['=', '+', '-', '#', '(', ')', '!', '$', '{', '}', '`', '?'], '', $input);
-    return $input;
+    $connection = GetDatabaseConnection();
+    $sql = "SELECT * FROM pps_user_addresses WHERE addr_user_id = ?";
+    $stmt = $connection->prepare($sql);
+    $stmt->execute([$user_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Variable to store the selected user ID
-$UserId = '';
+// Obtener las direcciones del usuario
+$addresses = getUserAddresses($user_id);
 
-// Process the user selection form
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitUser']) || isset($_POST['submitPersonalInfo'])) {
-    // Validate and sanitize the user ID
-    $UserId = isset($_POST['userId']) ? cleanInput($_POST['userId']) : ''; //
+// Manejar el envío del formulario para añadir una nueva dirección
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitNewAddress'])) {
+    $line1 = $_POST['addr_line1'];
+    $line2 = $_POST['addr_line2'];
+    $city = $_POST['addr_city'];
+    $state = $_POST['addr_state'];
+    $postal_code = $_POST['addr_postal_code'];
+    $country = $_POST['addr_country'];
 
-    // Query the information of the selected user using prepared statement
-    $sql = "SELECT * FROM pps_users WHERE usu_id = ?";
-    $stmt = $conn->prepare($sql);
+    // Insertar la nueva dirección en la base de datos
+    $sql = "INSERT INTO pps_user_addresses (addr_user_id, addr_line1, addr_line2, addr_city, addr_state, addr_postal_code, addr_country) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $connection->prepare($sql);
+    $stmt->execute([$user_id, $line1, $line2, $city, $state, $postal_code, $country]);
 
-    // Bind the parameter
-    $stmt->bind_param("i", $UserId); // "i" indicates that it is an integer (the datatype of $UserId)
-
-    // Execute the statement
-    $stmt->execute();
-
-    // Get the result
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        // Show the form to edit personal information
-        $UserRow = $result->fetch_assoc();
-    } else {
-        echo "User not found";
-    }
+    // Redireccionar a la página para evitar el reenvío del formulario
+    header("Location: addresses.php");
+    exit;
 }
 
-// Process the personal information editing form
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo'])) {
-    // Retrieve form data
-    $UserId = isset($_POST['userId']) ? cleanInput($_POST['userId']) : '';
-    $Name = isset($_POST['name']) ? cleanInput($_POST['name']) : '';
-    $Surnames = isset($_POST['surnames']) ? cleanInput($_POST['surnames']) : '';
-    $Email = isset($_POST['email']) ? cleanInput($_POST['email']) : '';
-    $Phone = isset($_POST['phone']) ? cleanInput($_POST['phone']) : '';
+// Manejar el envío del formulario para modificar la dirección principal
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitMainAddress'])) {
+    $main_address_id = $_POST['main_address_id'];
 
-    // Update information in the database
-    // Prepare the SQL statement for updating user information
-    $sql = "UPDATE pps_users SET 
-    usu_name = ?, 
-    usu_surnames = ?,
-    usu_email = ?, 
-    usu_phone = ? 
-    WHERE usu_id = ?";
+    // Marcar todas las direcciones del usuario como no principales
+    $sql = "UPDATE pps_user_addresses SET addr_is_main = 0 WHERE addr_user_id = ?";
+    $stmt = $connection->prepare($sql);
+    $stmt->execute([$user_id]);
 
-    // Prepare the statement
-    $stmt = $conn->prepare($sql);
+    // Marcar la dirección seleccionada como principal
+    $sql = "UPDATE pps_user_addresses SET addr_is_main = 1 WHERE addr_id = ?";
+    $stmt = $connection->prepare($sql);
+    $stmt->execute([$main_address_id]);
 
-    // Bind the parameters
-    $stmt->bind_param("sssii", $Name, $Surnames, $Email, $Phone, $UserId);
+    // Redireccionar a la página para evitar el reenvío del formulario
+    header("Location: addresses.php");
+    exit;
+}
 
-    if ($stmt->execute()) {
-        //$sql = "SELECT * FROM pps_users WHERE usu_id = $UserId";
-        //$result = $conn->query($sql);
-        // Query the information of the selected user using prepared statement
-        $sql = "SELECT * FROM pps_users WHERE usu_id = ?";
-        $stmt = $conn->prepare($sql);
+// Manejar el envío del formulario para eliminar una dirección
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitDeleteAddress'])) {
+    $address_id = $_POST['delete_address_id'];
 
-        // Bind the parameter
-        $stmt->bind_param("i", $UserId); // "i" indicates that it is an integer (the datatype of $UserId)
+    // Eliminar la dirección de la base de datos
+    $sql = "DELETE FROM pps_user_addresses WHERE addr_id = ?";
+    $stmt = $connection->prepare($sql);
+    $stmt->execute([$address_id]);
 
-        // Execute the statement
-        $stmt->execute();
-
-        // Get the result
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            // Obtén los datos actualizados del perfil
-            $UserRow = $result->fetch_assoc();
-        } else {
-            echo "Error: No se pudo recuperar la información actualizada del perfil";
-        }
-    } else {
-        echo "Error updating information: " . $conn->error;
-    }
-    // Close the statement
-    $stmt->close();
+    // Redireccionar a la página para evitar el reenvío del formulario
+    header("Location: addresses.php");
+    exit;
 }
 ?>
 
@@ -113,76 +83,73 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de informacón Personal</title>
+    <title>Direcciones de Usuario</title>
 </head>
 
 <body>
-    <!-- Form to select the user -->
+    <h1>Direcciones de Usuario</h1>
+
+    <!-- Mostrar las direcciones existentes del usuario -->
+    <h2>Direcciones Actuales:</h2>
+    <ul>
+        <?php foreach ($addresses as $address) : ?>
+            <li>
+                <?php echo $address['addr_line1']; ?>
+                <?php echo $address['addr_line2'] ? ', ' . $address['addr_line2'] : ''; ?>
+                <br>
+                <?php echo $address['addr_city'] . ', ' . $address['addr_state'] . ' ' . $address['addr_postal_code']; ?>
+                <br>
+                <?php echo $address['addr_country']; ?>
+                <?php if ($address['addr_is_main']) : ?>
+                    <strong>(Principal)</strong>
+                <?php endif; ?>
+                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                    <input type="hidden" name="delete_address_id" value="<?php echo $address['addr_id']; ?>">
+                    <button type="submit" name="submitDeleteAddress">Eliminar</button>
+                </form>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+
+    <!-- Formulario para añadir una nueva dirección -->
+    <h2>Añadir Nueva Dirección:</h2>
     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-        <label for="userId">User ID:</label>
-        <input type="text" name="userId" value="<?php echo $UserId; ?>">
-        <input type="submit" name="submitUser" value="Select">
+        <label for="addr_line1">Línea 1:</label>
+        <input type="text" name="addr_line1" required>
+        <br>
+        <label for="addr_line2">Línea 2:</label>
+        <input type="text" name="addr_line2">
+        <br>
+        <label for="addr_city">Ciudad:</label>
+        <input type="text" name="addr_city" required>
+        <br>
+        <label for="addr_state">Estado:</label>
+        <input type="text" name="addr_state">
+        <br>
+        <label for="addr_postal_code">Código Postal:</label>
+        <input type="text" name="addr_postal_code" required>
+        <br>
+        <label for="addr_country">País:</label>
+        <input type="text" name="addr_country" required>
+        <br>
+        <button type="submit" name="submitNewAddress">Añadir Dirección</button>
     </form>
 
-    <!-- Form to display and edit user addresses -->
-    <?php if ($UserId !== '') : ?>
-        <h3>Direcciones del usuario:</h3>
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-            <input type="hidden" name="userId" value="<?php echo $UserId; ?>">
-            <label for="selectAddress">Selecciona una dirección:</label>
-            <select name="selectAddress" id="selectAddress">
-                <?php
-                // Obtener las direcciones del usuario
-                $sql = "SELECT * FROM pps_user_addresses WHERE addr_user_id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("i", $UserId);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                // Mostrar las direcciones en el select
-                while ($row = $result->fetch_assoc()) {
-                    echo "<option value='" . $row['addr_id'] . "'>" . $row['addr_line1'] . "</option>";
-                }
-                ?>
-            </select>
-            <br>
-            <input type="submit" name="editAddress" value="Edit Address">
-            <input type="submit" name="addAddress" value="Add New Address">
-        </form>
-
-        <br>
-        <h3>Editar o Añadir Dirección:</h3>
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-            <input type="hidden" name="userId" value="<?php echo $UserId; ?>">
-            <label for="line1">Dirección:</label>
-            <input type="text" name="line1">
-            <br>
-            <label for="line2">Línea 2:</label>
-            <input type="text" name="line2">
-            <br>
-            <label for="city">Ciudad:</label>
-            <input type="text" name="city">
-            <br>
-            <label for="state">Estado:</label>
-            <input type="text" name="state">
-            <br>
-            <label for="postalCode">Código Postal:</label>
-            <input type="text" name="postalCode">
-            <br>
-            <label for="country">País:</label>
-            <input type="text" name="country">
-            <br>
-            <br>
-            <input type="submit" name="submitAddress" value="Save Address">
-        </form>
-    <?php endif; ?>
-
-
+    <!-- Formulario para seleccionar la dirección principal -->
+    <h2>Seleccionar Dirección Principal:</h2>
+    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+        <select name="main_address_id">
+            <?php foreach ($addresses as $address) : ?>
+                <option value="<?php echo $address['addr_id']; ?>"><?php echo $address['addr_line1']; ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit" name="submitMainAddress">Seleccionar Principal</button>
+    </form>
 </body>
 
 </html>
 
 <?php
-// Close the database connection
-$conn->close();
+// Cerrar la conexión a la base de datos al finalizar
+$connection = null;
 ?>

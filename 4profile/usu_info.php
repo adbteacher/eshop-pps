@@ -1,21 +1,8 @@
 <?php
-// Database connection data
-$ServerName = "localhost";
-$UserName = "root";
-$Password = "";
-$Database = "qajh438";
+require_once 'db.php';
 
-// Create connection
-$conn = new mysqli($ServerName, $UserName, $Password, $Database);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-//Functions
-
-function cleanInput($input) //Function to clean inputs.
+// Functions
+function cleanInput($input)
 {
     $input = trim($input);
     $input = stripslashes($input);
@@ -32,22 +19,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitUser']) || isset
     // Validate and sanitize the user ID
     $UserId = isset($_POST['userId']) ? cleanInput($_POST['userId']) : ''; //
 
+    // Database connection
+    $connection = GetDatabaseConnection();
+
     // Query the information of the selected user using prepared statement
     $sql = "SELECT * FROM pps_users WHERE usu_id = ?";
-    $stmt = $conn->prepare($sql);
+    $stmt = $connection->prepare($sql);
 
-    // Bind the parameter
-    $stmt->bind_param("i", $UserId); // "i" indicates that it is an integer (the datatype of $UserId)
+    // Execute the statement with the user ID parameter
+    $stmt->execute([$UserId]);
 
-    // Execute the statement
-    $stmt->execute();
+    // Fetch the result as an associative array
+    $UserRow = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Get the result
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
+    if ($UserRow) {
         // Show the form to edit personal information
-        $UserRow = $result->fetch_assoc();
     } else {
         echo "User not found";
     }
@@ -62,6 +48,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
     $Email = isset($_POST['email']) ? cleanInput($_POST['email']) : '';
     $Phone = isset($_POST['phone']) ? cleanInput($_POST['phone']) : '';
 
+    // Database connection
+    $connection = GetDatabaseConnection();
 
     // Update information in the database
     // Prepare the SQL statement for updating user information
@@ -73,39 +61,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
     WHERE usu_id = ?";
 
     // Prepare the statement
-    $stmt = $conn->prepare($sql);
+    $stmt = $connection->prepare($sql);
 
     // Bind the parameters
-    $stmt->bind_param("sssii", $Name, $Address, $Surnames, $Email, $Phone, $UserId);
-
+    $stmt->bindValue(1, $Name);
+    $stmt->bindValue(2, $Surnames);
+    $stmt->bindValue(3, $Email);
+    $stmt->bindValue(4, $Phone);
+    $stmt->bindValue(5, $UserId);
 
     if ($stmt->execute()) {
-        //$sql = "SELECT * FROM pps_users WHERE usu_id = $UserId";
-        //$result = $conn->query($sql);
-        // Query the information of the selected user using prepared statement
+        // Query the updated information of the selected user using prepared statement
         $sql = "SELECT * FROM pps_users WHERE usu_id = ?";
-        $stmt = $conn->prepare($sql);
+        $stmt = $connection->prepare($sql);
 
-        // Bind the parameter
-        $stmt->bind_param("i", $UserId); // "i" indicates that it is an integer (the datatype of $UserId)
+        // Execute the statement with the user ID parameter
+        $stmt->execute([$UserId]);
 
-        // Execute the statement
-        $stmt->execute();
+        // Fetch the result as an associative array
+        $UserRow = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Get the result
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            // Obtén los datos actualizados del perfil
-            $UserRow = $result->fetch_assoc();
+        if ($UserRow) {
+            // Get the updated profile data
         } else {
-            echo "Error: No se pudo recuperar la información actualizada del perfil";
+            echo "Error: Could not retrieve updated profile information";
         }
     } else {
-        echo "Error updating information: " . $conn->error;
+        echo "Error updating information: " . $connection->errorInfo()[2];
     }
-    // Close the statement
-    $stmt->close();
 }
 ?>
 
@@ -126,9 +109,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
         <input type="submit" name="submitUser" value="Select">
     </form>
 
-
     <!-- Form to edit personal information -->
-    <?php if ($UserId !== '') : ?>
+    <?php if (!empty($UserRow)) : ?>
         <h3>Información de usuario:</h3>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <input type="hidden" name="userId" value="<?php echo $UserRow['usu_id']; ?>">
@@ -155,5 +137,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 
 <?php
 // Close the database connection
-$conn->close();
+$connection = null;
 ?>
