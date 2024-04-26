@@ -1,0 +1,21 @@
+table {
+    display: inline-table; /* La tabla se ajustará al contenido */
+    border-collapse: collapse;
+    border: 2px solid #dddddd; /* Borde de la tabla */
+    margin-left: auto; /* Centrar la tabla horizontalmente */
+}
+
+th, td {
+    border: 1px solid #dddddd; /* Borde de las celdas */
+    text-align: left;
+    padding: 8px;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+/* Estilo solo para la última celda de cada fila */
+tr td:last-child {
+    margin-right: 20px; /* Margen en el borde derecho de la última celda */
+}
