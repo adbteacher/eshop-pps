@@ -16,7 +16,7 @@
 function GetDatabaseConnection()
 {
     $Server = getenv('DB_HOST') ?: 'localhost';
-    $DatabaseName = getenv('DB_NAME') ?: 'qajh438';
+    $DatabaseName = getenv('DB_NAME') ?: 'eshop_pps';
     $User = getenv('DB_USER') ?: 'root';
     $Password = getenv('DB_PASSWORD') ?: '';
     $Charset = 'utf8mb4';
