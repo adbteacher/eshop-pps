@@ -12,7 +12,7 @@ function cleanInput($input)
 }
 
 // Variable to store the selected user ID
-$UserId = '';
+$UserId = '1';
 
 // Process the user selection form
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitUser']) || isset($_POST['submitPersonalInfo'])) {
