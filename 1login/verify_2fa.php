@@ -1,15 +1,14 @@
 <?php
 session_start();
 require_once 'funciones.php';
-require_once '../vendor/autoload.php';
-
+require_once 'vendor/autoload.php';
 use RobThree\Auth\TwoFactorAuth;
 
 AddSecurityHeaders();
 
 if (!isset($_SESSION['username'])) {
-    echo "No está autorizado para ver esta página.";
-    exit;
+    echo '<div class="warning">No está autorizado para ver esta página.</div>';
+    exit;    
 }
 
 $Username = $_SESSION['username'];
@@ -35,13 +34,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>Verificar 2FA</title>
     <link rel="stylesheet" type="text/css" href="estilo.css">
 </head>
-
 <body>
     <div class="form-box">
         <h1>Verificar 2FA</h1>
@@ -51,5 +48,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </form>
     </div>
 </body>
-
 </html>

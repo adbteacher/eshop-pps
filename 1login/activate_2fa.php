@@ -1,14 +1,13 @@
 <?php
 session_start();
 require_once 'funciones.php';
-require_once '../vendor/autoload.php';
-
+require_once 'vendor/autoload.php';
 use RobThree\Auth\TwoFactorAuth;
 
 AddSecurityHeaders();
 
 if (!isset($_SESSION['username'])) {
-    echo "No está autorizado para ver esta página.";
+    echo '<div class="warning">No está autorizado para ver esta página.</div>';
     exit;
 }
 
@@ -20,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $QrCodeImage = $Tfa->getQRCodeImageAsDataUri($Username, $Secret);
 
     if (UpdateUser2FASecret($Username, $Secret)) {
-        echo "2FA activado con éxito.<br>";
+        echo '<div class="info">2FA activado con éxito.<br><img src="' . htmlspecialchars($QrCodeImage) . '" alt="Código QR para autenticación 2FA"><br>Escanee el código QR con su aplicación de autenticación.</div>';
         echo '<img src="' . htmlspecialchars($QrCodeImage) . '" alt="Código QR para autenticación 2FA"><br>';
         echo "Escanee el código QR con su aplicación de autenticación.";
     } else {
@@ -28,8 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-function UpdateUser2FASecret($Username, $Secret)
-{
+function UpdateUser2FASecret($Username, $Secret) {
     $Connection = GetDatabaseConnection();
     $Query = $Connection->prepare("UPDATE pps_users SET usu_verification_code = ? WHERE usu_name = ?");
     $Query->bindParam(1, $Secret);
@@ -46,13 +44,11 @@ function UpdateUser2FASecret($Username, $Secret)
 
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>Activar 2FA</title>
     <link rel="stylesheet" type="text/css" href="estilo.css">
 </head>
-
 <body>
     <div class="form-box">
         <h1>Activar 2FA</h1>
@@ -61,5 +57,4 @@ function UpdateUser2FASecret($Username, $Secret)
         </form>
     </div>
 </body>
-
 </html>

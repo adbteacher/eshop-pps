@@ -14,10 +14,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    $Username = SanitizeInput($_POST['username']);
+    $Email = SanitizeInput($_POST['email']); // Cambio de 'username' a 'email'
     $Password = SanitizeInput($_POST['password']);
 
-    if (RegisterUser($Username, $Password)) {
+    if (RegisterUser($Email, $Password)) { // Cambio a función actualizada
         echo "Usuario registrado con éxito.<br>";
         echo "Redireccionando a la página de login...";
         header('Refresh: 2; URL=login.php');
@@ -41,10 +41,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h1>Registro de Usuario</h1>
         <form method="post">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-            Nombre de usuario: <input type="text" name="username" required><br>
-            Contraseña: <input type="password" name="password" required><br>
+            <label for="email">Correo electrónico:</label>
+            <input type="email" id="email" name="email" required><br>
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required><br>
             <input type="submit" value="Registrar">
-        </form>
+    </form>
     </div>
 </body>
 </html>
