@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="estilo.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> <!-- Referencia a jQuery -->
     <title>Administración de Usuarios</title>
 </head>
 <body>
@@ -80,7 +81,7 @@
         <br>
         <br>
         <label for="telf">Telefono:</label>
-        <input type="number" id="telf" name="telf" required>
+        <input type="text" id="telf" name="telf" pattern="\d{9}" title="El número de teléfono debe tener 9 dígitos" required>
         <br>
         <br>
         <label for="rol">Rol:</label>
@@ -125,7 +126,7 @@
         }
 
         // Mostrar la lista actualizada de usuarios
-        mostrarUsuarios($conexion);
+        //mostrarUsuarios($conexion);
     }
 
     // Cerrar la conexión
