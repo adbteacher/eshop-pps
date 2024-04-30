@@ -81,7 +81,7 @@ DROP TABLE IF EXISTS `pps_logs_login`;
 CREATE TABLE IF NOT EXISTS `pps_logs_login` (
   `lol_id` int(11) NOT NULL AUTO_INCREMENT,
   `lol_user` int(6) NOT NULL,
-  `lol_ip` varchar(16) NOT NULL,
+  `lol_ip` varchar(40) NOT NULL,
   `lol_was_correct_login` tinyint(1) NOT NULL COMMENT 'True si el login fue exitoso, False si fue fallido',
   `lol_datetime` datetime NOT NULL,
   PRIMARY KEY (`lol_id`),
