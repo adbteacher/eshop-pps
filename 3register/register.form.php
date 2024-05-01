@@ -32,7 +32,7 @@ $Fields= array(
 	'Prefix' => array(
 		'label' => _('Prefijo'),
 		'data-form' => 'all',
-		'attr' => array('maxlength' => 5, 'type' => 'number', 'data-required' => 'true'),
+		'attr' => array('maxlength' => 5, 'type' => 'text', 'data-required' => 'true'),
 	),
 	'PhoneNumber' => array(
 		'label' => _('Teléfono'),
