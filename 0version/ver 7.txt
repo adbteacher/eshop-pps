@@ -1,0 +1,4 @@
+7 - CETI - Ivan Public functions
+
+- Public function for Databse connection
+- .bat to add environmet variables.

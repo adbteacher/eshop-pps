@@ -6,12 +6,24 @@
 	require_once 'funciones.php';
 
 	AddSecurityHeaders();
+	AddSecurityHeaders();
 
 	if (empty($_SESSION['csrf_token']))
 	{
 		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 	}
+	if (empty($_SESSION['csrf_token']))
+	{
+		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+	}
 
+	if ($_SERVER["REQUEST_METHOD"] == "POST")
+	{
+		if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']))
+		{
+			echo "Error en la validación CSRF.";
+			exit;
+		}
 	if ($_SERVER["REQUEST_METHOD"] == "POST")
 	{
 		if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']))
@@ -56,6 +68,7 @@
         <input type="password" id="password" name="password" required><br>
         <input type="submit" value="Registrar">
     </form>
+</div>
 </div>
 </body>
 </html>

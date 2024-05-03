@@ -61,27 +61,29 @@ function CheckLoginAttempts($Email): void
     $Ip = $_SERVER['REMOTE_ADDR'];  // Dirección IP del cliente
     $UserId = GetUserIdByEmail($Email);  // Obtiene el ID del usuario por su email
 
-    if ($UserId == 0) {
-        return; // Si no existe el usuario, no se continúa con la verificación de intentos.
-    }
+		if ($UserId == 0)
+		{
+			return; // Si no existe el usuario, no se continúa con la verificación de intentos.
+		}
 
-    $WaitTime = 3;  // Tiempo de espera de 3 minutos.
-    $MaxAttempts = 5; // Máximo de intentos fallidos permitidos.
+		$WaitTime    = 3;  // Tiempo de espera de 3 minutos.
+		$MaxAttempts = 5; // Máximo de intentos fallidos permitidos.
 
-    // Prepara la consulta SQL para contar solo los intentos fallidos de inicio de sesión desde la misma IP y para el mismo usuario en los últimos 3 minutos.
-    $Query = $Connection->prepare("SELECT COUNT(*) AS attempts FROM pps_logs_login WHERE lol_ip = ? AND lol_user = ? AND lol_was_correct_login = 0 AND lol_datetime > DATE_SUB(NOW(), INTERVAL ? MINUTE)");
+		// Prepara la consulta SQL para contar solo los intentos fallidos de inicio de sesión desde la misma IP y para el mismo usuario en los últimos 3 minutos.
+		$Query = $Connection->prepare("SELECT COUNT(*) AS attempts FROM pps_logs_login WHERE lol_ip = ? AND lol_user = ? AND lol_was_correct_login = 0 AND lol_datetime > DATE_SUB(NOW(), INTERVAL ? MINUTE)");
 
-    $Query->bindParam(1, $Ip);
-    $Query->bindParam(2, $UserId);
-    $Query->bindParam(3, $WaitTime);
-    $Query->execute();
-    $Attempts = $Query->fetchColumn();
+		$Query->bindParam(1, $Ip);
+		$Query->bindParam(2, $UserId);
+		$Query->bindParam(3, $WaitTime);
+		$Query->execute();
+		$Attempts = $Query->fetchColumn();
 
-    // Si se han registrado 5 o más intentos fallidos, se restringe el acceso.
-    if ($Attempts >= $MaxAttempts) {
-        die("Demasiados intentos de inicio de sesión fallidos. Intente más tarde.");
-    }
-}
+		// Si se han registrado 5 o más intentos fallidos, se restringe el acceso.
+		if ($Attempts >= $MaxAttempts)
+		{
+			die("Demasiados intentos de inicio de sesión fallidos. Intente más tarde.");
+		}
+	}
 
 /**
  * Verifica si existe un usuario por su email.
@@ -125,14 +127,17 @@ function RegisterUser($Email, $Password): bool
     $Query->bindParam(2, $HashedPassword);
     $Query->execute();
 
-    if ($Query->rowCount() > 0) {
-        echo "Usuario registrado con éxito.<br>";
-        return true;
-    } else {
-        echo "Error al registrar el usuario.";
-        return false;
-    }
-}
+		if ($Query->rowCount() > 0)
+		{
+			echo "Usuario registrado con éxito.<br>";
+			return true;
+		}
+		else
+		{
+			echo "Error al registrar el usuario.";
+			return false;
+		}
+	}
 
 /**
  * Verifica las credenciales de un usuario.
@@ -160,12 +165,14 @@ function VerifyUser($Email, $Password): string
             return "Usuario o contraseña incorrecta.";
         }
 
-        return "Inicio de sesión exitoso.";
-    } catch (PDOException $e) {
-        error_log("Error al verificar el usuario: " . $e->getMessage());
-        return "Error en la base de datos al verificar el usuario.";
-    }
-}
+			return "Inicio de sesión exitoso.";
+		}
+		catch (PDOException $e)
+		{
+			error_log("Error al verificar el usuario: " . $e->getMessage());
+			return "Error en la base de datos al verificar el usuario.";
+		}
+	}
 
 
 /**
