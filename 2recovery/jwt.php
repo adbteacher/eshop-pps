@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'db.php';  // Incluyendo la conexión a la base de datos
+require 'db.php'; // Includes the database connection
 
 class JWTHandler
 {
@@ -9,16 +9,24 @@ class JWTHandler
     private static $encryptAlgorithm = 'HS256';
     private static $pdo;
 
+    /**
+     * Initializes the JWT handler by creating a secret key if not already set.
+     */
     public static function initialize()
     {
-        self::$pdo = GetDatabaseConnection();
+        self::$pdo = GetDatabaseConnection(); // Gets the database connection
         if (!isset($_SESSION['JWT_SECRET_KEY'])) {
-            // Generate a random secret key and store it in session
+            // Generate a random secret key and store it in the session
             $_SESSION['JWT_SECRET_KEY'] = bin2hex(random_bytes(32));
         }
         self::$secretKey = $_SESSION['JWT_SECRET_KEY'];
     }
 
+    /**
+     * Creates a JWT with the specified payload.
+     * @param array $payload The data to be encoded into the JWT.
+     * @return string The encoded JWT.
+     */
     public static function createToken(array $payload)
     {
         $header = json_encode(['typ' => 'JWT', 'alg' => self::$encryptAlgorithm]);
@@ -29,6 +37,11 @@ class JWTHandler
         return $base64UrlHeader . "." . $base64UrlPayload . "." . $base64UrlSignature;
     }
 
+    /**
+     * Verifies a JWT and checks if it is expired.
+     * @param string $jwt The JWT to verify.
+     * @return mixed The decoded payload if the token is valid, or false if invalid.
+     */
     public static function verifyToken(string $jwt)
     {
         $tokenParts = explode('.', $jwt);
@@ -41,27 +54,14 @@ class JWTHandler
         $signature = hash_hmac(self::$algorithm, $base64UrlHeader . "." . $base64UrlPayload, self::$secretKey, true);
         $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
 
-        if ($signatureProvided !== $base64UrlSignature || self::isTokenInvalid($jwt)) {
-            return false;
+        // Decode the payload to an array
+        $payload = json_decode($payload, true);
+
+        // Check if the provided signature matches and the token is not expired
+        if ($signatureProvided === $base64UrlSignature && isset($payload['exp']) && $payload['exp'] > time()) {
+            return $payload;
         }
-        return json_decode($payload, true);
-    }
-
-    public static function invalidateToken(string $jwt)
-    {
-        $expiryDate = (new DateTime())->modify('+1 hour')->format('Y-m-d H:i:s');
-        $stmt = self::$pdo->prepare("INSERT INTO invalid_tokens (token, expiry_date) VALUES (:token, :expiryDate)");
-        $stmt->bindParam(':token', $jwt, PDO::PARAM_STR);
-        $stmt->bindParam(':expiryDate', $expiryDate, PDO::PARAM_STR);
-        $stmt->execute();
-    }
-
-    private static function isTokenInvalid(string $jwt)
-    {
-        $stmt = self::$pdo->prepare("SELECT 1 FROM invalid_tokens WHERE token = :token AND expiry_date > NOW()");
-        $stmt->bindParam(':token', $jwt, PDO::PARAM_STR);
-        $stmt->execute();
-        return $stmt->fetch() !== false;
+        return false;
     }
 }
 

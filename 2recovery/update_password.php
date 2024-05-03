@@ -32,9 +32,6 @@ if (isset($_POST['token']) && isset($_POST['password']) && isset($_POST['confirm
         $stmt->bindParam(':userId', $userId['sub'], PDO::PARAM_INT);
         $stmt->execute();
 
-        // Invalidate the token after successful password update
-        JWTHandler::invalidateToken($token);
-
         echo "Your password has been successfully updated.";
     } else {
         echo "The reset link has expired or is invalid. Please request a new one.";
