@@ -31,8 +31,8 @@
                     <a class="nav-link" href="#">Carrito</a>
                 </li>
                 <li class="nav-item, profile-user">
-                    <a href="/4profile/usu_info.php">
-                        <img src="/0images/default_user.png" alt="User" class="profile-image">
+                    <a href="../4profile/usu_info.php">
+                        <img src="../0images/default_user.png" alt="User" class="profile-image">
                         Perfil
                     </a>
                 </li>
@@ -41,4 +41,4 @@
     </div>
 </nav>
 
-<script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

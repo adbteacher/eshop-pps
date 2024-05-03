@@ -5,10 +5,10 @@ class database
 
 	public static function LoadDatabase()
 	{
-		$Server       = getenv('DB_HOST') ?: '192.168.56.200';
-		$DatabaseName = getenv('DB_NAME') ?: 'eshop_pps';
+		$Server       = getenv('DB_HOST') ?: 'localhost';
+		$DatabaseName = getenv('DB_NAME') ?: 'pps';
 		$User         = getenv('DB_USER') ?: 'root';
-		$Password     = getenv('DB_PASSWORD') ?: 'Desarrollo@2404';
+		$Password     = getenv('DB_PASSWORD') ?: '';
 		$Charset      = 'utf8mb4';
 
 		$Dsn = "mysql:host=$Server;dbname=$DatabaseName;charset=$Charset";
