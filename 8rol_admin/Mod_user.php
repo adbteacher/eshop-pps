@@ -1,3 +1,30 @@
+<?php
+require_once 'database.php'; // Incluye el archivo de conexión PDO
+
+// Obtener el ID del usuario a modificar
+$idUsuario = $_POST['idUsuario'];
+
+// Obtener una conexión a la base de datos
+$conexion = database::LoadDatabase();
+
+try {
+    // Preparar la consulta para obtener los datos del usuario
+    $query = "SELECT * FROM pps_users WHERE usu_id = ?";
+    $stmt = $conexion->prepare($query);
+    $stmt->execute([$idUsuario]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) {
+        echo "Usuario no encontrado.";
+        exit;
+    }
+} catch (PDOException $e) {
+    // Manejar cualquier excepción y mostrar un mensaje genérico
+    echo "Algo ha salido mal.";
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,40 +36,17 @@
 <body>
     <h1>Modificar Usuario</h1>
 
-    <?php
-    // Establecer conexión a la base de datos
-    $conexion = new mysqli("localhost", "root", "", "ceti");
-
-    // Verificar la conexión
-    if ($conexion->connect_error) {
-        die("Error de conexión: " . $conexion->connect_error);
-    }
-
-    // Obtener el ID del usuario a modificar
-    $idUsuario = $_POST['idUsuario'];
-
-    // Obtener los datos del usuario
-    $query = "SELECT * FROM pps_users WHERE usu_id = $idUsuario";
-    $result = $conexion->query($query);
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-    } else {
-        echo "Usuario no encontrado.";
-        exit;
-    }
-    ?>
-
     <h2>Modificar Usuario</h2>
     <form id="formModificarUsuario" method="post">
         <input type="hidden" name="idUsuario" value="<?php echo $idUsuario; ?>"> <!-- Campo oculto con el ID del usuario -->
         <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" value="<?php echo $row['usu_name']; ?>" required>
+        <input type="text" id="nombre" name="nombre" value="<?php echo htmlspecialchars($row['usu_name']); ?>" required>
         <br><br>
         <label for="passwd">Contraseña:</label>
-        <input type="password" id="passwd" name="passwd" value="<?php echo $row['usu_password']; ?>" required>
+        <input type="password" id="passwd" name="passwd" value="<?php echo htmlspecialchars($row['usu_password']); ?>" required>
         <br><br>
         <label for="telf">Teléfono:</label>
-        <input type="text" id="telf" name="telf" value="<?php echo $row['usu_phone']; ?>" required>
+        <input type="text" id="telf" name="telf" value="<?php echo htmlspecialchars($row['usu_phone']); ?>" required>
         <br><br>
         <label for="rol">Rol:</label>
         <select id="rol" name="rol">
@@ -52,7 +56,7 @@
         </select>
         <br><br>
         <label for="email">Correo:</label>
-        <input type="email" id="email" name="email" value="<?php echo $row['usu_email']; ?>" required>
+        <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($row['usu_email']); ?>" required>
         <br><br>
         <button type="button" id="btnModificarUsuario">Modificar Usuario</button>
     </form>
