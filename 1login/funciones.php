@@ -1,16 +1,15 @@
 <?php
 	require_once 'db.php';
-	require_once 'vendor/autoload.php';
 
 	use RobThree\Auth\TwoFactorAuth;
 
 	function AddSecurityHeaders(): void
 	{
-		header('X-Frame-Options: DENY');
-		header('X-XSS-Protection: 1; mode=block');
-		header("Content-Security-Policy: default-src 'self'; img-src 'self' data:;");
-		header('Strict-Transport-Security: max-age=63072000; includeSubDomains; preload');
-		header('X-Content-Type-Options: nosniff');
+		//header('X-Frame-Options: DENY');
+		//header('X-XSS-Protection: 1; mode=block');
+		//header("Content-Security-Policy: default-src 'self'; img-src 'self' data:;");
+		//header('Strict-Transport-Security: max-age=63072000; includeSubDomains; preload');
+		//header('X-Content-Type-Options: nosniff');
 	}
 
 	function SanitizeInput($Input): string
@@ -51,7 +50,7 @@
 		}
 	}
 
-	function GetUserIdByEmail($Email)
+	function GetUserIdByEmail($Email): int
 	{
 		$Connection = GetDatabaseConnection();
 		$Query      = $Connection->prepare("SELECT usu_id FROM pps_users WHERE usu_email = ?");
@@ -69,7 +68,7 @@
 		}
 	}
 
-	function UserExistsByEmail($Email)
+	function UserExistsByEmail($Email): bool
 	{
 		$Connection = GetDatabaseConnection();
 		$Query      = $Connection->prepare("SELECT COUNT(*) FROM pps_users WHERE usu_email = ?");
