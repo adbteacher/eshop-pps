@@ -4,6 +4,7 @@ REM - POR LOS QUE USEIS EN VUESTRA BASE DE DATOS
 setx DB_HOST "localhost" -m
 setx DB_USER "root" -m
 setx DB_PASS "" -m
+setx DB_NAME "eshop_pps" -m
 setx DB_PORT "3306" -m
 
 pause
