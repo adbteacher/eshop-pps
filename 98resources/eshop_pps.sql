@@ -110,20 +110,6 @@ CREATE TABLE IF NOT EXISTS `pps_logs_recovery` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `invalid_tokens` store tokens used in recovery
---
-
-DROP TABLE IF EXISTS `invalid_tokens`;
-CREATE TABLE IF NOT EXISTS `invalid_tokens` (
-    `token` VARCHAR(255) NOT NULL,
-    `expiry_date` DATETIME NOT NULL,
-    PRIMARY KEY (`token`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `pps_messages`
 --
 
