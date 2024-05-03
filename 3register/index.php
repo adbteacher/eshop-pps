@@ -16,7 +16,7 @@ define('SI_NO_EXISTE_PETA', true);
 
 if(isset($_POST['action']) && $_POST['action'] == 'register')
 {
-	include('register.php');
+	include('3register/register.php');
 	die();
 }
 
@@ -32,7 +32,8 @@ if(isset($_POST['action']) && $_POST['action'] == 'register')
 	<body>
 <?php
 
-include('register.form.php');
+include('3register/register.form.php');
+die();
 
 ?>
 	</body>

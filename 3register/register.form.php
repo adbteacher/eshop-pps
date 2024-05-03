@@ -78,7 +78,7 @@ $Fields= array(
 </script>
 
 <div class="RegisterForm">
-	<form method="post" action="/registro/index.php">
+	<form method="post" action="index.php">
 		<input type="hidden" name="action" value="register"/>
 		<div id="SelectUserType">
 			<label><?php echo _('Selecciona el tipo de usuario:');?></label>

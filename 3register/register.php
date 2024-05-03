@@ -160,7 +160,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["register"])) {
     // Query a la base de datos
     if (mysqli_query($Conn, $Query)) {
         echo _("Te has registrado correctamente");
-        header('Refresh: 1; URL=login.php');
+        header('Refresh: 1; URL=1login/login.php');
     } else {
         echo _("Error: " . $Query . "<br>" . mysqli_error($Conn));
     }
