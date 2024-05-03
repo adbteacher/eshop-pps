@@ -3,7 +3,7 @@
         'name' => 'ivanm/eshop-pps',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '3127d9cdf8058dbb6af4465fd7684063fc5514ed',
+        'reference' => '61e735b35e6dec4347e6980835f5f36103a657ff',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'ivanm/eshop-pps' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '3127d9cdf8058dbb6af4465fd7684063fc5514ed',
+            'reference' => '61e735b35e6dec4347e6980835f5f36103a657ff',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

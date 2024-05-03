@@ -1,19 +1,9 @@
 <?php
 
-	/**
-	 * Gestión de la conexión a la base de datos utilizando PDO.
-	 *
-	 * Utiliza variables de entorno para configurar la conexión de manera segura.
-	 * Establece opciones de PDO para mejorar la seguridad y la eficiencia en el manejo de la base de datos.
-	 */
+class database
+{
 
-	/**
-	 * Retorna una conexión segura a la base de datos.
-	 *
-	 * @return PDO Objeto PDO para la conexión a la base de datos.
-	 * @throws PDOException Si la conexión falla, se maneja lanzando una excepción.
-	 */
-	function GetDatabaseConnection(): PDO
+	public static function LoadDatabase()
 	{
 		$Server       = getenv('DB_HOST') ?: '192.168.56.200';
 		$DatabaseName = getenv('DB_NAME') ?: 'eshop_pps';
@@ -40,4 +30,7 @@
 			die('Error de conexión con la base de datos.');
 		}
 
+
 	}
+
+}

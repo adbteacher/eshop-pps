@@ -8,10 +8,15 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>Cambio de Contraseña</h1>
 
-    </div>
+<?php
+	include "../nav.php";
+?>
+
+<div class="container">
+    <h1>Cambio de Contraseña</h1>
+
+</div>
 </body>
 
 </html>
