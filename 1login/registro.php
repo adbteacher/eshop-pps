@@ -43,6 +43,11 @@
     <title>Registro de Usuario</title>
 </head>
 <body>
+
+<?php
+	include "../nav.php";
+?>
+
 <div class="form-box">
     <h1>Registro de Usuario</h1>
     <form method="post">
