@@ -86,7 +86,7 @@
                 <?php echo $address['addr_line1']; ?>
                 <?php echo $address['addr_line2'] ? ', ' . $address['addr_line2'] : ''; ?>
                 <br>
-                <?php echo $address['addr_city'] . ', ' . $address['addr_state'] . ' ' . $address['addr_postal_code']; ?>
+                <?php echo $address['adr_city'] . ', ' . $address['adr_state'] . ' ' . $address['adr_postal_code']; ?>
                 <br>
                 <?php echo $address['addr_country']; ?>
                 <?php if ($address['addr_is_main']) : ?>

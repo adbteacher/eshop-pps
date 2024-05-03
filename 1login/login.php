@@ -53,6 +53,11 @@
     <title>Login</title>
 </head>
 <body>
+
+<?php
+	include "../nav.php";
+?>
+
 <div class="form-box">
     <h1>Iniciar Sesión</h1>
     <form method="post">
