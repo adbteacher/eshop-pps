@@ -1,4 +1,5 @@
 <?php
+
 	/**
 	 * Gestión de la conexión a la base de datos utilizando PDO.
 	 *
@@ -14,10 +15,10 @@
 	 */
 	function GetDatabaseConnection(): PDO
 	{
-		$Server       = getenv('DB_HOST') ?: 'localhost';
+		$Server       = getenv('DB_HOST') ?: '192.168.56.200';
 		$DatabaseName = getenv('DB_NAME') ?: 'eshop_pps';
 		$User         = getenv('DB_USER') ?: 'root';
-		$Password     = getenv('DB_PASSWORD') ?: '';
+		$Password     = getenv('DB_PASSWORD') ?: 'Desarrollo@2404';
 		$Charset      = 'utf8mb4';
 
 		$Dsn = "mysql:host=$Server;dbname=$DatabaseName;charset=$Charset";
@@ -38,4 +39,5 @@
 			error_log('Error de conexión: ' . $e->getMessage());
 			die('Error de conexión con la base de datos.');
 		}
+
 	}

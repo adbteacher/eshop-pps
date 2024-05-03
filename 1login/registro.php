@@ -1,31 +1,37 @@
 <?php
-session_start();
-require_once 'funciones.php';
+	session_start();
+	require_once 'funciones.php';
 
-AddSecurityHeaders();
+	AddSecurityHeaders();
 
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+	if (empty($_SESSION['csrf_token']))
+	{
+		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+	}
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        echo "Error en la validación CSRF.";
-        exit;
-    }
+	if ($_SERVER["REQUEST_METHOD"] == "POST")
+	{
+		if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']))
+		{
+			echo "Error en la validación CSRF.";
+			exit;
+		}
 
-    $Username = SanitizeInput($_POST['username']);
-    $Password = SanitizeInput($_POST['password']);
+		$Email    = SanitizeInput($_POST['email']); // Cambio de 'username' a 'email'
+		$Password = SanitizeInput($_POST['password']);
 
-    if (RegisterUser($Username, $Password)) {
-        echo "Usuario registrado con éxito.<br>";
-        echo "Redireccionando a la página de login...";
-        header('Refresh: 2; URL=login.php');
-        exit;
-    } else {
-        echo "Error al registrar el usuario o el usuario ya existe.";
-    }
-}
+		if (RegisterUser($Email, $Password))
+		{ // Cambio a función actualizada
+			echo "Usuario registrado con éxito.<br>";
+			echo "Redireccionando a la página de login...";
+			header('Refresh: 2; URL=login.php');
+			exit;
+		}
+		else
+		{
+			echo "Error al registrar el usuario o el usuario ya existe.";
+		}
+	}
 
 ?>
 
@@ -37,14 +43,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Registro de Usuario</title>
 </head>
 <body>
-    <div class="form-box">
-        <h1>Registro de Usuario</h1>
-        <form method="post">
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-            Nombre de usuario: <input type="text" name="username" required><br>
-            Contraseña: <input type="password" name="password" required><br>
-            <input type="submit" value="Registrar">
-        </form>
-    </div>
+
+<?php
+	include "../nav.php";
+?>
+
+<div class="form-box">
+    <h1>Registro de Usuario</h1>
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+        <label for="email">Correo electrónico:</label>
+        <input type="email" id="email" name="email" required><br>
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required><br>
+        <input type="submit" value="Registrar">
+    </form>
+</div>
 </body>
 </html>
