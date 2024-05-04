@@ -26,7 +26,7 @@
                 exit;
                 break;
             case 'productos':
-                header("Location: gestion_productos.php");
+                header("Location: Gestion_Prod.php");
                 exit;
                 break;
             case 'analisis':

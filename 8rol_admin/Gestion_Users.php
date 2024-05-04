@@ -4,7 +4,7 @@ require_once 'database.php'; // Incluye el archivo de conexión PDO
 // Obtener una conexión a la base de datos
 $conexion = database::LoadDatabase();
 
-function validarSQL($cadena) {
+/*function validarSQL($cadena) {
     // Lista de palabras reservadas de SQL
     $palabrasReservadas = array("SELECT", "INSERT", "UPDATE", "DELETE", "FROM", "WHERE", "DROP", "UNION", "TABLE", "DATABASE", "ORDER BY", "GROUP BY", "HAVING", "JOIN", "INNER JOIN", "LEFT JOIN", "RIGHT JOIN", "ON", "AND", "OR", "LIMIT");
 
@@ -18,7 +18,7 @@ function validarSQL($cadena) {
         }
     }
     return false;
-}
+}*/
 
 // Mostrar la lista de usuarios
 function MostrarUsuarios($conexion) {
@@ -45,6 +45,12 @@ function MostrarUsuarios($conexion) {
             echo "<button type='submit'>Modificar</button>"; // Botón para enviar el formulario
             echo "</form>";
             echo "</td>";
+            echo "<td>";
+            echo "<form method='post'>";
+            echo "<input type='hidden' name='idUsuario' value='{$row['usu_id']}'>"; // Campo oculto para enviar el ID del usuario
+            echo "<button type='submit' name='eliminarUsuario'>Eliminar</button>"; // Botón para enviar el formulario de eliminación
+            echo "</form>";
+            echo "</td>";
             echo "</tr>";
         }
         echo "</table>";
@@ -53,8 +59,8 @@ function MostrarUsuarios($conexion) {
     }
 }
 
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -97,25 +103,47 @@ function MostrarUsuarios($conexion) {
         <br><br>
         <button type="submit" id="btnCrearUsuario" name="crearUsuario">Crear Usuario</button>
     </form>
-    
+    <?php
+    // Procesar la eliminación de usuarios si se ha enviado un formulario para eliminar
+if (isset($_POST['eliminarUsuario'])) {
+    if (isset($_POST['idUsuario']) && !empty($_POST['idUsuario'])) {
+        // Establecer conexión a la base de datos
+        require_once 'database.php';
+        $conexion = database::LoadDatabase();
+
+        // Obtener el ID del usuario a eliminar
+        $idUsuario = $_POST['idUsuario'];
+
+        try {
+            // Eliminar usuario de la base de datos
+            $query = "DELETE FROM pps_users WHERE usu_id = ?";
+            $stmt = $conexion->prepare($query);
+            $stmt->execute([$idUsuario]);
+
+            echo "Usuario eliminado exitosamente.";
+        } catch (Exception $e) {
+            echo "Error al eliminar usuario: " . $e->getMessage();
+        }
+
+        // Cerrar la conexión
+        $conexion = null;
+    } else {
+        echo "No se proporcionó un ID de usuario válido.";
+    }
+}
+?>
     <script>
-    $(document).ready(function(){
-        // AJAX para enviar el formulario de creación de usuario
-        $("#formCrearUsuario").submit(function(event){
-            event.preventDefault(); // Evita que el formulario se envíe normalmente
-
-            // Serializar el formulario
-            var formData = $(this).serialize();
-
-            // Enviar la solicitud AJAX
+   $(document).ready(function(){
+        // AJAX para enviar el formulario de modificación de usuario
+        $("#btnCrearUsuario").click(function(){
             $.ajax({
                 url: "crear_usuario.php", // Ruta del archivo PHP que procesa el formulario
                 type: "POST",
-                data: formData, // Datos del formulario serializados
+                data: $("#formCrearUsuario").serialize(), // Serializar el formulario
                 success: function(response){
                     alert(response); // Mostrar mensaje de respuesta
-                    // Recargar la página para actualizar la tabla de usuarios
-                    location.reload();
+                    // Redireccionar a la página de administración de usuarios
+                    window.location.href = "Gestion_Users.php";
                 }
             });
         });
