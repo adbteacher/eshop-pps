@@ -1,7 +1,9 @@
 <?php
 	session_start();
+	require_once("../vendor/autoload.php");
+	require_once("../autoload.php");
+
 	require_once 'funciones.php';
-	require_once 'db.php';
 
 	AddSecurityHeaders();
 
@@ -17,40 +19,48 @@
 
 		CheckLoginAttempts($Email);  // Asegúrate de pasar el correo electrónico como argumento.
 
-		if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']))
-		{
-			echo "Error en la validación CSRF.";
-			exit;
-		}
+		//if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']))
+		//{
+		//	echo "Error en la validación CSRF.";
+		//	exit;
+		//}
 
-		$LoginSuccessful = VerifyUser($Email, $Password);
-		LogAttempt($Email, $LoginSuccessful === "Inicio de sesión exitoso.");
+		$LoginSuccessful = VerifyUser($Email, $Password, $msg);
+		LogAttempt($Email, $LoginSuccessful);
 
-		if ($LoginSuccessful === "Inicio de sesión exitoso.")
+		if ($LoginSuccessful)
 		{
-			$_SESSION['email'] = $Email;  // Usa el email para identificar al usuario en la sesión.
+			$User = getUserByEmail($Email);
+
+			$_SESSION["UserID"]    = $User["usu_id"];
+			$_SESSION["UserName"]  = $User["usu_name"];
+			$_SESSION["UserEmail"] = $User["usu_email"];
+
 			if (Has2FA($Email))
-			{  // Asegúrate de que Has2FA pueda manejar la búsqueda por correo, no por username.
+			{
 				header('Location: verify_2fa.php');
+				exit;
 			}
 			else
 			{
 				header('Location: ../index.php');
+				exit;
 			}
-			exit;
 		}
 		else
 		{
-			echo $LoginSuccessful;
+			echo $msg;
 		}
 	}
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="stylesheet" type="text/css" href="estilo.css">
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <!--    <link rel="stylesheet" type="text/css" href="estilo.css">-->
 </head>
 <body>
 
@@ -71,6 +81,9 @@
         <input type="password" name="password" id="password" required>
         <input type="submit" value="Iniciar Sesión">
     </form>
+    <a href="/3register/register.form.php">¿No tienes cuenta? ¡Regístrate!</a>
 </div>
+
 </body>
+
 </html>

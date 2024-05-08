@@ -1,9 +1,15 @@
-<style>
-    /* Alineación a la derecha del perfil */
-    .profile-user {
-        margin-left: auto; /* Empuja el resto a la izquierda, alinea este ítem a la derecha */
+<?php
+    if ($_SESSION["UserID"])
+	{
+        $NameToDisplay = $_SESSION["UserName"];
     }
+    else
+	{
+        $NameToDisplay = "Invitado";
+    }
+    ?>
 
+<style>
     /* Estilo para la imagen del perfil */
     .profile-image {
         width: 40px; /* Tamaño de la imagen */
@@ -20,7 +26,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="#">Categorias</a>
                 </li>
@@ -30,10 +36,15 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/3register/register.form.php">Registro</a>
                 </li>
-                <li class="nav-item, profile-user">
-                    <a href="/4profile/usu_info.php">
+                <li class="nav-item">
+                    <a class="nav-link" href="/1login/login.php">Login</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/4profile/usu_info.php">
                         <img src="/0images/default_user.png" alt="User" class="profile-image">
-                        Perfil
+                        <?php echo $NameToDisplay ?>
                     </a>
                 </li>
             </ul>

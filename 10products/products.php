@@ -1,17 +1,20 @@
 <?php
+	session_start();
 
-    require_once "../Functions.php";
+	require_once("../vendor/autoload.php");
+	require_once("../autoload.php");
 
-    $Error = "<h1>Permission denied</h1>";
+	$_SESSION["test"] = "test";
 
-	$Allowed = Functions::HasPermissions("A", "products.php");
+	$Error = "<h1>Permission denied</h1>";
 
-    if (!$Allowed)
+	$Allowed = functions::HasPermissions("A", "products.php");
+
+	if (!$Allowed)
 	{
-        echo $Error;
-    }
+		echo $Error;
+	}
 ?>
-
 
 <!DOCTYPE html>
 <html lang="es">
@@ -26,8 +29,9 @@
 <body>
 
 <?php
-    include "../nav.php";
+	include "../nav.php";
 ?>
+<script> console.log('<?php echo($_SESSION["test"])?>')</script>
 
 <div class="container mt-4">
     <div class="jumbotron">
@@ -72,7 +76,7 @@
     </div>
 </div>
 
-<!--<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>-->
+<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

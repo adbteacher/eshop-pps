@@ -1,7 +1,6 @@
 <?php
 	session_start();
 	require_once 'funciones.php';
-	require_once 'vendor/autoload.php';
 
 	use RobThree\Auth\TwoFactorAuth;
 
@@ -35,7 +34,7 @@
 
 	function UpdateUser2FASecret($Username, $Secret): bool
 	{
-		$Connection = GetDatabaseConnection();
+		$Connection = database::LoadDatabase();
 		$Query      = $Connection->prepare("UPDATE pps_users SET usu_verification_code = ? WHERE usu_name = ?");
 		$Query->bindParam(1, $Secret);
 		$Query->bindParam(2, $Username);

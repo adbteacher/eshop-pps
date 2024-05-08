@@ -75,13 +75,22 @@
 	);
 
 ?>
-<script type="text/javascript">
-	radiobtn = document.getElementById("UserType_Cus");
-	radiobtn.checked = true;
-</script>
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Registro</title>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+
 <?php
 	include "../nav.php";
 ?>
+
 <div class="RegisterForm">
     <form method="post" action="register.php">
         <input type="hidden" name="action" value="register"/>
@@ -90,8 +99,11 @@
             <input type="radio" name="UserType" value="cus" id="UserType_Cus" checked><label for="UserType_Cus"><?php echo _('Cliente'); ?></label>
             <input type="radio" name="UserType" value="com" id="UserType_Com"><label for="UserType_Com"><?php echo _('Empresa'); ?></label>
         </div>
+
         <div id="FormFields">
             <h2 id="FormTitle"><?php echo _('Registro de Usuario'); ?></h2>
+            <h3 id="HelpText">Para Usuarios, no rellenar: Nombre de empresa, CIF, Página Web </h3>
+            <h4 id="HelpText">La contraseña pide 8 caracteres, mayus, mins, números y símbolos (.+-*) </h4>
             <ul>
 				<?php
 					foreach ($Fields as $Key => $Value)
@@ -117,15 +129,26 @@
         </div>
     </form>
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script type="text/javascript">
+	radiobtn = document.getElementById("UserType_Cus");
+	radiobtn.checked = true;
+</script>
+
 <script type="text/javascript">
 	jQuery(document).ready(function ($) {
 		$('li.hidden > input').removeAttr('required');
-		$('input[name="UserType"').change(function () {
-			$('li[data-form="cus"').toggleClass('hidden');
-			$('li[data-form="com"').toggleClass('hidden');
+		$('input[name="UserType"]').change(function () {
+			$('li[data-form="cus"]').toggleClass('hidden');
+			$('li[data-form="com"]').toggleClass('hidden');
 			$('input[data-required="true"]').attr('required', 'true');
 			$('li.hidden > input').removeAttr('required');
 		});
 	});
 </script>
+
+</body>
+
+</html>

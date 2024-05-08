@@ -1,5 +1,6 @@
 <?php
-	require_once 'db.php';
+
+	session_start();
 
 	use RobThree\Auth\TwoFactorAuth;
 
@@ -22,7 +23,7 @@
 
 	function CheckLoginAttempts($Email): void
 	{
-		$Connection = GetDatabaseConnection();
+		$Connection = database::LoadDatabase();
 		$Ip         = $_SERVER['REMOTE_ADDR'];
 		$UserId     = GetUserIdByEmail($Email);
 
@@ -46,13 +47,31 @@
 		// Si se han registrado 5 o más intentos fallidos, se restringe el acceso.
 		if ($Attempts >= $MaxAttempts)
 		{
-			die("Demasiados intentos de inicio de sesión fallidos. Intente más tarde.");
+			die("Demasiados intentos de inicio de sesión fallidos. Intentelo de nuevo más tarde.");
+		}
+	}
+
+	function GetUserByEmail($Email): array
+	{
+		$Connection = database::LoadDatabase();
+		$Query      = $Connection->prepare("SELECT * FROM pps_users WHERE usu_email = ?");
+		$Query->bindParam(1, $Email);
+		try
+		{
+			$Query->execute();
+			$Result = $Query->fetch(PDO::FETCH_ASSOC);
+			return $Result;
+		}
+		catch (PDOException $e)
+		{
+			error_log("Error al obtener el usuario: " . $e->getMessage());
+			return false;
 		}
 	}
 
 	function GetUserIdByEmail($Email): int
 	{
-		$Connection = GetDatabaseConnection();
+		$Connection = database::LoadDatabase();
 		$Query      = $Connection->prepare("SELECT usu_id FROM pps_users WHERE usu_email = ?");
 		$Query->bindParam(1, $Email);
 		try
@@ -70,7 +89,7 @@
 
 	function UserExistsByEmail($Email): bool
 	{
-		$Connection = GetDatabaseConnection();
+		$Connection = database::LoadDatabase();
 		$Query      = $Connection->prepare("SELECT COUNT(*) FROM pps_users WHERE usu_email = ?");
 		$Query->bindParam(1, $Email);
 		try
@@ -93,7 +112,7 @@
 			return false;
 		}
 
-		$Connection     = GetDatabaseConnection();
+		$Connection     = database::LoadDatabase();
 		$HashedPassword = password_hash($Password, PASSWORD_DEFAULT);
 		$Query          = $Connection->prepare("INSERT INTO pps_users (usu_email, usu_password) VALUES (?, ?)");
 		$Query->bindParam(1, $Email);
@@ -112,9 +131,9 @@
 		}
 	}
 
-	function VerifyUser($Email, $Password): string
+	function VerifyUser($Email, $Password, &$msg = ""): bool
 	{
-		$Connection = GetDatabaseConnection();
+		$Connection = database::LoadDatabase();
 		$Query      = $Connection->prepare("SELECT usu_password FROM pps_users WHERE usu_email = ?");
 		$Query->bindParam(1, $Email);
 		try
@@ -123,26 +142,29 @@
 			$Result = $Query->fetch(PDO::FETCH_ASSOC);
 			if (!$Result)
 			{
-				return "Usuario no encontrado.";
+				$msg = "Usuario no encontrado.";
+				return false;
 			}
 
 			if (!password_verify($Password, $Result['usu_password']))
 			{
-				return "Contraseña incorrecta.";
+				$msg = "Contraseña incorrecta.";
+				return false;
 			}
 
-			return "Inicio de sesión exitoso.";
+			return true;
 		}
 		catch (PDOException $e)
 		{
 			error_log("Error al verificar el usuario: " . $e->getMessage());
-			return "Error en la base de datos al verificar el usuario.";
+			$msg = "Error en la base de datos al verificar el usuario.";
+			return false;
 		}
 	}
 
 	function LogAttempt($Email, $Success): void
 	{
-		$Connection = GetDatabaseConnection();
+		$Connection = database::LoadDatabase();
 		$Ip         = $_SERVER['REMOTE_ADDR'];
 		$Status     = $Success ? 1 : 0;
 
@@ -167,11 +189,11 @@
 
 
 	// Función para verificar si el usuario tiene 2FA activado
-	function Has2FA($Username): bool
+	function Has2FA($Email): bool
 	{
-		$Connection = GetDatabaseConnection();
-		$Query      = $Connection->prepare("SELECT usu_verification_code FROM pps_users WHERE usu_name = ?");
-		$Query->bindParam(1, $Username);
+		$Connection = database::LoadDatabase();
+		$Query      = $Connection->prepare("SELECT usu_verification_code FROM pps_users WHERE usu_email = ?");
+		$Query->bindParam(1, $Email);
 		try
 		{
 			$Query->execute();

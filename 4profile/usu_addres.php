@@ -1,5 +1,4 @@
 <?php
-	require_once 'db.php';
 	session_start();
 
 	// Verificar si el usuario está autenticado
@@ -15,7 +14,7 @@
 	// Función para obtener las direcciones del usuario
 	function getUserAddresses($user_id): bool|array
 	{
-		$connection = GetDatabaseConnection();
+		$connection = database::LoadDatabase();
 		$sql        = "SELECT * FROM pps_addresses_per_user WHERE adr_user = ?";
 		$stmt       = $connection->prepare($sql);
 		$stmt->execute([$user_id]);
@@ -37,7 +36,7 @@
 
 
 		// Insertar la nueva dirección en la base de datos
-		$connection = GetDatabaseConnection();
+		$connection = database::LoadDatabase();
 		$sql        = "INSERT INTO pps_addresses_per_user (adr_user, adr_line1, adr_line2, adr_city, adr_state, adr_postal_code, adr_country) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		$stmt       = $connection->prepare($sql);
 		$stmt->execute([$user_id, $line1, $line2, $city, $state, $postal_code, $country]);
@@ -53,7 +52,7 @@
 		$main_address_id = $_POST['main_address_id'];
 
 		// Marcar todas las direcciones del usuario como no principales
-		$connection = GetDatabaseConnection();
+		$connection = database::LoadDatabase();
 		$sql        = "UPDATE pps_addresses_per_user SET adr_is_main = 0 WHERE adr_user = ?";
 		$stmt       = $connection->prepare($sql);
 		$stmt->execute([$user_id]);
@@ -74,7 +73,7 @@
 		$address_id = $_POST['delete_address_id'];
 
 		// Eliminar la dirección de la base de datos
-		$connection = GetDatabaseConnection();
+		$connection = database::LoadDatabase();
 		$sql        = "DELETE FROM pps_addresses_per_user WHERE adr_id = ?";
 		$stmt       = $connection->prepare($sql);
 		$stmt->execute([$address_id]);
