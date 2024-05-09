@@ -1,0 +1,15 @@
+{
+    "name": "ivanm/eshop-pps",
+    "description": "tienda pps",
+    "authors": [
+        {
+            "name": "Ivan",
+            "email": "ivanmarmi@hotmail.es"
+        }
+    ],
+    "require": {
+        "twbs/bootstrap": "^5.3",
+        "robthree/twofactorauth": "^2.1",
+      "ext-pdo": "*"
+    }
+}
