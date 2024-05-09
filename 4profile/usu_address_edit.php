@@ -9,7 +9,7 @@
 
 <body>
     <?php
-    require_once 'db.php';
+    require_once '../Database.php';
 
     // Función de limpieza:
     function cleanInput($input)
@@ -25,60 +25,60 @@
     $edit_address_id = isset($_POST['edit_address_id']) ? cleanInput($_POST['edit_address_id']) : '';
 
     // Obtener los detalles de la dirección a editar
-    $edit_address = null;
+    $edit_adress = null;
     if (!empty($edit_address_id)) {
-        $connection = GetDatabaseConnection();
-        $sql = "SELECT * FROM pps_user_addresses WHERE addr_id = ?";
+        $connection = database::LoadDatabase();
+        $sql = "SELECT * FROM pps_addresses_per_user WHERE adr_id = ?";
         $stmt = $connection->prepare($sql);
         $stmt->execute([$edit_address_id]);
-        $edit_address = $stmt->fetch(PDO::FETCH_ASSOC);
+        $edit_adress = $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     // Manejar el envío del formulario para actualizar la dirección
-    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitUpdateAddress'])) {
-        $line1 = isset($_POST['addr_line1']) ? cleanInput($_POST['addr_line1']) : '';
-        $line2 = isset($_POST['addr_line2']) ? cleanInput($_POST['addr_line2']) : '';
-        $city = isset($_POST['addr_city']) ? cleanInput($_POST['addr_city']) : '';
-        $state = isset($_POST['addr_state']) ? cleanInput($_POST['addr_state']) : '';
-        $postal_code = isset($_POST['addr_postal_code']) ? cleanInput($_POST['addr_postal_code']) : '';
-        $country = isset($_POST['addr_country']) ? cleanInput($_POST['addr_country']) : '';
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitUpdateadress'])) {
+        $line1 = isset($_POST['adr_line1']) ? cleanInput($_POST['adr_line1']) : '';
+        $line2 = isset($_POST['adr_line2']) ? cleanInput($_POST['adr_line2']) : '';
+        $city = isset($_POST['adr_city']) ? cleanInput($_POST['adr_city']) : '';
+        $state = isset($_POST['adr_state']) ? cleanInput($_POST['adr_state']) : '';
+        $postal_code = isset($_POST['adr_postal_code']) ? cleanInput($_POST['adr_postal_code']) : '';
+        $country = isset($_POST['adr_country']) ? cleanInput($_POST['adr_country']) : '';
 
         // Actualizar la dirección en la base de datos
-        $sql = "UPDATE pps_user_addresses SET addr_line1 = ?, addr_line2 = ?, addr_city = ?, addr_state = ?, addr_postal_code = ?, addr_country = ? WHERE addr_id = ?";
+        $sql = "UPDATE pps_addresses_per_user SET adr_line1 = ?, adr_line2 = ?, adr_city = ?, adr_state = ?, adr_postal_code = ?, adr_country = ? WHERE adr_id = ?";
         $stmt = $connection->prepare($sql);
         $stmt->execute([$line1, $line2, $city, $state, $postal_code, $country, $edit_address_id]);
 
         // Redireccionar a la página para evitar el reenvío del formulario
-        header("Location: usu_addres.php");
+        header("Location: usu_adres.php");
         exit;
     }
     ?>
 
     <h1>Editar Dirección</h1>
 
-    <?php if ($edit_address) : ?>
+    <?php if ($edit_adress) : ?>
         <!-- Formulario para editar la dirección -->
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-            <input type="hidden" name="edit_address_id" value="<?php echo $edit_address['addr_id']; ?>">
-            <label for="addr_line1">Línea 1:</label>
-            <input type="text" name="addr_line1" value="<?php echo $edit_address['addr_line1']; ?>" required>
+            <input type="hidden" name="edit_address_id" value="<?php echo $edit_adress['adr_id']; ?>">
+            <label for="adr_line1">Línea 1:</label>
+            <input type="text" name="adr_line1" value="<?php echo $edit_adress['adr_line1']; ?>" required>
             <br>
-            <label for="addr_line2">Línea 2:</label>
-            <input type="text" name="addr_line2" value="<?php echo $edit_address['addr_line2']; ?>">
+            <label for="adr_line2">Línea 2:</label>
+            <input type="text" name="adr_line2" value="<?php echo $edit_adress['adr_line2']; ?>">
             <br>
-            <label for="addr_city">Ciudad:</label>
-            <input type="text" name="addr_city" value="<?php echo $edit_address['addr_city']; ?>" required>
+            <label for="adr_city">Ciudad:</label>
+            <input type="text" name="adr_city" value="<?php echo $edit_adress['adr_city']; ?>" required>
             <br>
-            <label for="addr_state">Estado:</label>
-            <input type="text" name="addr_state" value="<?php echo $edit_address['addr_state']; ?>">
+            <label for="adr_state">Estado:</label>
+            <input type="text" name="adr_state" value="<?php echo $edit_adress['adr_state']; ?>">
             <br>
-            <label for="addr_postal_code">Código Postal:</label>
-            <input type="text" name="addr_postal_code" value="<?php echo $edit_address['addr_postal_code']; ?>" required>
+            <label for="adr_postal_code">Código Postal:</label>
+            <input type="text" name="adr_postal_code" value="<?php echo $edit_adress['adr_postal_code']; ?>" required>
             <br>
-            <label for="addr_country">País:</label>
-            <input type="text" name="addr_country" value="<?php echo $edit_address['addr_country']; ?>" required>
+            <label for="adr_country">País:</label>
+            <input type="text" name="adr_country" value="<?php echo $edit_adress['adr_country']; ?>" required>
             <br>
-            <button type="submit" name="submitUpdateAddress">Actualizar Dirección</button>
+            <button type="submit" name="submitUpdateadress">Actualizar Dirección</button>
         </form>
     <?php else : ?>
         <p>No se pudo encontrar la dirección para editar.</p>

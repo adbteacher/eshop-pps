@@ -9,7 +9,7 @@
 
 <body>
     <?php
-    require_once 'db.php';
+    require_once '../Database.php';
 
     // Función de limpieza:
     function cleanInput($input)
@@ -22,26 +22,26 @@
     }
 
     // Función para añadir una nueva dirección
-    function addNewAddress($user_id, $line1, $line2, $city, $state, $postal_code, $country)
+    function addNewadress($user_id, $line1, $line2, $city, $state, $postal_code, $country)
     {
-        $connection = GetDatabaseConnection();
-        $sql = "INSERT INTO pps_user_addresses (addr_user_id, addr_line1, addr_line2, addr_city, addr_state, addr_postal_code, addr_country) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $connection = database::LoadDatabase();
+        $sql = "INSERT INTO pps_addresses_per_user (adr_user, adr_line1, adr_line2, adr_city, adr_state, adr_postal_code, adr_country) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $connection->prepare($sql);
         $stmt->execute([$user_id, $line1, $line2, $city, $state, $postal_code, $country]);
     }
 
     // Manejar el envío del formulario para añadir una nueva dirección
-    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitNewAddress'])) {
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitNewadress'])) {
         $user_id = '1'; // Obtener el ID del usuario de alguna manera
-        $line1 = isset($_POST['addr_line1']) ? cleanInput($_POST['addr_line1']) : '';
-        $line2 = isset($_POST['addr_line2']) ? cleanInput($_POST['addr_line2']) : '';
-        $city = isset($_POST['addr_city']) ? cleanInput($_POST['addr_city']) : '';
-        $state = isset($_POST['addr_state']) ? cleanInput($_POST['addr_state']) : '';
-        $postal_code = isset($_POST['addr_postal_code']) ? cleanInput($_POST['addr_postal_code']) : '';
-        $country = isset($_POST['addr_country']) ? cleanInput($_POST['addr_country']) : '';
+        $line1 = isset($_POST['adr_line1']) ? cleanInput($_POST['adr_line1']) : '';
+        $line2 = isset($_POST['adr_line2']) ? cleanInput($_POST['adr_line2']) : '';
+        $city = isset($_POST['adr_city']) ? cleanInput($_POST['adr_city']) : '';
+        $state = isset($_POST['adr_state']) ? cleanInput($_POST['adr_state']) : '';
+        $postal_code = isset($_POST['adr_postal_code']) ? cleanInput($_POST['adr_postal_code']) : '';
+        $country = isset($_POST['adr_country']) ? cleanInput($_POST['adr_country']) : '';
 
         // Añadir la nueva dirección a la base de datos
-        addNewAddress($user_id, $line1, $line2, $city, $state, $postal_code, $country);
+        addNewadress($user_id, $line1, $line2, $city, $state, $postal_code, $country);
 
         // Redireccionar a la página para evitar el reenvío del formulario
         header("Location: usu_addres.php");
@@ -52,25 +52,25 @@
     <!-- Formulario para añadir una nueva dirección -->
     <h1>Añadir Nueva Dirección</h1>
     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-        <label for="addr_line1">Línea 1:</label>
-        <input type="text" name="addr_line1" required>
+        <label for="adr_line1">Línea 1:</label>
+        <input type="text" name="adr_line1" required>
         <br>
-        <label for="addr_line2">Línea 2:</label>
-        <input type="text" name="addr_line2">
+        <label for="adr_line2">Línea 2:</label>
+        <input type="text" name="adr_line2">
         <br>
-        <label for="addr_city">Ciudad:</label>
-        <input type="text" name="addr_city" required>
+        <label for="adr_city">Ciudad:</label>
+        <input type="text" name="adr_city" required>
         <br>
-        <label for="addr_state">Estado:</label>
-        <input type="text" name="addr_state">
+        <label for="adr_state">Estado:</label>
+        <input type="text" name="adr_state">
         <br>
-        <label for="addr_postal_code">Código Postal:</label>
-        <input type="text" name="addr_postal_code" required>
+        <label for="adr_postal_code">Código Postal:</label>
+        <input type="text" name="adr_postal_code" required>
         <br>
-        <label for="addr_country">País:</label>
-        <input type="text" name="addr_country" required>
+        <label for="adr_country">País:</label>
+        <input type="text" name="adr_country" required>
         <br>
-        <button type="submit" name="submitNewAddress">Añadir Dirección</button>
+        <button type="submit" name="submitNewadress">Añadir Dirección</button>
     </form>
 </body>
 

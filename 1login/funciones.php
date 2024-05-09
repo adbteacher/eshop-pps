@@ -35,7 +35,8 @@ function SanitizeInput($Input): string
  * @param string $Email Email del usuario a buscar.
  * @return int ID del usuario o 0 si no se encuentra.
  */
-function GetUserIdByEmail($Email) {
+function GetUserIdByEmail($Email)
+{
     $Connection = GetDatabaseConnection();  // Obtiene la conexión a la base de datos
     $Query = $Connection->prepare("SELECT usu_id FROM pps_users WHERE usu_email = ?");  // Prepara la consulta SQL
     $Query->bindParam(1, $Email);
@@ -203,11 +204,11 @@ function LogAttempt($Email, $Success): void
  * @param string $Username Nombre de usuario a verificar.
  * @return bool Verdadero si el usuario tiene 2FA activado, falso si no.
  */
-function Has2FA($Username): bool
+function Has2FA($Email): bool
 {
     $Connection = GetDatabaseConnection();  // Obtiene la conexión a la base de datos
     $Query = $Connection->prepare("SELECT usu_verification_code FROM pps_users WHERE usu_name = ?");  // Prepara la consulta SQL
-    $Query->bindParam(1, $Username);
+    $Query->bindParam(1, $Email);
     try {
         $Query->execute();
         $Result = $Query->fetch(PDO::FETCH_ASSOC);

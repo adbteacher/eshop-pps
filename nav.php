@@ -1,15 +1,20 @@
 <style>
     /* Alineación a la derecha del perfil */
     .profile-user {
-        margin-left: auto; /* Empuja el resto a la izquierda, alinea este ítem a la derecha */
+        margin-left: auto;
+        /* Empuja el resto a la izquierda, alinea este ítem a la derecha */
     }
 
     /* Estilo para la imagen del perfil */
     .profile-image {
-        width: 40px; /* Tamaño de la imagen */
-        height: 40px; /* Altura de la imagen */
-        border-radius: 50%; /* Hace que la imagen sea un círculo */
-        margin-right: 5px; /* Espacio entre la imagen y el texto */
+        width: 40px;
+        /* Tamaño de la imagen */
+        height: 40px;
+        /* Altura de la imagen */
+        border-radius: 50%;
+        /* Hace que la imagen sea un círculo */
+        margin-right: 5px;
+        /* Espacio entre la imagen y el texto */
     }
 </style>
 
@@ -31,7 +36,7 @@
                     <a class="nav-link" href="#">Carrito</a>
                 </li>
                 <li class="nav-item, profile-user">
-                    <a href="/4profile/usu_info.php">
+                    <a href="../4profile/usu_info.php">
                         <img src="/0images/default_user.png" alt="User" class="profile-image">
                         Perfil
                     </a>

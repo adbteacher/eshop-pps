@@ -5,10 +5,10 @@ class database
 
 	public static function LoadDatabase()
 	{
-		$Server       = getenv('DB_HOST') ?: '192.168.56.200';
+		$Server       = getenv('DB_HOST') ?: 'localhost';
 		$DatabaseName = getenv('DB_NAME') ?: 'eshop_pps';
 		$User         = getenv('DB_USER') ?: 'root';
-		$Password     = getenv('DB_PASSWORD') ?: 'Desarrollo@2404';
+		$Password     = getenv('DB_PASSWORD') ?: '';
 		$Charset      = 'utf8mb4';
 
 		$Dsn = "mysql:host=$Server;dbname=$DatabaseName;charset=$Charset";
@@ -19,18 +19,12 @@ class database
 			PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 		];
 
-		try
-		{
+		try {
 			$Connection = new PDO($Dsn, $User, $Password, $Options);
 			return $Connection;
-		}
-		catch (PDOException $e)
-		{
+		} catch (PDOException $e) {
 			error_log('Error de conexión: ' . $e->getMessage());
 			die('Error de conexión con la base de datos.');
 		}
-
-
 	}
-
 }

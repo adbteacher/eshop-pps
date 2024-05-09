@@ -1,5 +1,5 @@
 <?php
-require_once 'db.php';
+require_once '../Database.php';
 
 // Functions
 function cleanInput($input): array|string
@@ -24,7 +24,7 @@ if (
 	$UserId = isset($_POST['userId']) ? cleanInput($_POST['userId']) : ''; //
 
 	// Database connection
-	$connection = GetDatabaseConnection();
+	$connection = database::LoadDatabase();
 
 	// Query the information of the selected user using prepared statement
 	$sql  = "SELECT * FROM pps_users WHERE usu_id = ?";
@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 	$Phone    = isset($_POST['phone']) ? cleanInput($_POST['phone']) : '';
 
 	// Database connection
-	$connection = GetDatabaseConnection();
+	$connection = database::LoadDatabase();
 
 	// Update information in the database
 	// Prepare the SQL statement for updating user information

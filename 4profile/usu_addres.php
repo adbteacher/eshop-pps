@@ -10,7 +10,8 @@
 
 <body>
     <?php
-    require_once 'db.php';
+    require_once '../Database.php';
+
 
     // Provisional hasta tener la sesión del login.
     // TODO HACER CSRF TOKEN
@@ -29,8 +30,8 @@
     // Función para obtener las direcciones del usuario
     function getUserAddresses($user_id)
     {
-        $connection = GetDatabaseConnection();
-        $sql = "SELECT * FROM pps_user_addresses WHERE addr_user_id = ?";
+        $connection = database::LoadDatabase();
+        $sql = "SELECT * FROM pps_addresses_per_user WHERE adr_user = ?";
         $stmt = $connection->prepare($sql);
         $stmt->execute([$user_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -41,17 +42,17 @@
 
     // Manejar el envío del formulario para modificar la dirección principal
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitMainAddress'])) {
-        $connection = GetDatabaseConnection();
+        $connection = database::LoadDatabase();
 
         $main_address_id = isset($_POST['main_address_id']) ? cleanInput($_POST['main_address_id']) : '';
 
         // Marcar todas las direcciones del usuario como no principales
-        $sql = "UPDATE pps_user_addresses SET addr_is_main = 0 WHERE addr_user_id = ?";
+        $sql = "UPDATE pps_addresses_per_user SET adr_is_main = 0 WHERE adr_user = ?";
         $stmt = $connection->prepare($sql);
         $stmt->execute([$user_id]);
 
         // Marcar la dirección seleccionada como principal
-        $sql = "UPDATE pps_user_addresses SET addr_is_main = 1 WHERE addr_id = ?";
+        $sql = "UPDATE pps_addresses_per_user SET adr_is_main = 1 WHERE adr_id = ?";
         $stmt = $connection->prepare($sql);
         $stmt->execute([$main_address_id]);
 
@@ -62,12 +63,12 @@
 
     // Manejar el envío del formulario para eliminar una dirección
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitDeleteAddress'])) {
-        $connection = GetDatabaseConnection();
+        $connection = database::LoadDatabase();
 
         $address_id = isset($_POST['delete_address_id']) ? cleanInput($_POST['delete_address_id']) : '';
 
         // Eliminar la dirección de la base de datos
-        $sql = "DELETE FROM pps_user_addresses WHERE addr_id = ?";
+        $sql = "DELETE FROM pps_addresses_per_user WHERE adr_id = ?";
         $stmt = $connection->prepare($sql);
         $stmt->execute([$address_id]);
 
@@ -83,32 +84,32 @@
     <div class="address-container">
         <?php foreach ($addresses as $address) : ?>
             <div class="address">
-                <?php echo $address['addr_line1']; ?>
-                <?php echo $address['addr_line2'] ? ', ' . $address['addr_line2'] : ''; ?>
+                <?php echo $address['adr_line1']; ?>
+                <?php echo $address['adr_line2'] ? ', ' . $address['adr_line2'] : ''; ?>
                 <br>
                 <?php echo $address['adr_city'] . ', ' . $address['adr_state'] . ' ' . $address['adr_postal_code']; ?>
                 <br>
-                <?php echo $address['addr_country']; ?>
-                <?php if ($address['addr_is_main']) : ?>
+                <?php echo $address['adr_country']; ?>
+                <?php if ($address['adr_is_main']) : ?>
                     <strong class="custom-strong">(Principal)</strong>
                 <?php endif; ?>
                 <!-- Contenedor para los botones -->
                 <div class="button-container">
-                    <?php if (!$address['addr_is_main']) : ?>
+                    <?php if (!$address['adr_is_main']) : ?>
                         <!-- Botón para hacer esta dirección como principal -->
                         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                            <input type="hidden" name="main_address_id" value="<?php echo $address['addr_id']; ?>">
+                            <input type="hidden" name="main_address_id" value="<?php echo $address['adr_id']; ?>">
                             <button type="submit" name="submitMainAddress">Principal</button>
                         </form>
                     <?php endif; ?>
                     <!-- Botón para editar la dirección -->
                     <form method="post" action="usu_address_edit.php">
-                        <input type="hidden" name="edit_address_id" value="<?php echo $address['addr_id']; ?>">
+                        <input type="hidden" name="edit_address_id" value="<?php echo $address['adr_id']; ?>">
                         <button type="submit" name="submitEditAddress">Editar</button>
                     </form>
                     <!-- Botón para eliminar la dirección -->
                     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                        <input type="hidden" name="delete_address_id" value="<?php echo $address['addr_id']; ?>">
+                        <input type="hidden" name="delete_address_id" value="<?php echo $address['adr_id']; ?>">
                         <button type="submit" name="submitDeleteAddress">Eliminar</button>
                     </form>
                 </div>
