@@ -28,7 +28,7 @@
                     <a class="nav-link" href="#">Productos</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Carrito</a>
+                    <a class="nav-link" href="/3register/register.form.php">Registro</a>
                 </li>
                 <li class="nav-item, profile-user">
                     <a href="/4profile/usu_info.php">
