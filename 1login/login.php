@@ -59,7 +59,7 @@
     <title>Login</title>
 </head>
 <body>
-<div class="version">Versión 1.1</div>
+<div class="version">Versión 1.2</div>
 <div class="form-box">
     <h1>Iniciar Sesión</h1>
     <form method="post">
