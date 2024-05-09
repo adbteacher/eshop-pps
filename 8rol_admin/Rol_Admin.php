@@ -30,7 +30,7 @@
                 exit;
                 break;
             case 'analisis':
-                header("Location: analisis_reporting.php");
+                header("Location: Report.php");
                 exit;
                 break;
             default:

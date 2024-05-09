@@ -1,5 +1,5 @@
 <?php
-require_once 'database.php'; // Incluye el archivo de conexión PDO
+require_once '../Database.php'; // Incluye el archivo de conexión PDO
 
 // Obtener una conexión a la base de datos
 $conexion = database::LoadDatabase();
@@ -26,6 +26,7 @@ function MostrarUsuarios($conexion) {
     $stmt = $conexion->prepare($query);
     $stmt->execute();
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
 
     if ($result) {
         echo "<h2>Lista de Usuarios</h2>";
@@ -60,7 +61,7 @@ function MostrarUsuarios($conexion) {
 }
 
 ?>
-
+<button onclick="window.location.href='Rol_Admin.php'">Ir a Rol-Admin</button>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -103,12 +104,13 @@ function MostrarUsuarios($conexion) {
         <br><br>
         <button type="submit" id="btnCrearUsuario" name="crearUsuario">Crear Usuario</button>
     </form>
+    
     <?php
     // Procesar la eliminación de usuarios si se ha enviado un formulario para eliminar
 if (isset($_POST['eliminarUsuario'])) {
     if (isset($_POST['idUsuario']) && !empty($_POST['idUsuario'])) {
         // Establecer conexión a la base de datos
-        require_once 'database.php';
+        require_once '../Database.php';
         $conexion = database::LoadDatabase();
 
         // Obtener el ID del usuario a eliminar

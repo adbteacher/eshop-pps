@@ -1,5 +1,5 @@
 <?php
-require_once 'database.php'; // Incluye el archivo de conexión PDO
+require_once '../Database.php'; // Incluye el archivo de conexión PDO
 
 // Obtener el ID del usuario a modificar
 $idUsuario = $_POST['idUsuario'];

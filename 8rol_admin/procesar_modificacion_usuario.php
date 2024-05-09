@@ -1,5 +1,5 @@
 <?php
-require_once 'database.php'; // Incluye el archivo de conexión PDO
+require_once '../Database.php'; // Incluye el archivo de conexión PDO
 
 // Obtener una conexión a la base de datos
 $conexion = database::LoadDatabase();

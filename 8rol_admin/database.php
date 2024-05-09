@@ -8,7 +8,7 @@ class database
 		$Server       = getenv('DB_HOST') ?: 'localhost';
 		$DatabaseName = getenv('DB_NAME') ?: 'ceti';
 		$User         = getenv('DB_USER') ?: 'root';
-		$Password     = getenv('DB_PASSWORD') ?: '';
+		$Password     = getenv('DB_PASSWORD') ?: 'pps-2024';
 		$Charset      = 'utf8mb4';
 
 		$Dsn = "mysql:host=$Server;dbname=$DatabaseName;charset=$Charset";
