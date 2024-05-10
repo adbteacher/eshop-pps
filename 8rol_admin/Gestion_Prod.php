@@ -205,4 +205,5 @@ if (isset($_POST['eliminarProducto'])) {
 <?php
 // Cerrar la conexión
 $conexion = null;
+//hola
 ?>
