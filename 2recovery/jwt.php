@@ -1,6 +1,11 @@
 <?php
+
+/**
+ * This script is the library for generating the JWT Tokens
+ */
+
 session_start();
-require 'db.php'; // Includes the database connection
+require 'Database.php'; // Includes the database connection
 
 class JWTHandler
 {
