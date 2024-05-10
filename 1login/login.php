@@ -1,5 +1,5 @@
 <?php
-	session_start();  // Inicia o continúa una sesión existente
+	session_start();  // Inicia o continúa una sesión existente.
 	require_once 'funciones.php';  // Incluye las funciones auxiliares
 	require_once 'db.php';  // Incluye la conexión a la base de datos
 

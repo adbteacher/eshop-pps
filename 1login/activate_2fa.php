@@ -1,5 +1,5 @@
 <?php
-	session_start();  // Inicia o continúa una sesión existente
+	session_start();  // Inicia o continúa una sesión existente.
 	require_once 'funciones.php';  // Incluye funciones auxiliares y de seguridad
 	require_once '../vendor/autoload.php';  // Incluye el autoload de Composer para dependencias externas
 

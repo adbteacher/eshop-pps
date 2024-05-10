@@ -1,6 +1,6 @@
 <?php
 /**
- * Gestión de la conexión a la base de datos utilizando PDO.
+ * Gestión de la conexión a la base de datos utilizando PDO
  *
  * Utiliza variables de entorno para configurar la conexión de manera segura.
  * Establece opciones de PDO para mejorar la seguridad y la eficiencia en el manejo de la base de datos.

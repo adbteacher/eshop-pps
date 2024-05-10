@@ -1,7 +1,7 @@
 <?php
 
 /*Este archivo se eliminará cuando se implemente el login de JV. De momento sirve para registrar usuarios de manera
-muy rápida (solo pide correo y contraseña) y poder testear el login*/
+muy rápida (solo pide correo y contraseña) y poder testear el login.*/
 
 	session_start();
 	require_once 'funciones.php';

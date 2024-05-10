@@ -1,5 +1,5 @@
 <?php
-require_once 'db.php';  // Incluye el script de conexión a la base de datos
+require_once 'db.php';  // Incluye el script de conexión a la base de datos.
 require_once '../vendor/autoload.php';  // Autocargador para dependencias de Composer
 use RobThree\Auth\TwoFactorAuth;  // Uso de la biblioteca de autenticación de dos factores
 

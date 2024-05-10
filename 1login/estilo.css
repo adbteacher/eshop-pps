@@ -7,7 +7,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Asegura que el body tome toda la altura de la ventana */
+    height: 100vh; /* Asegura que el body tome toda la altura de la ventana. */
 }
 
 
