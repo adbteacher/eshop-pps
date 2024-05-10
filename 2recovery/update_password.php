@@ -1,7 +1,12 @@
 <?php
+
+/**
+ * This script manages updating a user's password.
+ * It verifies the provided JWT token and updates the password if the token is valid.
+ */
+
 require 'db.php';
 require 'jwt.php'; // JWT handling library
-
 session_start();
 
 if (isset($_POST['token']) && isset($_POST['password']) && isset($_POST['confirmPassword'])) {
@@ -17,6 +22,7 @@ if (isset($_POST['token']) && isset($_POST['password']) && isset($_POST['confirm
             echo "The password must be at least 8 characters long.";
             exit;
         }
+
         // Check if passwords match
         if ($password !== $confirmPassword) {
             echo "The passwords do not match.";
