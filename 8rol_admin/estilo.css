@@ -51,3 +51,9 @@ h1 {
 .card h2 {
     margin-top: 0;
 }
+.boton {
+    position: fixed;
+    bottom: 20px; /* Ajusta la distancia del botón desde la parte inferior */
+    right: 20px; /* Ajusta la distancia del botón desde el borde derecho */
+    z-index: 999; /* Ajusta la capa z para que esté sobre otros elementos */
+}
