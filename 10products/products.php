@@ -5,16 +5,21 @@
     // Github: @javiersureda
     // Youtube: @javiersureda3
 
+    //require_once "db.php"; // DB ANTIGUA
+
     require_once "../Functions.php";
-
+    
     $Error = "<h1>Permission denied</h1>";
-
-	$Allowed = Functions::HasPermissions("A", "products.php");
+/*
+    $Allowed = Functions::HasPermissions("A", "products.php");
 
     if (!$Allowed)
 	{
         echo $Error;
+        exit;
     }
+*/
+
 
 ?>
 <!DOCTYPE html>
@@ -45,7 +50,7 @@
 
     <body>
     <?php
-        include "../nav.php";
+        include "../nav.php"; // Incluye el Navbar
     ?>
 
         <div class="container mt-4">
@@ -57,13 +62,58 @@
                 <a class="btn btn-primary btn-lg mb-4" href="#" role="button">Ver Ofertas</a>
             </div>
 
+            <!-- Formulario de búsqueda de productos -->
+            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" class="mb-4">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Buscar por nombre" name="search_name">
+                    <input type="number" class="form-control" placeholder="Buscar por precio exacto" name="search_price">
+                    <select class="form-control" name="category">
+                        <option value="">Todas las categorías</option>
+                        <option value="1">Frutas</option>
+                        <option value="2">Verduras</option>
+                        <option value="3">Categoría 3</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">Buscar</button>
+                    </div>
+                </div>
+            </form>
+
             <div class="row row-cols-1 row-cols-md-3 g-4">
             <?php
-            $stmt = $Query->prepare("SELECT prd_name, prd_details, prd_image, prd_price, prd_stock, prd_id FROM pps_products");
+            // Conexión a la base de datos
+            $conn = database::LoadDatabase();
+            $stmt = $conn->prepare("SELECT COUNT(*) FROM pps_products");
             $stmt->execute();
-            $result = $stmt->get_result();
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
+            $count = $stmt->fetchColumn();
+
+            /*  
+                Si no hay productos en la DB, va directamente a la alerta de que no hay productos,
+                si hay productos, se realiza la consulta principal o de busqueda
+            */
+            if ($count > 0) {  
+                $sql = "SELECT prd_id, prd_name, prd_category, prd_details, prd_price, prd_image, prd_stock FROM pps_products WHERE 1=1";
+                $params = [];
+            
+                if (!empty($_POST['search_name'])) {
+                    $sql .= " AND prd_name LIKE :search_name";
+                    $params['search_name'] = '%' . $_POST['search_name'] . '%';
+                }
+                if (!empty($_POST['search_price'])) {
+                    $sql .= " AND prd_price = :search_price";
+                    $params['search_price'] = $_POST['search_price'];
+                }
+                if (!empty($_POST['category']) && is_numeric($_POST['category'])) {
+                    $sql .= " AND prd_category = :category";
+                    $params['category'] = $_POST['category'];
+                }
+        
+                $stmt = $conn->prepare($sql);
+                $stmt->execute($params);
+                $results = $stmt->fetchAll();
+
+            if (!empty($results)) {
+                foreach ($results as $row) {
                     echo '<div class="col">';
                     echo '<div class="card h-100">';
 
@@ -73,7 +123,7 @@
                     echo '<h5 class="card-title">' . htmlspecialchars($row["prd_name"]) . '</h5>';
                     echo '<p class="card-text">' . htmlspecialchars($row["prd_details"]) . '</p>';
                     
-                    // Formulario que da los detalles de stock y permite añadir al carrito
+                    // Formulario que da los detalles los productos
                     echo '<form action="comprar.php" method="post" class="mt-auto">';
                     echo '<input type="hidden" name="product_id" value="' . $row["prd_id"] . '">';
                     echo '<div class="mb-3">';
@@ -88,17 +138,27 @@
                     echo '</div>';
                 }
             } else {
-                // Cartel de cuando no hay productos
+                // Cartel cuando no ha encontrado productos en la busqueda
                 echo '<div class="col-12">';
-                echo '<div class="alert alert-info" role="alert">';
-                echo '<h4 class="alert-heading">¡Ups! No hay productos disponibles.</h4>';
-                echo '<p>Actualmente no tenemos productos en stock. Por favor, vuelve más tarde o contacta con nosotros para más información.</p>';
-                echo '<hr>';
-                echo '<p class="mb-0">Mientras tanto, visita nuestras redes sociales o nuestra página de contacto para estar al día.</p>';
+                echo '<div class="alert alert-warning" role="alert">';
+                echo '<h4 class="alert-heading">Producto no encontrado</h4>';
+                echo '<p>No hemos encontrado productos que coincidan con tu búsqueda. Por favor, intenta con otros términos o ajusta los filtros.</p>';
                 echo '</div>';
                 echo '</div>';
             }
-                $stmt->close();
+        } else {
+            // Cartel de cuando no hay productos en la tienda
+            echo '<div class="col-12">';
+            echo '<div class="alert alert-info" role="alert">';
+            echo '<h4 class="alert-heading">¡Ups! No hay productos disponibles.</h4>';
+            echo '<p>Actualmente no tenemos productos en stock. Por favor, vuelve más tarde o contacta con nosotros para más información.</p>';
+            echo '<hr>';
+            echo '<p class="mb-0">Mientras tanto, visita nuestras redes sociales o nuestra página de contacto para estar al día.</p>';
+            echo '</div>';
+            echo '</div>';
+        }
+            // Se pone la conexión a NULL por seguridad y ahorrar memoria
+            $stmt = null;
             ?>
             </div>
         </div>
