@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
     // Check if the account is temporarily locked
     if ($user) {
         $current_time = new DateTime();
-        if ($user['lock_until'] !== NULL && new DateTime($user['lock_until']) > $current_time) {
+        if ($user['lock_until'] !== NULL && (new DateTime($user['lock_until'])) ->getTimestamp() > $current_time->getTimestamp()) {
             echo "Your account is temporarily locked. Please try again later.";
             exit;
         }
