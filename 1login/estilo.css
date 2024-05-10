@@ -7,7 +7,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Asegura que el body tome toda la altura de la ventana */
+    height: 100vh; /* Asegura que el body tome toda la altura de la ventana. */
 }
 
 
@@ -142,11 +142,12 @@ input[type="submit"]:hover {
 
 .version {
     position: fixed;
-    bottom: 10px;
-    right: 10px;
+    top: 10px;
+    left: 10px;
     font-size: 12px;
     color: #666;
 }
+
 
 .info, .warning {
     width: 100%; /* Asegurarse de que los mensajes de alerta ocupen todo el ancho del form-box */
