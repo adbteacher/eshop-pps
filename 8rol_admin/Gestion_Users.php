@@ -19,6 +19,39 @@ $conexion = database::LoadDatabase();
     }
     return false;
 }*/
+if (isset($_POST['eliminarUsuario'])) {
+    if (isset($_POST['idUsuario']) && !empty($_POST['idUsuario'])) {
+        // Establecer conexión a la base de datos
+        require_once '../Database.php';
+        $conexion = database::LoadDatabase();
+
+        // Obtener el ID del usuario a eliminar
+        $idUsuario = $_POST['idUsuario'];
+
+        try {
+            // Eliminar usuario de la base de datos
+            $query = "DELETE FROM pps_users WHERE usu_id = ?";
+            $stmt = $conexion->prepare($query);
+            $exito = $stmt->execute([$idUsuario]);
+
+            if ($exito) {
+                // Redirigir al usuario de nuevo a la página actual
+                header("Location: {$_SERVER['REQUEST_URI']}");
+                exit(); // Detener la ejecución del script para evitar más procesamiento
+            } else {
+                echo "Error al eliminar el usuario.";
+            }
+        } catch (Exception $e) {
+            echo "Error al eliminar usuario: " . $e->getMessage();
+        }
+
+        // Cerrar la conexión
+        $conexion = null;
+    } else {
+        echo "No se proporcionó un ID de usuario válido.";
+    }
+}
+
 
 // Mostrar la lista de usuarios
 function MostrarUsuarios($conexion) {
@@ -104,36 +137,6 @@ function MostrarUsuarios($conexion) {
         <br><br>
         <button type="submit" id="btnCrearUsuario" name="crearUsuario">Crear Usuario</button>
     </form>
-    
-    <?php
-    // Procesar la eliminación de usuarios si se ha enviado un formulario para eliminar
-if (isset($_POST['eliminarUsuario'])) {
-    if (isset($_POST['idUsuario']) && !empty($_POST['idUsuario'])) {
-        // Establecer conexión a la base de datos
-        require_once '../Database.php';
-        $conexion = database::LoadDatabase();
-
-        // Obtener el ID del usuario a eliminar
-        $idUsuario = $_POST['idUsuario'];
-
-        try {
-            // Eliminar usuario de la base de datos
-            $query = "DELETE FROM pps_users WHERE usu_id = ?";
-            $stmt = $conexion->prepare($query);
-            $stmt->execute([$idUsuario]);
-
-            echo "Usuario eliminado exitosamente.";
-        } catch (Exception $e) {
-            echo "Error al eliminar usuario: " . $e->getMessage();
-        }
-
-        // Cerrar la conexión
-        $conexion = null;
-    } else {
-        echo "No se proporcionó un ID de usuario válido.";
-    }
-}
-?>
     <script>
    $(document).ready(function(){
         // AJAX para enviar el formulario de modificación de usuario
