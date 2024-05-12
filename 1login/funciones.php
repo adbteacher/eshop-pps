@@ -1,7 +1,16 @@
 <?php
-require_once 'db.php';  // Incluye el script de conexión a la base de datos.
+require_once '../Database.php';  // Incluye el script de conexión a la base de datos.
 require_once '../vendor/autoload.php';  // Autocargador para dependencias de Composer
 use RobThree\Auth\TwoFactorAuth;  // Uso de la biblioteca de autenticación de dos factores
+
+/**
+ * Obtiene una conexión a la base de datos usando la clase Database (Se cambia la función local de 1Login por la versión de ../Database.php sin modificar el código).
+ *
+ * @return PDO Objeto PDO para la interacción con la base de datos.
+ */
+function GetDatabaseConnection(): PDO {
+    return Database::LoadDatabase();
+}
 
 /**
  * Añade cabeceras de seguridad a las respuestas HTTP para mejorar la seguridad del cliente.
@@ -206,15 +215,35 @@ function LogAttempt($Email, $Success): void
 function Has2FA($Email): bool
 {
     $Connection = GetDatabaseConnection();  // Obtiene la conexión a la base de datos
-    $Query = $Connection->prepare("SELECT usu_verification_code FROM pps_users WHERE usu_email = ?");  // Ahora se usa usu_email en lugar de usu_name
+    $Query = $Connection->prepare("SELECT usu_2fa FROM pps_users WHERE usu_email = ?");  // Cambiado a usu_2fa
     $Query->bindParam(1, $Email);
     try {
         $Query->execute();
         $Result = $Query->fetch(PDO::FETCH_ASSOC);
-        return !empty($Result['usu_verification_code']);  // Devuelve verdadero si el campo de verificación no está vacío
+        return !empty($Result['usu_2fa']);  // Devuelve verdadero si el campo 2FA no está vacío
     } catch (PDOException $e) {
         error_log("Error al verificar 2FA: " . $e->getMessage());
         return false;
     }
 }
 
+/**
+* Actualiza el secreto de 2FA en la base de datos para un usuario específico.
+*
+* @param string $Email Email del usuario.
+* @param string $Secret Secreto de 2FA generado.
+* @return bool Retorna verdadero si la actualización fue exitosa, falso si hubo errores.
+*/
+function UpdateUser2FASecret($Email, $Secret): bool {
+	$Connection = GetDatabaseConnection();  // Obtiene la conexión a la base de datos
+	$Query      = $Connection->prepare("UPDATE pps_users SET usu_2fa = ? WHERE usu_email = ?");  // Actualiza a usu_2fa
+	$Query->bindParam(1, $Secret);
+	$Query->bindParam(2, $Email);
+	try {
+		$Query->execute();
+		return $Query->rowCount() > 0;  // Retorna verdadero si se actualizó al menos un registro
+	} catch (PDOException $e) {
+		error_log("Error al actualizar el código secreto de 2FA: " . $e->getMessage());
+		return false;  // Retorna falso si hay un error en la consulta
+	}
+}

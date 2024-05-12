@@ -33,8 +33,7 @@ NO ES MI RESPONSABILIDAD HACER ESTA PARTE SEGURA
 
 		if (RegisterUser($Email, $Password))
 		{
-			echo "Usuario registrado con éxito.<br>";
-			echo "Redireccionando a la página de login...";
+			echo "Usuario registrado con éxito.<br>Redireccionando a la página de login...";
 			header('Refresh: 2; URL=login.php');
 			exit;
 		}
