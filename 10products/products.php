@@ -6,7 +6,7 @@
     // Youtube: @javiersureda3
 
     //require_once "db.php"; // DB ANTIGUA
-
+    session_start(); // Inicia sesión
     require_once "../Functions.php";
     
     $Error = "<h1>Permission denied</h1>";
@@ -20,7 +20,29 @@
     }
 */
 
+    // Agregar al carrito
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['product_id']) && isset($_POST['quantity'])) {
+        $productId = $_POST['product_id'];
+        $quantity = $_POST['quantity'];
 
+        // Comprueba que el carrito esté inicializado
+        if (!isset($_SESSION['cart'])) {
+            $_SESSION['cart'] = [];
+        }
+    
+        // Agregar producto al carrito
+        if (isset($_SESSION['cart'][$productId])) {
+            $_SESSION['cart'][$productId] += $quantity;
+        } else {
+            $_SESSION['cart'][$productId] = $quantity;
+        }
+    
+        // Redirigir para evitar reenvío de formularios
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    }
+
+    $conn = database::LoadDatabase(); // Conexión a la base de dattos
 ?>
 <!DOCTYPE html>
     <!--
@@ -81,8 +103,7 @@
 
             <div class="row row-cols-1 row-cols-md-3 g-4">
             <?php
-            // Conexión a la base de datos
-            $conn = database::LoadDatabase();
+            // Se comprueba que hay productos
             $stmt = $conn->prepare("SELECT COUNT(*) FROM pps_products");
             $stmt->execute();
             $count = $stmt->fetchColumn();
@@ -94,7 +115,8 @@
             if ($count > 0) {  
                 $sql = "SELECT prd_id, prd_name, prd_category, prd_details, prd_price, prd_image, prd_stock FROM pps_products WHERE 1=1";
                 $params = [];
-            
+                
+                // Barra de búsqueda
                 if (!empty($_POST['search_name'])) {
                     $sql .= " AND prd_name LIKE :search_name";
                     $params['search_name'] = '%' . $_POST['search_name'] . '%';
@@ -111,7 +133,8 @@
                 $stmt = $conn->prepare($sql);
                 $stmt->execute($params);
                 $results = $stmt->fetchAll();
-
+            
+            // Comprueba que hay productos y los muestra en tarjetas
             if (!empty($results)) {
                 foreach ($results as $row) {
                     echo '<div class="col">';
@@ -124,7 +147,7 @@
                     echo '<p class="card-text">' . htmlspecialchars($row["prd_details"]) . '</p>';
                     
                     // Formulario que da los detalles los productos
-                    echo '<form action="comprar.php" method="post" class="mt-auto">';
+                    echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF']) . '" method="post" class="mt-auto">';
                     echo '<input type="hidden" name="product_id" value="' . $row["prd_id"] . '">';
                     echo '<div class="mb-3">';
                     echo '<label for="quantity' . $row['prd_id'] . '" class="form-label">Cantidad:</label>';
@@ -162,8 +185,5 @@
             ?>
             </div>
         </div>
-
-        <!-- Script de Bootstrap -->
-        <script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
