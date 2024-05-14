@@ -42,7 +42,7 @@
             </ul>
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/4profile/usu_info.php">
+                    <a class="nav-link" href="/4profile/main_profile.php">
                         <img src="/0images/default_user.png" alt="User" class="profile-image">
                         <?php echo $NameToDisplay ?>
                     </a>

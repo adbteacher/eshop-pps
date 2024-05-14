@@ -13,6 +13,7 @@
 	if (!$Allowed)
 	{
 		echo $Error;
+        die;
 	}
 ?>
 

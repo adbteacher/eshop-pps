@@ -44,6 +44,28 @@
 	}
 
 	/**
+	 * Obtiene el resgistro del usuario a partir de su email.
+	 *
+	 */
+	function GetUserByEmail($Email): array|bool
+	{
+		$Connection = database::LoadDatabase();
+		$Query      = $Connection->prepare("SELECT * FROM pps_users WHERE usu_email = ?");
+		$Query->bindParam(1, $Email);
+		try
+		{
+			$Query->execute();
+			$Result = $Query->fetch(PDO::FETCH_ASSOC);
+			return $Result;
+		}
+		catch (PDOException $e)
+		{
+			error_log("Error al obtener el usuario: " . $e->getMessage());
+			return false;
+		}
+	}
+
+	/**
 	 * Obtiene el ID de usuario a partir de su email.
 	 *
 	 * @param string $Email Email del usuario a buscar.
