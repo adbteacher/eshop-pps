@@ -1,3 +1,13 @@
+<?php
+session_start(); // Iniciar la sesión si aún no se ha iniciado
+
+// Verificar si el usuario está autenticado
+if (!isset($_SESSION['email'])) {
+    header("Location: ../1login/login.php"); // Redirigir a la página de inicio de sesión si el usuario no está autenticado
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -49,7 +59,7 @@
         $stmt->execute([$line1, $line2, $city, $state, $postal_code, $country, $edit_address_id]);
 
         // Redireccionar a la página para evitar el reenvío del formulario
-        header("Location: usu_adres.php");
+        header("Location: usu_addres.php");
         exit;
     }
     ?>

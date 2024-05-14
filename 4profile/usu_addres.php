@@ -1,3 +1,14 @@
+<?php
+session_start(); // Iniciar la sesión si aún no se ha iniciado
+
+// Verificar si el usuario está autenticado
+if (!isset($_SESSION['email'])) {
+    header("Location: ../1login/login.php"); // Redirigir a la página de inicio de sesión si el usuario no está autenticado
+    exit;
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -15,7 +26,7 @@
 
     // Provisional hasta tener la sesión del login.
     // TODO HACER CSRF TOKEN
-    $user_id = '1';
+    $user_email = $_SESSION['email'];
 
     // Función de limpieza:
     function cleanInput($input)
@@ -28,17 +39,17 @@
     }
 
     // Función para obtener las direcciones del usuario
-    function getUserAddresses($user_id)
+    function getUserAddresses($user_email)
     {
         $connection = database::LoadDatabase();
-        $sql = "SELECT * FROM pps_addresses_per_user WHERE adr_user = ?";
+        $sql = "SELECT * FROM pps_addresses_per_user WHERE usu_email = ?";
         $stmt = $connection->prepare($sql);
-        $stmt->execute([$user_id]);
+        $stmt->execute([$user_email]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Obtener las direcciones del usuario
-    $addresses = getUserAddresses($user_id);
+    $addresses = getUserAddresses($user_email);
 
     // Manejar el envío del formulario para modificar la dirección principal
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitMainAddress'])) {
@@ -47,9 +58,9 @@
         $main_address_id = isset($_POST['main_address_id']) ? cleanInput($_POST['main_address_id']) : '';
 
         // Marcar todas las direcciones del usuario como no principales
-        $sql = "UPDATE pps_addresses_per_user SET adr_is_main = 0 WHERE adr_user = ?";
+        $sql = "UPDATE pps_addresses_per_user SET adr_is_main = 0 WHERE usu_email = ?";
         $stmt = $connection->prepare($sql);
-        $stmt->execute([$user_id]);
+        $stmt->execute([$user_email]);
 
         // Marcar la dirección seleccionada como principal
         $sql = "UPDATE pps_addresses_per_user SET adr_is_main = 1 WHERE adr_id = ?";

@@ -1,5 +1,14 @@
 <?php
+session_start(); // Iniciar la sesión si aún no se ha iniciado
+
+// Verificar si el usuario está autenticado
+if (!isset($_SESSION['email'])) {
+	header("Location: ../1login/login.php"); // Redirigir a la página de inicio de sesión si el usuario no está autenticado
+	exit;
+}
 require_once '../Database.php';
+
+$user_email = $_SESSION['email'];
 
 // Functions
 function cleanInput($input): array|string
@@ -11,40 +20,9 @@ function cleanInput($input): array|string
 	return $input;
 }
 
-// Variable to store the selected user ID
-$UserId = '1';
-
-// Process the user selection form
-if (
-	$_SERVER["REQUEST_METHOD"] == "POST"
-	&& isset($_POST['submitUser'])
-	|| isset($_POST['submitPersonalInfo'])
-) {
-	// Validate and sanitize the user ID
-	$UserId = isset($_POST['userId']) ? cleanInput($_POST['userId']) : ''; //
-
-	// Database connection
-	$connection = database::LoadDatabase();
-
-	// Query the information of the selected user using prepared statement
-	$sql  = "SELECT * FROM pps_users WHERE usu_id = ?";
-	$stmt = $connection->prepare($sql);
-
-	// Execute the statement with the user ID parameter
-	$stmt->execute([$UserId]);
-
-	// Fetch the result as an associative array
-	$UserRow = $stmt->fetch(PDO::FETCH_ASSOC);
-
-	if (!$UserRow) {
-		echo "User not found";
-	}
-}
-
 // Process the personal information editing form
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo'])) {
 	// Retrieve form data
-	$UserId   = isset($_POST['userId']) ? cleanInput($_POST['userId']) : '';
 	$Name     = isset($_POST['name']) ? cleanInput($_POST['name']) : '';
 	$Surnames = isset($_POST['surnames']) ? cleanInput($_POST['surnames']) : '';
 	$Email    = isset($_POST['email']) ? cleanInput($_POST['email']) : '';
@@ -58,9 +36,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 	$sql = "UPDATE pps_users SET 
     usu_name = ?,  
     usu_surnames = ?,
-    usu_email = ?, 
     usu_phone = ? 
-    WHERE usu_id = ?";
+    WHERE usu_email = ?";
 
 	// Prepare the statement
 	$stmt = $connection->prepare($sql);
@@ -68,24 +45,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 	// Bind the parameters
 	$stmt->bindValue(1, $Name);
 	$stmt->bindValue(2, $Surnames);
-	$stmt->bindValue(3, $Email);
-	$stmt->bindValue(4, $Phone);
-	$stmt->bindValue(5, $UserId);
+	$stmt->bindValue(3, $Phone);
+	$stmt->bindValue(4, $user_email);
 
 	if ($stmt->execute()) {
-		// Query the updated information of the selected user using prepared statement
-		$sql  = "SELECT * FROM pps_users WHERE usu_id = ?";
-		$stmt = $connection->prepare($sql);
-
-		// Execute the statement with the user ID parameter
-		$stmt->execute([$UserId]);
-
-		// Fetch the result as an associative array
-		$UserRow = $stmt->fetch(PDO::FETCH_ASSOC);
-
-		if (!$UserRow) {
-			echo "Error: Could not retrieve updated profile information";
-		}
+		echo "Changes saved successfully.";
 	} else {
 		echo "Error updating information: " . $connection->errorInfo()[2];
 	}
@@ -107,44 +71,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 	include "../nav.php";
 	?>
 
-	<!-- Form to select the user -->
+	<h3>Información de usuario:</h3>
 	<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-		<label for="userId">User ID:
-			<input type="text" name="userId" value="<?php echo $UserId; ?>">
+		<label for="name">Nombre:
+			<input type="text" name="name" value="<?php echo $user_email; ?>">
 		</label>
-		<input type="submit" name="submitUser" value="Select">
+		<br>
+
+		<label for="Apellidos">Apellidos:
+			<input type="text" name="surnames" value="<?php echo $user_email; ?>">
+		</label>
+		<br>
+
+		<br>
+		<label for="email">Email:
+			<input type="email" name="email" value="<?php echo $user_email; ?>" readonly>
+		</label>
+		<br>
+
+		<label for="phone">Teléfono:
+			<input type="text" name="phone" value="">
+		</label>
+		<br>
+		<br>
+
+		<input type="submit" name="submitPersonalInfo" value="Save Changes">
 	</form>
-
-	<!-- Form to edit personal information -->
-	<?php if (!empty($UserRow)) : ?>
-		<h3>Información de usuario:</h3>
-		<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-			<input type="hidden" name="userId" value="<?php echo $UserRow['usu_id']; ?>">
-			<label for="name">Nombre:
-				<input type="text" name="name" value="<?php echo $UserRow['usu_name']; ?>">
-			</label>
-			<br>
-
-			<label for="Apellidos">Apellidos:
-				<input type="text" name="surnames" value="<?php echo $UserRow['usu_surnames']; ?>">
-			</label>
-			<br>
-
-			<br>
-			<label for="email">Email:
-				<input type="email" name="email" value="<?php echo $UserRow['usu_email']; ?>">
-			</label>
-			<br>
-
-			<label for="phone">Teléfono:
-				<input type="text" name="phone" value="<?php echo $UserRow['usu_phone']; ?>">
-			</label>
-			<br>
-			<br>
-
-			<input type="submit" name="submitPersonalInfo" value="Save Changes">
-		</form>
-	<?php endif; ?>
 
 </body>
 
