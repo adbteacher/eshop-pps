@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-05-2024 a las 19:43:12
+-- Tiempo de generación: 15-05-2024 a las 00:27:37
 -- Versión del servidor: 10.4.25-MariaDB
 -- Versión de PHP: 8.1.10
 
@@ -55,10 +55,10 @@ CREATE TABLE `pps_categories` (
 --
 
 INSERT INTO `pps_categories` (`cat_id`, `cat_description`) VALUES
-(1, 'Frutas'),
-(2, 'Verduras'),
-(3, 'Alimentos'),
-(4, 'AA');
+(1, 'Frutas cítricas'),
+(2, 'Frutas dulces'),
+(3, 'Verduras'),
+(4, 'Varios');
 
 -- --------------------------------------------------------
 
@@ -86,6 +86,14 @@ CREATE TABLE `pps_logs_login` (
   `lol_was_correct_login` tinyint(1) NOT NULL COMMENT 'True si el login fue exitoso, False si fue fallido',
   `lol_datetime` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
+
+--
+-- Volcado de datos para la tabla `pps_logs_login`
+--
+
+INSERT INTO `pps_logs_login` (`lol_id`, `lol_user`, `lol_ip`, `lol_was_correct_login`, `lol_datetime`) VALUES
+(1, 7, '192.168.56.1', 1, '2024-05-14 19:47:00'),
+(2, 7, '192.168.56.1', 1, '2024-05-14 19:47:41');
 
 -- --------------------------------------------------------
 
@@ -167,8 +175,8 @@ CREATE TABLE `pps_payment_methods_per_user` (
   `pmu_user` int(3) NOT NULL,
   `pmu_account_number` varchar(30) NOT NULL,
   `pmu_swift` varchar(20) NOT NULL,
-  `pmu_card_number` int(20) NOT NULL,
-  `pmu_cve_number` int(3) NOT NULL,
+  `pmu_card_number` decimal(16,0) NOT NULL,
+  `pmu_cve_number` decimal(3,0) NOT NULL,
   `pmu_cardholder` varchar(50) NOT NULL,
   `pmu_expiration_date` varchar(5) NOT NULL,
   `pmu_online_account` varchar(50) NOT NULL COMMENT 'email',
@@ -187,6 +195,13 @@ CREATE TABLE `pps_permission_per_rol` (
   `ppr_program` varchar(100) NOT NULL,
   `ppr_allowed` varchar(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+
+--
+-- Volcado de datos para la tabla `pps_permission_per_rol`
+--
+
+INSERT INTO `pps_permission_per_rol` (`ppr_id`, `ppr_rol`, `ppr_program`, `ppr_allowed`) VALUES
+(1, 'A', 'products.php', 'S');
 
 -- --------------------------------------------------------
 
@@ -211,12 +226,12 @@ CREATE TABLE `pps_products` (
 --
 
 INSERT INTO `pps_products` (`prd_id`, `prd_name`, `prd_category`, `prd_details`, `prd_price`, `prd_quantity_shop`, `prd_stock`, `prd_image`, `prd_description`) VALUES
-(1, 'Manzanas', 1, 'Manzanas', '3.50', 15, 15, '../0images/manzana-fuji.png', 'Manzanas'),
-(2, 'Manzanas', 2, 'Manzanas', '3.50', 15, 15, '../0images/manzana-fuji.png', 'Manzanas'),
-(3, 'Manzanas Granny', 2, 'Manzanas', '3.50', 15, 15, '../0images/manzana-fuji.png', 'Manzanas'),
-(4, 'Manzanas Verduras', 3, 'Manzanas', '3.50', 15, 15, '../0images/manzana-fuji.png', 'Manzanas'),
-(5, 'ManzanasA', 3, 'Manzanas', '3.50', 15, 15, '../0images/manzana-fuji.png', 'Manzanas'),
-(6, 'ManzanasBV', 4, 'Manzanas', '3.50', 15, 15, '../0images/manzana-fuji.png', 'Manzanas');
+(1, 'Manzana Fuji', 3, 'Manzana Fuji', '0.50', 23, 23, '/0images/manzana-fuji.png', 'Manzanas Fuji'),
+(2, 'Manzana Granny', 3, 'Manzana Granny', '0.45', 15, 15, '../0images/manzana-granny.png', 'Manzana Granny'),
+(3, 'Manzanas Pink Lady', 3, 'Manzana Pink Lady', '0.60', 13, 13, '../0images/manzana-pinklady.png', 'Manzana Pink Lady'),
+(4, 'Verduras', 3, 'Verduras', '1.50', 115, 115, '../0images/manzana-fuji.png', 'Verduras'),
+(5, 'Aaa', 3, 'Aaa', '2.50', 25, 25, '../0images/manzana-fuji.png', 'Aaa'),
+(6, 'Bbb', 4, 'Bbb', '4.50', 75, 75, '../0images/manzana-fuji.png', 'Bbb');
 
 -- --------------------------------------------------------
 
@@ -270,8 +285,16 @@ CREATE TABLE `pps_users` (
   `usu_company` varchar(100) NOT NULL,
   `usu_cif` varchar(12) NOT NULL,
   `usu_web` varchar(50) NOT NULL,
-  `usu_documents` varchar(200) NOT NULL
+  `usu_documents` varchar(200) NOT NULL,
+  `usu_2fa` char(16) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Users' ROW_FORMAT=DYNAMIC;
+
+--
+-- Volcado de datos para la tabla `pps_users`
+--
+
+INSERT INTO `pps_users` (`usu_id`, `usu_type`, `usu_rol`, `usu_status`, `usu_verification_code`, `usu_datetime`, `usu_name`, `usu_surnames`, `usu_prefix`, `usu_phone`, `usu_email`, `usu_password`, `usu_company`, `usu_cif`, `usu_web`, `usu_documents`, `usu_2fa`) VALUES
+(7, 'U', 'U', 'N', '', '2024-05-05 19:18:25', 'ivan', 'martinez', '34', 645712080, 'ivan@email.com', '$2y$10$59FmINGOFYhBNua3mXHNqeuGGCvL43dsahVMgYj4QW.AQoG9EZere', '', '', '', '', NULL);
 
 --
 -- Índices para tablas volcadas
@@ -349,11 +372,8 @@ ALTER TABLE `pps_payment_methods`
 --
 ALTER TABLE `pps_payment_methods_per_user`
   ADD PRIMARY KEY (`pmu_id`),
-  ADD UNIQUE KEY `pmu_payment_method` (`pmu_payment_method`,`pmu_user`),
-  ADD UNIQUE KEY `pmu_account_number` (`pmu_account_number`,`pmu_swift`),
-  ADD UNIQUE KEY `pmu_card_number` (`pmu_card_number`,`pmu_cve_number`,`pmu_cardholder`,`pmu_expiration_date`),
-  ADD UNIQUE KEY `pmu_online_account` (`pmu_online_account`,`pmu_online_password`),
-  ADD KEY `pmu_user` (`pmu_user`);
+  ADD KEY `pps_payment_methods_per_user_ibfk_1` (`pmu_user`),
+  ADD KEY `pps_payment_methods_per_user_ibfk_2` (`pmu_payment_method`);
 
 --
 -- Indices de la tabla `pps_permission_per_rol`
@@ -417,7 +437,7 @@ ALTER TABLE `pps_coupons`
 -- AUTO_INCREMENT de la tabla `pps_logs_login`
 --
 ALTER TABLE `pps_logs_login`
-  MODIFY `lol_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `lol_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `pps_logs_recovery`
@@ -459,7 +479,7 @@ ALTER TABLE `pps_payment_methods_per_user`
 -- AUTO_INCREMENT de la tabla `pps_permission_per_rol`
 --
 ALTER TABLE `pps_permission_per_rol`
-  MODIFY `ppr_id` int(3) NOT NULL AUTO_INCREMENT;
+  MODIFY `ppr_id` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `pps_products`
@@ -483,7 +503,7 @@ ALTER TABLE `pps_tickets`
 -- AUTO_INCREMENT de la tabla `pps_users`
 --
 ALTER TABLE `pps_users`
-  MODIFY `usu_id` int(6) NOT NULL AUTO_INCREMENT COMMENT 'id_autoincremental', AUTO_INCREMENT=2;
+  MODIFY `usu_id` int(6) NOT NULL AUTO_INCREMENT COMMENT 'id_autoincremental', AUTO_INCREMENT=8;
 
 --
 -- Restricciones para tablas volcadas

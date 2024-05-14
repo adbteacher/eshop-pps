@@ -1,17 +1,16 @@
 <?php
-	session_start();
-
-	require_once("../vendor/autoload.php");
-	require_once("../autoload.php");
 
     // PHP creado por
     // Twitter: @javiersureda
     // Github: @javiersureda
     // Youtube: @javiersureda3
 
-    //require_once "db.php"; // DB ANTIGUA
     session_start(); // Inicia sesión
     require_once "../Functions.php";
+	require_once("../vendor/autoload.php");
+	require_once("../autoload.php");
+
+    //require_once "db.php"; // DB ANTIGUA
     
     $Error = "<h1>Permission denied</h1>";
 /*
@@ -46,7 +45,12 @@
         exit();
     }
 
-    $conn = database::LoadDatabase(); // Conexión a la base de dattos
+    $conn = database::LoadDatabase(); // Conexión a la base de datos
+
+    // Obtener categorías desde la base de datos
+    $stmt = $conn->prepare("SELECT cat_id, cat_description FROM pps_categories");
+    $stmt->execute();
+    $categories = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
     <!--
@@ -95,9 +99,9 @@
                     <input type="number" class="form-control" placeholder="Buscar por precio exacto" name="search_price">
                     <select class="form-control" name="category">
                         <option value="">Todas las categorías</option>
-                        <option value="1">Frutas</option>
-                        <option value="2">Verduras</option>
-                        <option value="3">Categoría 3</option>
+                        <?php foreach ($categories as $category): ?>
+                            <option value="<?php echo htmlspecialchars($category['cat_id']); ?>"><?php echo htmlspecialchars($category['cat_description']); ?></option>
+                        <?php endforeach; ?>
                     </select>
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="submit">Buscar</button>
@@ -151,7 +155,7 @@
                     echo '<p class="card-text">' . htmlspecialchars($row["prd_details"]) . '</p>';
                     
                     // Formulario que da los detalles los productos
-                    echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF']) . '" method="post" class="mt-auto">';
+                    echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF']) . '" method="post" class="mt-auto" onsubmit="saveScrollPosition();">';
                     echo '<input type="hidden" name="product_id" value="' . $row["prd_id"] . '">';
                     echo '<div class="mb-3">';
                     echo '<label for="quantity' . $row['prd_id'] . '" class="form-label">Cantidad:</label>';
@@ -189,5 +193,8 @@
             ?>
             </div>
         </div>
+        <!-- Script para guardar la posición del usuario
+             en la web al añadir un producto al carrito   -->
+        <script src="position.js"></script>
     </body>
 </html>
