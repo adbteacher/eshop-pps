@@ -149,7 +149,7 @@
                     echo '<div class="card h-100">';
 
                     // Se utiliza htmlspecialchars para evitar XSS
-                    echo '<img src="' . htmlspecialchars($row["prd_image"]) . '" class="card-img-top" alt="' . htmlspecialchars($row["prd_name"]) . '">';
+                    echo '<img src="' . htmlspecialchars($row["prd_image"]) . '" class="card-img-top" style="height: 370px; width: auto; margin: auto;" alt="' . htmlspecialchars($row["prd_name"]) . '">';
                     echo '<div class="card-body d-flex flex-column">';
                     echo '<h5 class="card-title">' . htmlspecialchars($row["prd_name"]) . '</h5>';
                     echo '<p class="card-text">' . htmlspecialchars($row["prd_details"]) . '</p>';
