@@ -5,11 +5,6 @@ require_once "../Functions.php";
 $conn = database::LoadDatabase();
 ?>
 <style>
-    /* Alineación a la derecha del perfil */
-    .profile-user {
-        margin-left: auto; /* Empuja el resto a la izquierda, alinea este ítem a la derecha */
-    }
-
     /* Estilo para la imagen del perfil */
     .profile-image {
         width: 40px; /* Tamaño de la imagen */

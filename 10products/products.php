@@ -1,4 +1,8 @@
 <?php
+	session_start();
+
+	require_once("../vendor/autoload.php");
+	require_once("../autoload.php");
 
     // PHP creado por
     // Twitter: @javiersureda
@@ -13,7 +17,7 @@
 /*
     $Allowed = Functions::HasPermissions("A", "products.php");
 
-    if (!$Allowed)
+	if (!$Allowed)
 	{
         echo $Error;
         exit;
