@@ -76,6 +76,12 @@
 
         <!-- CSS / Hoja de estilos Bootstrap -->
         <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Favicon -->
+        <link rel="apple-touch-icon" sizes="180x180" href="0images/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="0images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="0images/favicon-16x16.png">
+        <link rel="manifest" href="0images/site.webmanifest">
     </head>
 
     <body>
@@ -193,7 +199,7 @@
             </div>
         </div>
         <?php include "footer.php"; // Incluye el footer ?>
-        
+
         <!-- Script para guardar la posición del usuario
              en la web al añadir un producto al carrito   -->
         <script src="10products/position.js"></script>
