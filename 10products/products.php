@@ -13,7 +13,7 @@
     //require_once "db.php"; // DB ANTIGUA
     
     $Error = "<h1>Permission denied</h1>";
-/*
+
     $Allowed = Functions::HasPermissions("A", "products.php");
 
 	if (!$Allowed)
@@ -21,7 +21,7 @@
         echo $Error;
         exit;
     }
-*/
+
 
     // Agregar al carrito
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['product_id']) && isset($_POST['quantity'])) {
@@ -112,8 +112,6 @@
                     </div>
                 </div>
             </form>
-
-            <div class="row row-cols-1 row-cols-md-3 g-4">
             <?php
             // Se comprueba que hay productos
             $stmt = $conn->prepare("SELECT COUNT(*) FROM pps_products");
@@ -148,6 +146,7 @@
             
             // Comprueba que hay productos y los muestra en tarjetas
             if (!empty($results)) {
+                echo '<div class="row row-cols-1 row-cols-md-3 g-4">';
                 foreach ($results as $row) {
                     echo '<div class="col">';
                     echo '<div class="card h-100 shadow">';
@@ -173,23 +172,28 @@
                     echo '</div>';
                     echo '</div>';
                 }
+                echo '</div>';
             } else {
                 // Cartel cuando no ha encontrado productos en la busqueda
-                echo '<div class="col-12">';
+                echo '<div class="row row-cols-12 row-cols-md-12 g-4">';
+                echo '<div class="col-12 mt-4 d-flex align-items-center justify-content-center">';
                 echo '<div class="alert alert-warning" role="alert">';
                 echo '<h4 class="alert-heading">Producto no encontrado</h4>';
                 echo '<p>No hemos encontrado productos que coincidan con tu búsqueda. Por favor, intenta con otros términos o ajusta los filtros.</p>';
                 echo '</div>';
                 echo '</div>';
+                echo '</div>';
             }
         } else {
             // Cartel de cuando no hay productos en la tienda
-            echo '<div class="col-12">';
+            echo '<div class="row row-cols-12 row-cols-md-12 g-4">';
+            echo '<div class="col-12 mt-4 d-flex align-items-center justify-content-center">';
             echo '<div class="alert alert-info" role="alert">';
             echo '<h4 class="alert-heading">¡Ups! No hay productos disponibles.</h4>';
             echo '<p>Actualmente no tenemos productos en stock. Por favor, vuelve más tarde o contacta con nosotros para más información.</p>';
             echo '<hr>';
             echo '<p class="mb-0">Mientras tanto, visita nuestras redes sociales o nuestra página de contacto para estar al día.</p>';
+            echo '</div>';
             echo '</div>';
             echo '</div>';
         }
