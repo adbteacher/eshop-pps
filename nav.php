@@ -1,5 +1,5 @@
 <?php
-require_once "../Functions.php";
+require_once "Functions.php";
 
 if ($_SESSION["UserID"])
 	{
@@ -13,6 +13,19 @@ if ($_SESSION["UserID"])
 
 // Conexión a la base de datos
 $conn = database::LoadDatabase();
+
+// Manejar la lógica de eliminación del carrito
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) {
+    $removeProductId = $_POST['remove_product_id'];
+
+    if (isset($_SESSION['cart'][$removeProductId])) {
+        unset($_SESSION['cart'][$removeProductId]);
+    }
+
+    // Redirigir para evitar reenvío de formularios
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
 ?>
 <style>
     /* Estilo para la imagen del perfil */
@@ -23,6 +36,9 @@ $conn = database::LoadDatabase();
         margin-right: 5px; /* Espacio entre la imagen y el texto */
     }
 </style>
+
+<!-- Iconos de Bootstrap para el carrito -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
@@ -59,7 +75,7 @@ $conn = database::LoadDatabase();
                     Carrito de Compras
                     <span class="badge bg-secondary"><?php echo isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0; ?></span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownCartButton">
+                <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="dropdownCartButton" style="width: 350px;">
                     <?php 
                         // Comprueba si hay productos en el carrito
                         if (!empty($_SESSION['cart'])):
@@ -73,15 +89,25 @@ $conn = database::LoadDatabase();
                         ?>
                         <?php foreach ($cartProducts as $product): // Muestra los productos en el carrito ?>
                             <li class="dropdown-item d-flex justify-content-between align-items-center">
-                                <?php echo htmlspecialchars($product['prd_name']); ?>
-                                <span class="badge bg-primary rounded-pill"><?php echo $_SESSION['cart'][$product['prd_id']]; ?></span>
-                                <span class="text-muted"><?php echo number_format($product['prd_price'] * $_SESSION['cart'][$product['prd_id']], 2); ?>€</span>
+                                <div class="d-flex flex-column">
+                                    <span><?php echo htmlspecialchars($product['prd_name']); ?></span>
+                                    <small class="text-muted"><?php echo number_format($product['prd_price'] * $_SESSION['cart'][$product['prd_id']], 2); ?>€</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary rounded-pill me-2"><?php echo $_SESSION['cart'][$product['prd_id']]; ?></span>
+                                    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                        <input type="hidden" name="remove_product_id" value="<?php echo $product['prd_id']; ?>">
+                                        <button type="submit" class="btn btn-sm btn-danger rounded-circle d-flex justify-content-center align-items-center p-0" style="width: 24px; height: 24px;">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </li>
                         <?php endforeach; ?>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="cart.php">Ver Carrito</a></li>
-                    <?php else: ?>
-                        <li class="dropdown-item">No hay productos en el carrito.</li>
+                        <li><a class="dropdown-item text-center" href="cart.php">Ver Carrito</a></li>
+                    <?php else: // Muestra cuando no hay productos en el carrito ?>
+                        <li class="dropdown-item text-center">No hay productos en el carrito.</li>
                     <?php endif; ?>
                 </ul>
             </div>
@@ -89,4 +115,4 @@ $conn = database::LoadDatabase();
     </div>
 </nav>
 
-<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.js"></script>
+<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

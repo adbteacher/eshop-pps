@@ -5,10 +5,10 @@
     // Github: @javiersureda
     // Youtube: @javiersureda3
 
-    session_start(); // Inicia sesión
-    require_once "../Functions.php";
-	require_once("../vendor/autoload.php");
-	require_once("../autoload.php");
+    //session_start(); // Inicia sesión
+    require_once("autoload.php");
+	require_once("vendor/autoload.php");
+    require_once("Functions.php");
 
     //require_once "db.php"; // DB ANTIGUA
     
@@ -80,7 +80,7 @@
 
     <body>
     <?php
-        include "../nav.php"; // Incluye el Navbar
+        include "nav.php"; // Incluye el Navbar
     ?>
 
         <div class="container mt-4">
@@ -96,7 +96,7 @@
             <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" class="mb-4">
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" placeholder="Buscar por nombre" name="search_name">
-                    <input type="number" class="form-control" placeholder="Buscar por precio exacto" name="search_price">
+                    <input type="number" class="form-control" placeholder="Buscar por precio" name="search_price" step="0.01">
                     <select class="form-control" name="category">
                         <option value="">Todas las categorías</option>
                         <?php foreach ($categories as $category): ?>
@@ -146,13 +146,14 @@
             if (!empty($results)) {
                 foreach ($results as $row) {
                     echo '<div class="col">';
-                    echo '<div class="card h-100">';
+                    echo '<div class="card h-100 shadow">';
 
                     // Se utiliza htmlspecialchars para evitar XSS
                     echo '<img src="' . htmlspecialchars($row["prd_image"]) . '" class="card-img-top" style="height: 370px; width: auto; margin: auto;" alt="' . htmlspecialchars($row["prd_name"]) . '">';
                     echo '<div class="card-body d-flex flex-column">';
                     echo '<h5 class="card-title">' . htmlspecialchars($row["prd_name"]) . '</h5>';
                     echo '<p class="card-text">' . htmlspecialchars($row["prd_details"]) . '</p>';
+                    echo '<p class="card-text"><span class="badge bg-success" style="font-size: 0.9rem;">' . htmlspecialchars($row["prd_price"]) . '€</span></p>';
                     
                     // Formulario que da los detalles los productos
                     echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF']) . '" method="post" class="mt-auto" onsubmit="saveScrollPosition();">';
@@ -195,6 +196,6 @@
         </div>
         <!-- Script para guardar la posición del usuario
              en la web al añadir un producto al carrito   -->
-        <script src="position.js"></script>
+        <script src="10products/position.js"></script>
     </body>
 </html>
