@@ -79,11 +79,9 @@
     </head>
 
     <body>
-    <?php
-        include "nav.php"; // Incluye el Navbar
-    ?>
+    <?php include "nav.php"; // Incluye el Navbar ?>
 
-        <div class="container mt-4">
+        <div class="container mt-4 mb-4">
             <div class="jumbotron">
                 <h1 class="display-4">¡Bienvenidos a Frutería del Barrio!</h1>
                 <p class="lead">Las mejores frutas frescos directo de los agricultores de Valencia a tu mesa.</p>
@@ -194,6 +192,8 @@
             ?>
             </div>
         </div>
+        <?php include "footer.php"; // Incluye el footer ?>
+        
         <!-- Script para guardar la posición del usuario
              en la web al añadir un producto al carrito   -->
         <script src="10products/position.js"></script>

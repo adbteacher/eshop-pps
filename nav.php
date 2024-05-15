@@ -71,9 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
             </ul>
             <!-- Carrito de compra -->
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownCartButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    Carrito de Compras
-                    <span class="badge bg-secondary"><?php echo isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0; ?></span>
+                <button class="btn btn-secondary dropdown-toggle d-flex align-items-center" type="button" id="dropdownCartButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-cart-fill me-2"></i> Carrito
+                    <span class="badge bg-secondary ms-2"><?php echo isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0; ?></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="dropdownCartButton" style="width: 350px;">
                     <?php 
