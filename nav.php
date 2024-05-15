@@ -1,4 +1,6 @@
 <?php
+    session_start();
+
     if ($_SESSION["UserID"])
 	{
         $NameToDisplay = $_SESSION["UserName"];
