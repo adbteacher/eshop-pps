@@ -31,7 +31,7 @@ function MostrarProductos($conexion) {
             echo "<td>{$row['prd_price']}</td>";
             echo "<td>{$row['prd_quantity_shop']}</td>";
             echo "<td>{$row['prd_stock']}</td>";
-            echo "<td>{$row['prd_image']}</td>";
+            echo "<td><img src='../0images/{$row['prd_image']}' alt='{$row['prd_name']}' width='50' height='50'></td>";
             echo "<td>{$row['prd_description']}</td>";
             echo "<td>";
             echo "<form action='Mod_Prod.php' method='post' style='display:inline;'>";
@@ -50,6 +50,12 @@ function MostrarProductos($conexion) {
     } else {
         echo "No se encontraron productos.";
     }
+}
+function ObtenerCategorias($conexion) {
+    $query = "SELECT cat_id, cat_description FROM pps_categories";
+    $stmt = $conexion->prepare($query);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 // Validar token anti-CSRF y manejar importación y eliminación de productos
@@ -134,12 +140,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $file_mime = mime_content_type($file_tmp);
 
                 if (($file_mime == 'image/jpeg' || $file_mime == 'image/png') && exif_imagetype($file_tmp) != false) {
-                    $query_insert = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_quantity_shop, prd_stock, prd_image, prd_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                    $stmt_insert = $conexion->prepare($query_insert);
-                    if ($stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $cantidadTienda, $stock, $file_name, $descripcion])) {
-                        echo "Producto agregado exitosamente.";
+                    $ruta_imagen = '../0images/' . $file_name;
+                    if (move_uploaded_file($file_tmp, $ruta_imagen)) {
+                        $query_insert = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_quantity_shop, prd_stock, prd_image, prd_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                        $stmt_insert = $conexion->prepare($query_insert);
+                        if ($stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $cantidadTienda, $stock, $file_name, $descripcion])) {
+                            echo "Producto agregado exitosamente.";
+                        } else {
+                            echo "Error al agregar el producto.";
+                        }
                     } else {
-                        echo "Error al agregar el producto.";
+                        echo "Error al subir la imagen.";
                     }
                 } else {
                     echo "El archivo seleccionado no es una imagen válida.";
@@ -151,7 +162,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -166,13 +176,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <h2>Importar/Exportar Productos desde CSV</h2>
 <form method="post" enctype="multipart/form-data">
     <input type="file" name="archivoCSV" accept=".csv">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
     <button type="submit" name="importarCSV">Importar CSV</button>
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 </form>
 <br>
 <!-- Botón para exportar productos a CSV -->
 <form method="post" action="Exportar.php">
     <button type="submit" name="exportarCSV">Exportar Productos a CSV</button>
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 </form>
 
 <!-- Formulario para agregar un nuevo producto -->
@@ -183,10 +194,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <label for="categoria">Categoría:</label>
     <select id="categoria" name="categoria" required>
-        <!-- Aquí cargarías las categorías desde la base de datos -->
-        <option value="1">Frutas cítricas</option>
-        <option value="2">Frutas tropicales</option>
-        <!-- Agregar otras opciones aquí -->
+    <?php
+        $categorias = ObtenerCategorias($conexion);
+        foreach ($categorias as $categoria) {
+            echo "<option value='{$categoria['cat_id']}'>{$categoria['cat_description']}</option>";
+        }
+        ?>
     </select><br><br>
 
     <label for="detalles">Detalles:</label>
@@ -202,27 +215,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <input type="number" id="stock" name="stock" required><br><br>
 
     <label for="imagen">Imagen:</label>
-    <input type="file" id="imagen" name="imagen" accept="image/jpeg, image/png" required><br><br>
+    <input type="file" id="imagen" name="imagen" accept="image/*" required><br><br>
 
-    <label for="descripcion">Descripción:</label><br>
-    <textarea id="descripcion" name="descripcion" rows="4" cols="50" required></textarea><br><br>
+    <label for="descripcion">Descripción:</label>
+    <textarea id="descripcion" name="descripcion" required></textarea><br><br>
 
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
     <button type="submit" name="agregarProducto">Agregar Producto</button>
-    <br><br>
-    <button onclick="window.location.href='Rol_Admin.php'" class="boton">Ir a Rol-Admin</button>
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 </form>
 
-<?php
-// Mostrar la lista de productos
-MostrarProductos($conexion);
-?>
+<!-- Mostrar lista de productos -->
+<?php MostrarProductos($conexion); ?>
 
 </body>
 </html>
-
-<?php
-// Cerrar la conexión
-$conexion = null;
-?>
 

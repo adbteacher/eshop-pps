@@ -13,7 +13,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 // Función para mostrar la lista de usuarios
 function MostrarUsuarios($conexion) {
-    $query = "SELECT * FROM pps_users";
+    $query = "SELECT usu_id, usu_name, usu_rol, usu_phone, usu_email FROM pps_users";
     $stmt = $conexion->prepare($query);
     $stmt->execute();
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -21,13 +21,12 @@ function MostrarUsuarios($conexion) {
     if ($result) {
         echo "<h2>Lista de Usuarios</h2>";
         echo "<table>";
-        echo "<tr><th>ID</th><th>Nombre</th><th>Rol</th><th>Contraseña</th><th>Teléfono</th><th>Correo</th><th>Acciones</th></tr>";
+        echo "<tr><th>ID</th><th>Nombre</th><th>Rol</th><th>Teléfono</th><th>Correo</th><th>Acciones</th></tr>";
         foreach ($result as $row) {
             echo "<tr>";
             echo "<td>{$row['usu_id']}</td>";
             echo "<td>{$row['usu_name']}</td>";
             echo "<td>{$row['usu_rol']}</td>";
-            echo "<td>{$row['usu_password']}</td>";
             echo "<td>{$row['usu_phone']}</td>";
             echo "<td>{$row['usu_email']}</td>";
             echo "<td>";
@@ -47,6 +46,12 @@ function MostrarUsuarios($conexion) {
     } else {
         echo "No se encontraron usuarios.";
     }
+}
+function ObtenerRol($conexion) {
+    $query = "SELECT usu_id, usu_rol FROM pps_users";
+    $stmt = $conexion->prepare($query);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 // Validar token anti-CSRF y manejar eliminación de usuario
@@ -105,16 +110,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="passwd">Contraseña:</label>
         <input type="password" id="passwd" name="passwd" pattern="^[a-zA-Z0-9!@#$%^&*()_+}{:;?]+$" required>
         <br><br>
-        <label for="telf">Telefono:</label>
+        <label for="telf">Teléfono:</label>
         <input type="text" id="telf" name="telf" pattern="\d{9}" title="El número de teléfono debe tener 9 dígitos" required>
         <br><br>
         <label for="rol">Rol:</label>
-        <select id="rol" name="rol">
-            <option value="Administrador">Administrador</option>
-            <option value="Usuario">Usuario</option>
-            <option value="Soporte">Soporte</option>
-        </select>
-        <br><br>
+        <?php
+        $categorias = ObtenerRol($conexion);
+        foreach ($roles as $rol) {
+            echo "<option value='{$rol['usu_id']}'>{$rol['usu_rol']}</option>";
+        }
+        ?>
+        </select><br><br>
         <label for="email">Correo:</label>
         <input type="email" id="email" name="email" required>
         <br><br>

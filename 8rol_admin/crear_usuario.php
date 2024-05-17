@@ -29,31 +29,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" ) {
     if (strlen($passwd) < 8) {
         echo "La contraseña debe tener al menos 8 caracteres.";
     } else {
-    try {
-        // Verificar si hay campos susceptibles a inyección SQL o si el usuario ya existe
-        $query_verificar = "SELECT * FROM pps_users WHERE usu_name=?";
-        $stmt_verificar = $conexion->prepare($query_verificar);
-        $stmt_verificar->execute([$nombre]);
-        $result_verificar = $stmt_verificar->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            // Verificar si hay campos susceptibles a inyección SQL o si el usuario ya existe
+            $query_verificar = "SELECT * FROM pps_users WHERE usu_name=?";
+            $stmt_verificar = $conexion->prepare($query_verificar);
+            $stmt_verificar->execute([$nombre]);
+            $result_verificar = $stmt_verificar->fetchAll(PDO::FETCH_ASSOC);
 
-        if (validarSQL($nombre) || validarSQL($rol) || validarSQL($passwd) || validarSQL($telf) || validarSQL($email) || count($result_verificar) > 0) {
-            echo "ERROR, DATOS NO VÁLIDOS O USUARIO YA EXISTENTE";
-        } else {
-            // Insertar nuevo usuario en la base de datos
-            $query_insert = "INSERT INTO pps_users (usu_name, usu_rol, usu_password, usu_phone, usu_email) VALUES (?, ?, ?, ?, ?)";
-            $stmt_insert = $conexion->prepare($query_insert);
-            if ($stmt_insert->execute([$nombre, $rol, $passwd, $telf, $email])) {
-                echo "Usuario creado exitosamente.";
+            if (validarSQL($nombre) || validarSQL($rol) || validarSQL($passwd) || validarSQL($telf) || validarSQL($email) || count($result_verificar) > 0) {
+                echo "ERROR, DATOS NO VÁLIDOS O USUARIO YA EXISTENTE";
             } else {
-                throw new Exception("Error al crear usuario");
+                // Hashear la contraseña
+                $hashed_passwd = password_hash($passwd, PASSWORD_DEFAULT);
+
+                // Insertar nuevo usuario en la base de datos
+                $query_insert = "INSERT INTO pps_users (usu_name, usu_rol, usu_password, usu_phone, usu_email) VALUES (?, ?, ?, ?, ?)";
+                $stmt_insert = $conexion->prepare($query_insert);
+                if ($stmt_insert->execute([$nombre, $rol, $hashed_passwd, $telf, $email])) {
+                    echo "Usuario creado exitosamente.";
+                } else {
+                    throw new Exception("Error al crear usuario");
+                }
             }
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
         }
-    } catch (Exception $e) {
-        echo "Error: " . $e->getMessage();
     }
-}
 } else {
     echo "Acceso no autorizado";
 }
-
 ?>

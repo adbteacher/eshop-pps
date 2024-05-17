@@ -1,17 +1,15 @@
 <?php
-    session_start();
+session_start();
 
-    require_once (__DIR__. "/autoload.php");
+require_once (__DIR__. "/autoload.php");
 
-    if ($_SESSION["UserID"])
-	{
-        $NameToDisplay = $_SESSION["UserName"];
-    }
-    else
-	{
-        $NameToDisplay = "Invitado";
-    }
-
+if (isset($_SESSION["UserID"])) {
+    $NameToDisplay = $_SESSION["UserName"];
+    $isAdmin = $_SESSION["is_admin"]; // Obtener el valor de 'is_admin' desde la sesión
+} else {
+    $NameToDisplay = "Invitado";
+    $isAdmin = false; // Valor predeterminado para los usuarios no autenticados
+}
 
 // Conexión a la base de datos
 $conn = database::LoadDatabase();
@@ -67,9 +65,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                 <li class="nav-item">
                     <a class="nav-link" href="/4profile/main_profile.php">
                         <img src="/0images/default_user.png" alt="User" class="profile-image">
-                        <?php echo $NameToDisplay ?>
+                        <?php echo htmlspecialchars($NameToDisplay); ?>
                     </a>
                 </li>
+                <?php if ($isAdmin): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Rol_Admin.php">Panel de Administrador</a>
+                    </li>
+                <?php endif; ?>
             </ul>
             <!-- Carrito de compra -->
             <div class="dropdown">
@@ -79,16 +82,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="dropdownCartButton" style="width: 350px;">
                     <?php
-                        // Comprueba si hay productos en el carrito
-                        if (!empty($_SESSION['cart'])):
-                            $productIds = array_keys($_SESSION['cart']);
-                            if (!empty($productIds)) {
-                                $placeholders = implode(',', array_fill(0, count($productIds), '?'));
-                                $stmt = $conn->prepare("SELECT prd_id, prd_name, prd_price FROM pps_products WHERE prd_id IN ($placeholders)");
-                                $stmt->execute($productIds);
-                                $cartProducts = $stmt->fetchAll();
-                            }
-                        ?>
+                    // Comprueba si hay productos en el carrito
+                    if (!empty($_SESSION['cart'])):
+                        $productIds = array_keys($_SESSION['cart']);
+                        if (!empty($productIds)) {
+                            $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+                            $stmt = $conn->prepare("SELECT prd_id, prd_name, prd_price FROM pps_products WHERE prd_id IN ($placeholders)");
+                            $stmt->execute($productIds);
+                            $cartProducts = $stmt->fetchAll();
+                        }
+                    ?>
                         <?php foreach ($cartProducts as $product): // Muestra los productos en el carrito ?>
                             <li class="dropdown-item d-flex justify-content-between align-items-center">
                                 <div class="d-flex flex-column">
@@ -118,3 +121,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
 </nav>
 
 <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
