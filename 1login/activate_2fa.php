@@ -12,13 +12,13 @@
     $message = '';
 
     // Verifica si el usuario está autenticado para acceder a esta página.
-    if (!isset($_SESSION['email'])) {
+    if (!isset($_SESSION['UserEmail'])) {
         echo '<div class="warning">Error 333 - No está autorizado para ver esta página. (Sal, por favor)</div>';
         exit;  // Termina la ejecución si no está autorizado.
     }
 
     // Recupera el email del usuario desde la sesión.
-    $Email = $_SESSION['email'];
+    $Email = $_SESSION['UserEmail'];
 
     // Procesa el formulario cuando se envía.
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
