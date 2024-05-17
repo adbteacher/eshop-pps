@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7025e6dbbf08f8106493ce843d9205c1",
+    "content-hash": "6403ce15e69eb921d301fba49530ab0a",
     "packages": [
         {
             "name": "robthree/twofactorauth",
@@ -144,7 +144,9 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "ext-pdo": "*"
+    },
     "platform-dev": [],
     "plugin-api-version": "2.6.0"
 }
