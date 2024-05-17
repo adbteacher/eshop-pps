@@ -1,78 +1,99 @@
 <?php
-	session_start();  // Inicia o continúa una sesión existente
-	require_once 'funciones.php';  // Incluye las funciones auxiliares
-	require_once 'db.php';  // Incluye la conexión a la base de datos
+session_start();
+require_once("../vendor/autoload.php");
+require_once("../autoload.php");
 
-	AddSecurityHeaders();  // Añade cabeceras de seguridad HTTP
+require_once 'funciones.php';
 
-	// Genera un token CSRF si no existe uno en la sesión actual
-	if (empty($_SESSION['csrf_token']))
-	{
-		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+// Inicia una nueva sesión o continúa la existente para mantener el estado de autenticación del usuario.
+session_start();
+
+// Incluye el script con las funciones.
+require_once 'funciones.php';
+
+// Añade cabeceras de seguridad HTTP para prevenir vulnerabilidades comunes.
+AddSecurityHeaders();
+
+// Variable para almacenar mensajes de error durante el proceso de inicio de sesión.
+$msg = '';
+
+// Genera y almacena un token CSRF en la sesión si aún no se ha generado.
+if (empty($_SESSION['csrf_token'])) {
+	$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Maneja el formulario cuando se envía por método POST.
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	// Limpia y recupera el correo electrónico y la contraseña del formulario.
+	$Email    = SanitizeInput($_POST['email']);
+	$Password = SanitizeInput($_POST['password']);
+
+	// Verifica si hay múltiples intentos fallidos de inicio de sesión para prevenir ataques de fuerza bruta.
+	CheckLoginAttempts($Email);
+
+	// Verifica la validez del token CSRF para prevenir ataques de falsificación de solicitud en sitios cruzados.
+	if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+		$msg = "Error en la validación CSRF.";
+	} else {
+		// Verifica las credenciales del usuario y registra el intento.
+		$LoginSuccessful = VerifyUser($Email, $Password, $msg);
+		LogAttempt($Email, $LoginSuccessful);
+
+		// Si las credenciales son correctas, procede según si tiene o no 2FA activado.
+		if ($LoginSuccessful) {
+			$User = getUserByEmail($Email);
+
+			// Almacena el email en la sesión para identificar al usuario en futuras solicitudes.
+			$_SESSION["UserID"]    = $User["usu_id"];
+			$_SESSION["UserName"]  = $User["usu_name"];
+			$_SESSION["UserEmail"] = $User["usu_email"];
+
+			// Redirige al usuario a la página de verificación de 2FA o al perfil principal.
+			$redirectUrl = Has2FA($Email) ? 'verify_2fa.php' : '../4profile/main_profile.php';
+			header('Location: ' . $redirectUrl);
+			exit;
+		} else {
+			// Introduce un retraso para mitigar ataques de fuerza bruta y muestra el mensaje de error.
+			sleep(1);
+		}
 	}
-
-	// Procesa el formulario si se envió mediante POST
-	if ($_SERVER["REQUEST_METHOD"] == "POST")
-	{
-		// Limpia y asigna las variables de Email y Password ingresadas por el usuario
-		$Email    = SanitizeInput($_POST['email']);
-		$Password = SanitizeInput($_POST['password']);
-
-		CheckLoginAttempts($Email);  // Verifica los intentos de inicio de sesión fallidos
-
-		// Comprueba si el token CSRF es válido
-		if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']))
-		{
-			echo "Error en la validación CSRF.";
-			exit;  // Detiene la ejecución si la validación CSRF falla
-		}
-
-		// Verifica las credenciales del usuario y guarda el resultado
-		$LoginSuccessful = VerifyUser($Email, $Password);
-		LogAttempt($Email, $LoginSuccessful === "Inicio de sesión exitoso.");  // Registra el intento de inicio de sesión
-
-		// Si el inicio de sesión es exitoso, redirecciona según tenga o no activada la autenticación de dos factores
-		if ($LoginSuccessful === "Inicio de sesión exitoso.")
-		{
-			$_SESSION['email'] = $Email;  // Guarda el email en la sesión para identificar al usuario
-			if (Has2FA($Email))  // Verifica si el usuario tiene activado 2FA
-			{
-				header('Location: verify_2fa.php');  // Redirige a la página de verificación 2FA
-			}
-			else
-			{
-				header('Location: ../index.php');  // Redirige al índice si no tiene 2FA
-			}
-			exit;  // Finaliza la ejecución después de la redirección
-		}
-		else
-		{
-			echo $LoginSuccessful;  // Muestra el mensaje de error si el inicio de sesión no es exitoso
-		}
-	}
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <link rel="stylesheet" type="text/css" href="estilo.css">  <!-- Enlace a la hoja de estilos CSS -->
-    <meta charset="UTF-8">
-    <title>Login</title>
+	<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Login</title>
+	<link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+	<!--    <link rel="stylesheet" type="text/css" href="estilo.css">-->
 </head>
+
 <body>
-<div class="version">Versión 1.2</div>
-<div class="form-box">
-    <h1>Iniciar Sesión</h1>
-    <form method="post">
-        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-		<?php if (!empty($LoginSuccessful) && $LoginSuccessful !== "Inicio de sesión exitoso."): ?>
-            <div class="error"><?php echo $LoginSuccessful; ?></div>  <!-- Muestra errores de inicio de sesión si los hay -->
-		<?php endif; ?>
-        <label for="email">Correo electrónico:</label>
-        <input type="email" name="email" id="email" required>
-        <label for="password">Contraseña:</label>
-        <input type="password" name="password" id="password" required>
-        <input type="submit" value="Iniciar Sesión">
-    </form>
-</div>
+	<?php
+	include "../nav.php";
+	?>
+	<div class="version">Versión 1.4</div>
+	<div class="form-box">
+		<h1>Iniciar Sesión</h1>
+		<form method="post">
+			<!-- Campo oculto para manejar el token CSRF. -->
+			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+			<!-- Muestra el mensaje de error si hay alguno. -->
+			<?php if (!empty($msg)) : ?>
+				<div class="error"><?php echo $msg; ?></div>
+			<?php endif; ?>
+			<!-- Campos para ingresar el correo electrónico y la contraseña. -->
+			<label for="email">Correo electrónico:</label>
+			<input type="email" name="email" id="email" required>
+			<label for="password">Contraseña:</label>
+			<input type="password" name="password" id="password" required>
+			<input type="submit" value="Iniciar Sesión">
+		</form>
+		<a href="/3register/register.form.php">¿No tienes cuenta? ¡Regístrate!</a>
+	</div>
+
 </body>
+
 </html>

@@ -7,7 +7,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Asegura que el body tome toda la altura de la ventana */
+    height: 100vh;
+    /* Asegura que el body tome toda la altura de la ventana. */
 }
 
 
@@ -64,48 +65,57 @@ body {
 
 /* Centrar el contenido dentro del .form-box */
 .form-box {
-    width: 350px; /* Ancho fijo para el formulario */
+    width: 350px;
+    /* Ancho fijo para el formulario */
     padding: 20px;
     background-color: #fff;
-    box-shadow: 0 0 15px rgba(0,0,0,0.2); /* Sombra suave para darle un efecto elevado */
-    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    /* Sombra suave para darle un efecto elevado */
+    border-radius: 8px;
+    /* Bordes redondeados */
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .form-box h1 {
-    margin: 0 0 20px 0; /* Espacio debajo del título */
+    margin: 0 0 20px 0;
+    /* Espacio debajo del título */
 }
 
 /* Estilos de los inputs y labels para que ocupen el 100% del .form-box */
 .form-box label,
 .form-box input[type="email"],
-input[type="email"],
-input[type="password"] {
-    width: 100%; /* Ajuste para ocupar todo el ancho disponible */
+.form-box input[type="password"] {
+    width: 100%;
+    /* Ajuste para ocupar todo el ancho disponible */
     padding: 10px;
     margin: 8px 0;
     display: inline-block;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box; /* Incluye padding y border en el ancho total */
+    box-sizing: border-box;
+    /* Incluye padding y border en el ancho total */
 }
 
 input[type="submit"] {
     width: 100%;
     padding: 10px;
-    background-color: #007BFF; /* Color azul para el botón */
+    background-color: #007BFF;
+    /* Color azul para el botón */
     color: white;
     border: none;
-    border-radius: 4px; /* Bordes redondeados para el botón */
+    border-radius: 4px;
+    /* Bordes redondeados para el botón */
     cursor: pointer;
-    transition: background-color 0.2s; /* Transición suave del color de fondo */
+    transition: background-color 0.2s;
+    /* Transición suave del color de fondo */
 }
 
 /* Agregar margen inferior a los labels para separarlos de los inputs */
 .form-box label {
-    margin-bottom: 5px; /* Ajusta este valor según sea necesario */
+    margin-bottom: 5px;
+    /* Ajusta este valor según sea necesario */
 }
 
 /* Asegurarse de que el form también se expanda para ocupar todo el ancho */
@@ -116,7 +126,8 @@ input[type="submit"] {
 
 input[type="text"],
 input[type="password"] {
-    width: calc(100% - 20px); /* Ajuste del ancho */
+    width: calc(100% - 20px);
+    /* Ajuste del ancho */
     padding: 10px;
     margin: 8px 0;
     display: inline-block;
@@ -132,12 +143,14 @@ input[type="submit"] {
     margin: 8px 0;
     border: none;
     cursor: pointer;
-    width: 100%; /* Ancho completo solo para el botón */
+    width: 100%;
+    /* Ancho completo solo para el botón */
     transition: background-color 0.2s, opacity 0.2s;
 }
 
 input[type="submit"]:hover {
-    background-color: #0056b3; /* Oscurece el botón al pasar el mouse */
+    background-color: #0056b3;
+    /* Oscurece el botón al pasar el mouse */
 }
 
 .version {
@@ -149,8 +162,10 @@ input[type="submit"]:hover {
 }
 
 
-.info, .warning {
-    width: 100%; /* Asegurarse de que los mensajes de alerta ocupen todo el ancho del form-box */
+.info,
+.warning {
+    width: 100%;
+    /* Asegurarse de que los mensajes de alerta ocupen todo el ancho del form-box */
     text-align: center;
     padding: 10px;
     border-radius: 5px;
@@ -169,12 +184,34 @@ input[type="submit"]:hover {
 }
 
 .error {
-    width: 100%; /* Asegura que ocupe todo el ancho del form-box */
+    width: 100%;
+    /* Asegura que ocupe todo el ancho del form-box */
     padding: 10px;
-    background-color: #ffc0c0; /* Color de fondo rojo suave */
-    color: #900; /* Color de texto rojo oscuro */
+    background-color: #ffc0c0;
+    /* Color de fondo rojo suave */
+    color: #900;
+    /* Color de texto rojo oscuro */
     text-align: center;
-    margin: 10px 0; /* Espacio antes y después del mensaje de error */
-    border-radius: 4px; /* Bordes redondeados */
+    margin: 10px 0;
+    /* Espacio antes y después del mensaje de error */
+    border-radius: 4px;
+    /* Bordes redondeados */
     box-sizing: border-box;
+}
+
+.button {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+}
+
+.button:hover {
+    background-color: #0056b3;
 }

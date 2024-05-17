@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Gestión de la conexión a la base de datos utilizando PDO.
  *
@@ -35,14 +36,11 @@ function GetDatabaseConnection(): PDO
 		PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC   // Establecer modo de búsqueda predeterminado a asociativo
 	];
 
-	try
-	{
+	try {
 		// Intento de conexión y retorno del objeto PDO.
 		$Connection = new PDO($Dsn, $User, $Password, $Options);
 		return $Connection;
-	}
-	catch (PDOException $e)
-	{
+	} catch (PDOException $e) {
 		// Registro y manejo de errores de conexión.
 		error_log('Error de conexión: ' . $e->getMessage());
 		die('Error de conexión con la base de datos.');  // Finaliza el script y muestra un mensaje de error
