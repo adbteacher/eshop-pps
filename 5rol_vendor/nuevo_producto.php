@@ -24,6 +24,7 @@
   <h1>Añadir un nuevo producto</h1>
 
   <form action="nuevo_producto.php" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
     <div class="input-group">
       <label for="prd_name">Nombre:</label>
       <input type="text" name="prd_name" value="<?php if(!empty($_POST['prd_name'])){echo htmlspecialchars($_POST['prd_name']);}?>">
@@ -48,19 +49,19 @@
 
     <div class="input-group">
       <label for="prd_price">Precio:</label>
-      <input type="number" name="prd_price" min="1" max="9999" value="<?php if(!empty($_POST['prd_price'])){echo $_POST['prd_price'];}?>">
+      <input type="number" name="prd_price" min="1" max="9999" value="<?php if(!empty($_POST['prd_price'])){echo htmlspecialchars($_POST['prd_price']);}?>">
       <?php if (isset($_POST['add_prd']) && empty($_POST['prd_price'])) echo "<span style='color:red'>Campo requerido</span>"?>
     </div>
 
     <div class="input-group">
       <label for="prd_quantity_shop">Cantidad en tienda:</label>
-      <input type="number" name="prd_quantity_shop" min="1" max="9999" value="<?php if(!empty($_POST['prd_quantity_shop'])){echo $_POST['prd_quantity_shop'];}?>">
+      <input type="number" name="prd_quantity_shop" min="1" max="9999" value="<?php if(!empty($_POST['prd_quantity_shop'])){echo htmlspecialchars($_POST['prd_quantity_shop']);}?>">
       <?php if (isset($_POST['add_prd']) && empty($_POST['prd_quantity_shop'])) echo "<span style='color:red'>Campo requerido</span>"?>
     </div>
 
     <div class="input-group">
       <label for="prd_stock">Stock:</label>
-      <input type="number" name="prd_stock" min="1" max="9999" value="<?php if(!empty($_POST['prd_stock'])){echo $_POST['prd_stock'];}?>">
+      <input type="number" name="prd_stock" min="1" max="9999" value="<?php if(!empty($_POST['prd_stock'])){echo htmlspecialchars($_POST['prd_stock']);}?>">
       <?php if (isset($_POST['add_prd']) && empty($_POST['prd_stock'])) echo "<span style='color:red'>Campo requerido</span>"?>
     </div>
 
@@ -82,54 +83,70 @@
 
   <?php
   include "biblioteca.php"; // Incluir archivo con funciones de base de datos
-  $pdo = connection(); // Establecer conexión a la base de datos usando PDO
-  // Realizar consulta a la base de datos
+  session_start();
+  if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csrf_token']) && $_POST['csrf_token'] === $_SESSION['csrf_token']) {
+    $pdo = connection(); // Establecer conexión a la base de datos usando PDO
+    // Realizar consulta a la base de datos
 
-  if (isset($_POST['add_prd'])) {
-    // Validar imagen antes de procesarla
-    if (!empty($_FILES['prd_image']['name'])) {
-      $file_info = $_FILES['prd_image'];
-      $file_name = $file_info['name'];
-      $file_tmp = $file_info['tmp_name'];
-      $file_mime = mime_content_type($file_tmp);
+    if (isset($_POST['add_prd'])) {
+      // Validar imagen antes de procesarla
+      if (!empty($_FILES['prd_image']['name'])) {
+        $file_info = $_FILES['prd_image'];
+        $file_name = basename($file_info['name']); // Usar basename para evitar path traversal
+        $file_tmp = $file_info['tmp_name'];
+        $file_mime = mime_content_type($file_tmp);
+        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+        $allowed_extensions = ['jpg', 'jpeg', 'png'];
 
-      // Validar tipo de archivo y que sea una imagen
-      if (($file_mime == 'image/jpeg' || $file_mime == 'image/png' || $file_mime == 'image/jpeg') && exif_imagetype($file_tmp) != false) {
-        // Preparar la consulta SQL para insertar el producto en la base de datos
-        $SQL = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_quantity_shop, prd_stock, prd_image, prd_description) VALUES (?,?,?,?,?,?,?,?)";
-        $stmt = $pdo->prepare($SQL);
+        // Validar tipo de archivo y que sea una imagen
+        if (in_array($file_ext, $allowed_extensions) && ($file_mime == 'image/jpeg' || $file_mime == 'image/png') && exif_imagetype($file_tmp) != false) {
+          // Generar un nombre de archivo seguro y único
+          $new_file_name = uniqid('img_', true) . '.' . $file_ext;
+          $upload_dir = 'uploads/';
+          $upload_path = $upload_dir . $new_file_name;
+          if (move_uploaded_file($file_tmp, $upload_path)) {
+            // Preparar la consulta SQL para insertar el producto en la base de datos
+            $SQL = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_quantity_shop, prd_stock, prd_image, prd_description) VALUES (?,?,?,?,?,?,?,?)";
+            $stmt = $pdo->prepare($SQL);
 
-        // Filtrar y sanitizar los datos del formulario
-        $prd_name = filter_var($_POST['prd_name'], FILTER_SANITIZE_STRING);
-        $prd_category = filter_var($_POST['prd_category'], FILTER_SANITIZE_STRING);
-        $prd_details = filter_var($_POST['prd_details'], FILTER_SANITIZE_STRING);
-        $prd_price = filter_var($_POST['prd_price'], FILTER_SANITIZE_NUMBER_INT);
-        $prd_quantity_shop = filter_var($_POST['prd_quantity_shop'], FILTER_SANITIZE_NUMBER_INT);
-        $prd_stock = filter_var($_POST['prd_stock'], FILTER_SANITIZE_NUMBER_INT);
-        $prd_image = $file_name; // El nombre del archivo ya ha sido validado
-        $prd_description = filter_var($_POST['prd_description'], FILTER_SANITIZE_STRING);
+            // Filtrar y sanitizar los datos del formulario
+            $prd_name = filter_var($_POST['prd_name'], FILTER_SANITIZE_STRING);
+            $prd_category = filter_var($_POST['prd_category'], FILTER_SANITIZE_STRING);
+            $prd_details = filter_var($_POST['prd_details'], FILTER_SANITIZE_STRING);
+            $prd_price = filter_var($_POST['prd_price'], FILTER_SANITIZE_NUMBER_INT);
+            $prd_quantity_shop = filter_var($_POST['prd_quantity_shop'], FILTER_SANITIZE_NUMBER_INT);
+            $prd_stock = filter_var($_POST['prd_stock'], FILTER_SANITIZE_NUMBER_INT);
+            $prd_image = $new_file_name; // Usar el nombre seguro del archivo
+            $prd_description = filter_var($_POST['prd_description'], FILTER_SANITIZE_STRING);
 
-        // Ejecutar la consulta preparada
-        try {
-          $stmt->execute([$prd_name, $prd_category, $prd_details, $prd_price, $prd_quantity_shop, $prd_stock, $prd_image, $prd_description]);
-          echo '<div class="mensaje_exito">Producto añadido correctamente</div>';
-        } catch (PDOException $e) {
-          echo '<div class="mensaje_error">Error al insertar el producto: ' . $e->getMessage() . '</div>';
+            // Ejecutar la consulta preparada
+            try {
+              $stmt->execute([$prd_name, $prd_category, $prd_details, $prd_price, $prd_quantity_shop, $prd_stock, $prd_image, $prd_description]);
+              echo '<div class="mensaje_exito">Producto añadido correctamente</div>';
+            } catch (PDOException $e) {
+              echo '<div class="mensaje_error">Error al insertar el producto: ' . htmlspecialchars($e->getMessage()) . '</div>';
+            }
+
+            // Cerrar la consulta preparada
+            $stmt = null;
+          } else {
+            echo '<div class="mensaje_error">Error al mover el archivo subido</div>';
+          }
+        } else {
+          echo '<div class="mensaje_error">El archivo debe ser una imagen JPG, PNG o JPEG válida</div>';
         }
-
-        // Cerrar la consulta preparada
-        $stmt = null;
       } else {
-        echo '<div class="mensaje_error">El archivo debe ser una imagen JPG, PNG o JPEG válida</div>';
+        echo '<div class="mensaje_error">Debe seleccionar una imagen</div>';
       }
-    } else {
-      echo '<div class="mensaje_error">Debe seleccionar una imagen</div>';
+
     }
-
+    // Cerrar conexión a la base de datos
+    $pdo = null;
+  } else {
+    echo '<div class="mensaje_error">CSRF token inválido</div>';
   }
-
-  // Cerrar conexión a la base de datos
-  $pdo = null;
+  // Generar un nuevo token CSRF para la próxima solicitud
+  $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
   ?>
 
 </body>
