@@ -9,7 +9,24 @@
 
 <body>
     <?php
-    require_once '../Database.php';
+    session_start(); // Iniciar la sesión si aún no se ha iniciado
+
+    // Verificar si el usuario está autenticado
+    if (!isset($_SESSION['UserEmail']) || !isset($_SESSION['UserID'])) {
+        header("Location: ../1login/login.php"); // Redirigir a la página de inicio de sesión si el usuario no está autenticado
+        exit;
+    }
+
+    require_once '../Database.php'; // Conexión a la PDO.
+
+    $UserID = $_SESSION['UserID']; // ID de usuario
+
+    // Generar un token CSRF y almacenarlo en la sesión
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $csrf_token = $_SESSION['csrf_token']; // CSRF TOKEN
 
     // Función de limpieza:
     function cleanInput($input)
@@ -32,7 +49,12 @@
 
     // Manejar el envío del formulario para añadir una nueva dirección
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitNewadress'])) {
-        $user_id = '1'; // Obtener el ID del usuario de alguna manera
+        // Verificar el token CSRF
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            echo "Error: Invalid CSRF token.";
+            exit;
+        }
+
         $line1 = isset($_POST['adr_line1']) ? cleanInput($_POST['adr_line1']) : '';
         $line2 = isset($_POST['adr_line2']) ? cleanInput($_POST['adr_line2']) : '';
         $city = isset($_POST['adr_city']) ? cleanInput($_POST['adr_city']) : '';
@@ -41,7 +63,7 @@
         $country = isset($_POST['adr_country']) ? cleanInput($_POST['adr_country']) : '';
 
         // Añadir la nueva dirección a la base de datos
-        addNewadress($user_id, $line1, $line2, $city, $state, $postal_code, $country);
+        addNewadress($UserID, $line1, $line2, $city, $state, $postal_code, $country);
 
         // Redireccionar a la página para evitar el reenvío del formulario
         header("Location: usu_addres.php");
@@ -52,6 +74,7 @@
     <!-- Formulario para añadir una nueva dirección -->
     <h1>Añadir Nueva Dirección</h1>
     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
         <label for="adr_line1">Línea 1:</label>
         <input type="text" name="adr_line1" required>
         <br>

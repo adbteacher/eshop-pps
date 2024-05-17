@@ -2,7 +2,7 @@
 session_start(); // Iniciar la sesión si aún no se ha iniciado
 
 // Verificar si el usuario está autenticado
-if (!isset($_SESSION['email'])) {
+if (!isset($_SESSION['UserEmail'])) {
     header("Location: ../1login/login.php"); // Redirigir a la página de inicio de sesión si el usuario no está autenticado
     exit;
 }
@@ -15,13 +15,13 @@ if (!isset($_SESSION['email'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil Personal</title>
-    <link rel="stylesheet" href="main_styles.css"> <!-- CSS STYLE -->
+    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
 </head>
 
 <body>
-<?php
-	include "../nav.php";
-?>
+    <?php
+    include "../nav.php";
+    ?>
     <div class="container">
         <h1>Bienvenido al Perfil Personal</h1>
 

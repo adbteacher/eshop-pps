@@ -2,10 +2,17 @@
 session_start(); // Iniciar la sesión si aún no se ha iniciado
 
 // Verificar si el usuario está autenticado
-if (!isset($_SESSION['email'])) {
+if (!isset($_SESSION['UserEmail'])) {
     header("Location: ../1login/login.php"); // Redirigir a la página de inicio de sesión si el usuario no está autenticado
     exit;
 }
+
+// Generar un token CSRF y almacenarlo en la sesión
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+$csrf_token = $_SESSION['csrf_token']; // CSRF TOKEN
 
 // Función de limpieza:
 function cleanInput($input)
@@ -13,7 +20,7 @@ function cleanInput($input)
     $input = trim($input);
     $input = stripslashes($input);
     $input = str_replace(["'", '"', ";", "|", "[", "]", "x00", "<", ">", "~", "´", "/", "\\", "¿"], '', $input);
-    $input = str_replace(['=', '+', '-', '#', '(', ')', '!', '$', '{', '}', '`', '?'], '', $input);
+    $input = str_replace(['=', '#', '(', ')', '!', '$', '{', '}', '`', '?'], '', $input);
     return $input;
 }
 
@@ -53,7 +60,13 @@ function ChangePassword($user_email, $old_password, $new_password): bool
 
 // Manejar el envío del formulario para cambiar la contraseña
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
-    $user_email = $_SESSION['email'];
+    // Verificar el token CSRF
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        echo "Error: Invalid CSRF token.";
+        exit;
+    }
+
+    $user_email = $_SESSION['UserEmail'];
     $old_password = isset($_POST['old_password']) ? cleanInput($_POST['old_password']) : '';
     $new_password = isset($_POST['new_password']) ? cleanInput($_POST['new_password']) : '';
 
@@ -61,30 +74,111 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cambiar Contraseña</title>
+    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <style>
+        .form-container {
+            max-width: 400px;
+            /* Ancho máximo del formulario */
+            margin: 0 auto;
+            /* Centra el formulario horizontalmente */
+            padding: 20px;
+            /* Añade espaciado interior al formulario */
+            border: 1px solid #ccc;
+            /* Añade un borde al formulario */
+            border-radius: 5px;
+            /* Añade bordes redondeados al formulario */
+            background-color: #f9f9f9;
+            /* Añade un color de fondo al formulario */
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 10px;
+        }
+
+        .title-container {
+            margin-top: 20px;
+            /* Ajusta el margen superior del contenedor del título */
+            border: 1px solid #ccc;
+            /* Añade un borde al contenedor del título */
+            border-radius: 5px;
+            /* Añade bordes redondeados al contenedor del título */
+            background-color: #f9f9f9;
+            /* Añade un color de fondo al contenedor del título */
+            padding: 20px;
+            /* Añade espaciado interior al contenedor del título */
+        }
+
+        .second-factor-container {
+            margin-top: 20px;
+            /* Ajusta el margen superior del contenedor del segundo factor */
+            border: 1px solid #ccc;
+            /* Añade un borde al contenedor del segundo factor */
+            border-radius: 5px;
+            /* Añade bordes redondeados al contenedor del segundo factor */
+            background-color: #f9f9f9;
+            /* Añade un color de fondo al contenedor del segundo factor */
+            padding: 20px;
+            /* Añade espaciado interior al contenedor del segundo factor */
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Cambiar Contraseña</h1>
-    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-        <label for="old_password">Contraseña Antigua:</label><br>
-        <input type="password" name="old_password" required><br><br>
-        <label for="new_password">Nueva Contraseña:</label><br>
-        <input type="password" name="new_password" required><br><br>
-        <label for="confirm_new_password">Confirmar Nueva Contraseña:</label><br>
-        <input type="password" name="confirm_new_password" required><br><br>
-        <button type="submit" name="submit">Cambiar Contraseña</button>
-    </form>
-    <h1>Segundo factor de autenticación</h1>
-    <ul>
-        <li><a href="../1login/activate_2fa.php">Activar segundo factor</a></li>
-    </ul>
+
+    <?php
+    include "../nav.php";
+    ?>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="title-container">
+                    <h3 class="text-center">Cambiar Contraseña</h3>
+                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="form-container">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+
+                        <div class="form-group">
+                            <label for="old_password" class="form-label">Contraseña Antigua:</label>
+                            <input type="password" name="old_password" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new_password" class="form-label">Nueva Contraseña:</label>
+                            <input type="password" name="new_password" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm_new_password" class="form-label">Confirmar Nueva Contraseña:</label>
+                            <input type="password" name="confirm_new_password" class="form-control" required>
+                        </div>
+
+                        <button type="submit" name="submit" class="btn btn-primary">Cambiar Contraseña</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="second-factor-container">
+                    <h3 class="text-center">Activar segundo factor</h3>
+                    <div class="container mt-3 text-center">
+                        <a href="activate_2fa.php" class="btn btn-primary">Activar segundo factor</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

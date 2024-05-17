@@ -21,7 +21,7 @@ if (!isset($_SESSION['UserEmail'])) {
     exit; // Finaliza la ejecución si el usuario no está autorizado.
 }
 
-$Email = $_SESSION['email'];
+$Email = $_SESSION['UserEmail'];
 
 // Procesa el formulario cuando se envía mediante POST.
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
