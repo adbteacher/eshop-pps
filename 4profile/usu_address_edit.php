@@ -15,12 +15,18 @@ if (!isset($_SESSION['UserEmail'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Dirección</title>
+    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <style>
+        .container {
+            padding: 20px;
+        }
+    </style>
 </head>
 
 <body>
     <?php
     require_once '../Database.php';
-
+    include "../nav.php";
     // Función de limpieza:
     function cleanInput($input)
     {
@@ -64,35 +70,43 @@ if (!isset($_SESSION['UserEmail'])) {
     }
     ?>
 
-    <h1>Editar Dirección</h1>
-
-    <?php if ($edit_adress) : ?>
+    <div class="container">
         <!-- Formulario para editar la dirección -->
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-            <input type="hidden" name="edit_address_id" value="<?php echo $edit_adress['adr_id']; ?>">
-            <label for="adr_line1">Línea 1:</label>
-            <input type="text" name="adr_line1" value="<?php echo $edit_adress['adr_line1']; ?>" required>
-            <br>
-            <label for="adr_line2">Línea 2:</label>
-            <input type="text" name="adr_line2" value="<?php echo $edit_adress['adr_line2']; ?>">
-            <br>
-            <label for="adr_city">Ciudad:</label>
-            <input type="text" name="adr_city" value="<?php echo $edit_adress['adr_city']; ?>" required>
-            <br>
-            <label for="adr_state">Estado:</label>
-            <input type="text" name="adr_state" value="<?php echo $edit_adress['adr_state']; ?>">
-            <br>
-            <label for="adr_postal_code">Código Postal:</label>
-            <input type="text" name="adr_postal_code" value="<?php echo $edit_adress['adr_postal_code']; ?>" required>
-            <br>
-            <label for="adr_country">País:</label>
-            <input type="text" name="adr_country" value="<?php echo $edit_adress['adr_country']; ?>" required>
-            <br>
-            <button type="submit" name="submitUpdateadress">Actualizar Dirección</button>
-        </form>
-    <?php else : ?>
-        <p>No se pudo encontrar la dirección para editar.</p>
-    <?php endif; ?>
+        <h1 class="text-center mb-4">Editar Dirección</h1>
+
+        <?php if ($edit_adress) : ?>
+            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                <input type="hidden" name="edit_address_id" value="<?php echo $edit_adress['adr_id']; ?>">
+                <div class="mb-3">
+                    <label for="adr_line1" class="form-label">Línea 1:</label>
+                    <input type="text" name="adr_line1" value="<?php echo $edit_adress['adr_line1']; ?>" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="adr_line2" class="form-label">Línea 2:</label>
+                    <input type="text" name="adr_line2" value="<?php echo $edit_adress['adr_line2']; ?>" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="adr_city" class="form-label">Ciudad:</label>
+                    <input type="text" name="adr_city" value="<?php echo $edit_adress['adr_city']; ?>" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="adr_state" class="form-label">Estado:</label>
+                    <input type="text" name="adr_state" value="<?php echo $edit_adress['adr_state']; ?>" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="adr_postal_code" class="form-label">Código Postal:</label>
+                    <input type="text" name="adr_postal_code" value="<?php echo $edit_adress['adr_postal_code']; ?>" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="adr_country" class="form-label">País:</label>
+                    <input type="text" name="adr_country" value="<?php echo $edit_adress['adr_country']; ?>" class="form-control" required>
+                </div>
+                <button type="submit" name="submitUpdateadress" class="btn btn-primary">Actualizar Dirección</button>
+            </form>
+        <?php else : ?>
+            <p class="text-danger">No se pudo encontrar la dirección para editar.</p>
+        <?php endif; ?>
+    </div>
 
 </body>
 
