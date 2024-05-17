@@ -5,12 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Añadir Nueva Dirección</title>
+    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <style>
+        .container {
+            padding: 20px;
+        }
+    </style>
 </head>
 
 <body>
     <?php
     session_start(); // Iniciar la sesión si aún no se ha iniciado
-
+    include "../nav.php";
     // Verificar si el usuario está autenticado
     if (!isset($_SESSION['UserEmail']) || !isset($_SESSION['UserID'])) {
         header("Location: ../1login/login.php"); // Redirigir a la página de inicio de sesión si el usuario no está autenticado
@@ -71,30 +77,39 @@
     }
     ?>
 
-    <!-- Formulario para añadir una nueva dirección -->
-    <h1>Añadir Nueva Dirección</h1>
-    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-        <label for="adr_line1">Línea 1:</label>
-        <input type="text" name="adr_line1" required>
-        <br>
-        <label for="adr_line2">Línea 2:</label>
-        <input type="text" name="adr_line2">
-        <br>
-        <label for="adr_city">Ciudad:</label>
-        <input type="text" name="adr_city" required>
-        <br>
-        <label for="adr_state">Estado:</label>
-        <input type="text" name="adr_state">
-        <br>
-        <label for="adr_postal_code">Código Postal:</label>
-        <input type="text" name="adr_postal_code" required>
-        <br>
-        <label for="adr_country">País:</label>
-        <input type="text" name="adr_country" required>
-        <br>
-        <button type="submit" name="submitNewadress">Añadir Dirección</button>
-    </form>
+    <div class="container">
+        <!-- Formulario para añadir una nueva dirección -->
+        <h1 class="text-center mb-4">Añadir Nueva Dirección</h1>
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+            <div class="mb-3">
+                <label for="adr_line1" class="form-label">Línea 1:</label>
+                <input type="text" name="adr_line1" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="adr_line2" class="form-label">Línea 2:</label>
+                <input type="text" name="adr_line2" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="adr_city" class="form-label">Ciudad:</label>
+                <input type="text" name="adr_city" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="adr_state" class="form-label">Estado:</label>
+                <input type="text" name="adr_state" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="adr_postal_code" class="form-label">Código Postal:</label>
+                <input type="text" name="adr_postal_code" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="adr_country" class="form-label">País:</label>
+                <input type="text" name="adr_country" class="form-control" required>
+            </div>
+            <button type="submit" name="submitNewadress" class="btn btn-primary">Añadir Dirección</button>
+        </form>
+    </div>
+
 </body>
 
 </html>
