@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Pago con PayPal</title>
+    <script>
+        // Función para validar el formato de correo electrónico
+        function validateEmail(input) {
+            // Expresión regular para validar el formato del correo electrónico
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            // Elemento para mostrar el mensaje de advertencia
+            const errorMessage = document.getElementById('email-error-message');
+            // Si el valor del input no coincide con el formato de correo electrónico
+            if (!emailRegex.test(input.value)) {
+                // Mostrar el mensaje de advertencia
+                errorMessage.style.display = 'block';
+            } else {
+                // Ocultar el mensaje de advertencia si el formato es válido
+                errorMessage.style.display = 'none';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Pago con PayPal</h1>
+    <form action="Payment_Methods_Nuevo.php" method="post">
+        <input type="hidden" name="metodo_pago" value="paypal">
+        <label for="online_account">Cuenta de PayPal (Correo Electrónico):</label><br>
+        <!-- Se agrega el atributo oninput para llamar a la función de validación en tiempo real -->
+        <input type="text" id="online_account" name="online_account" required oninput="validateEmail(this)"><br>
+        <!-- Mensaje de advertencia para mostrar si el formato de correo electrónico es inválido -->
+        <p id="email-error-message" style="display: none; color: red;">Por favor, ingrese una dirección de correo electrónico válida.</p><br>
+        <label for="online_password">Contraseña de PayPal:</label><br>
+        <input type="password" id="online_password" name="online_password" required><br><br>
+        <button type="submit">Pagar con PayPal</button>
+    </form>
+</body>
+</html>
