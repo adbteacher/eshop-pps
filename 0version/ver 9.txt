@@ -1,0 +1,5 @@
+9 - CETI - Iván - Basic Register, Login, Profile.
+
+- Fixed the Register
+- Fixed the Login
+- Sessions implemented

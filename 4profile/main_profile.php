@@ -9,6 +9,9 @@
 </head>
 
 <body>
+<?php
+	include "../nav.php";
+?>
     <div class="container">
         <h1>Bienvenido al Perfil Personal</h1>
 

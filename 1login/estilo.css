@@ -7,7 +7,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Asegura que el body tome toda la altura de la ventana */
+    height: 100vh; /* Asegura que el body tome toda la altura de la ventana. */
 }
 
 
@@ -81,8 +81,7 @@ body {
 /* Estilos de los inputs y labels para que ocupen el 100% del .form-box */
 .form-box label,
 .form-box input[type="email"],
-input[type="email"],
-input[type="password"] {
+.form-box input[type="password"] {
     width: 100%; /* Ajuste para ocupar todo el ancho disponible */
     padding: 10px;
     margin: 8px 0;
@@ -142,11 +141,12 @@ input[type="submit"]:hover {
 
 .version {
     position: fixed;
-    bottom: 10px;
-    right: 10px;
+    top: 10px;
+    left: 10px;
     font-size: 12px;
     color: #666;
 }
+
 
 .info, .warning {
     width: 100%; /* Asegurarse de que los mensajes de alerta ocupen todo el ancho del form-box */
@@ -176,4 +176,21 @@ input[type="submit"]:hover {
     margin: 10px 0; /* Espacio antes y después del mensaje de error */
     border-radius: 4px; /* Bordes redondeados */
     box-sizing: border-box;
+}
+
+.button {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+}
+
+.button:hover {
+    background-color: #0056b3;
 }

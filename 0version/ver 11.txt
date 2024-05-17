@@ -1,0 +1,4 @@
+11 - CETI - Javier Sureda - Products catalog
+
+- Added a catalog for products in the main page.
+- Added the ability to add products to a shopping cart.
