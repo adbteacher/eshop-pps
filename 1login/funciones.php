@@ -1,7 +1,7 @@
 <?php
 
-require_once '../Database.php';  // Incluye el script de conexión a la base de datos.
-require_once '../vendor/autoload.php';  // Autocargador para dependencias de Composer
+require_once '../autoload.php';
+
 use RobThree\Auth\TwoFactorAuth;
 
 // Uso de la biblioteca de autenticación de dos factores
@@ -68,7 +68,7 @@ function GetUserByEmail($Email): array|bool
  * @param string $Email Email del usuario a buscar.
  * @return int ID del usuario o 0 si no se encuentra.
  */
-function GetUserIdByEmail($Email)
+function GetUserIdByEmail(string $Email): int
 {
 	$Connection = GetDatabaseConnection();  // Obtiene la conexión a la base de datos
 	$Query      = $Connection->prepare("SELECT usu_id FROM pps_users WHERE usu_email = ?");  // Prepara la consulta SQL
@@ -89,7 +89,7 @@ function GetUserIdByEmail($Email)
  * @param string $Email Email del usuario a verificar.
  */
 // Esta función hay que cambiarla porque patatas
-function CheckLoginAttempts($Email): void
+function CheckLoginAttempts(string $Email): void
 {
 	$Connection = database::LoadDatabase();  // Obtiene la conexión a la base de datos
 	$Ip         = $_SERVER['REMOTE_ADDR'];  // Dirección IP del cliente
@@ -123,7 +123,7 @@ function CheckLoginAttempts($Email): void
  * @param string $Email Email del usuario a verificar.
  * @return bool Verdadero si el usuario existe, falso si no.
  */
-function UserExistsByEmail($Email): bool
+function UserExistsByEmail(string $Email): bool
 {
 	$Connection = GetDatabaseConnection();
 	$Query      = $Connection->prepare("SELECT COUNT(*) FROM pps_users WHERE usu_email = ?");
@@ -145,7 +145,7 @@ function UserExistsByEmail($Email): bool
  * @return bool Verdadero si el registro es exitoso, falso si falla.
  */
 // Funciones de mi registro que habrá que eliminar cuando esté implementado el registro de JV
-function RegisterUser($Email, $Password): bool
+function RegisterUser(string $Email, string $Password): bool
 {
 	if (UserExistsByEmail($Email)) {
 		echo "Error: El usuario ya existe.";
@@ -220,10 +220,10 @@ function LogAttempt($Email, $Success): void
 /**
  * Verifica si el usuario tiene activada la autenticación de dos factores (2FA).
  *
- * @param string $Username Nombre de usuario a verificar.
+ * @param string $Email Email de usuario a verificar.
  * @return bool Verdadero si el usuario tiene 2FA activado, falso si no.
  */
-function Has2FA($Email): bool
+function Has2FA(string $Email): bool
 {
 	$Connection = GetDatabaseConnection();  // Obtiene la conexión a la base de datos
 	$Query      = $Connection->prepare("SELECT usu_2fa FROM pps_users WHERE usu_email = ?");  // Cambiado a usu_2fa
@@ -245,7 +245,7 @@ function Has2FA($Email): bool
  * @param string $Secret Secreto de 2FA generado.
  * @return bool Retorna verdadero si la actualización fue exitosa, falso si hubo errores.
  */
-function UpdateUser2FASecret($Email, $Secret): bool
+function UpdateUser2FASecret(string $Email, string $Secret): bool
 {
 	$Connection = GetDatabaseConnection();  // Obtiene la conexión a la base de datos
 	$Query      = $Connection->prepare("UPDATE pps_users SET usu_2fa = ? WHERE usu_email = ?");  // Actualiza a usu_2fa

@@ -3,7 +3,7 @@
 class database
 {
 
-	public static function LoadDatabase(): PDO
+	public static function LoadDatabase()
 	{
 		$Server       = getenv('DB_HOST');
 		$DatabaseName = getenv('DB_NAME');
