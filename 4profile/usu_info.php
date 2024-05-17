@@ -1,5 +1,11 @@
 <?php
-	require_once 'db.php';
+
+    session_start();
+
+	require_once("../vendor/autoload.php");
+	require_once("../autoload.php");
+
+	functions::ActiveSession();
 
 	// Functions
 	function cleanInput($input): array|string
@@ -23,7 +29,7 @@
 		$UserId = isset($_POST['userId']) ? cleanInput($_POST['userId']) : ''; //
 
 		// Database connection
-		$connection = GetDatabaseConnection();
+		$connection = database::LoadDatabase();
 
 		// Query the information of the selected user using prepared statement
 		$sql  = "SELECT * FROM pps_users WHERE usu_id = ?";
@@ -52,7 +58,7 @@
 		$Phone    = isset($_POST['phone']) ? cleanInput($_POST['phone']) : '';
 
 		// Database connection
-		$connection = GetDatabaseConnection();
+		$connection = database::LoadDatabase();
 
 		// Update information in the database
 		// Prepare the SQL statement for updating user information
@@ -156,6 +162,6 @@
     </html>
 
 <?php
-	// Close the database connection
-	$connection = null;
-?>
+//	// Close the database connection
+//	$connection = null;
+//?>

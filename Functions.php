@@ -1,9 +1,14 @@
 <?php
 
-	require_once "Database.php";
+	require_once(__DIR__. "/Database.php");
 
-
-	class Functions
+	/**
+	 * Functions.php - Main utilities
+	 *
+	 * @Author Iván
+	 *
+	 */
+	class functions
 	{
 		public static function HasPermissions(string $UserRol, string $ProgramName): bool
 		{
@@ -24,6 +29,14 @@
 			else
 			{
 				return true;
+			}
+		}
+
+		public static function ActiveSession(): void
+		{
+			if (!$_SESSION["UserID"])
+			{
+				header("Location:/1login/login.php");
 			}
 		}
 
