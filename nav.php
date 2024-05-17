@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                     <a class="nav-link" href="/3register/register.form.php">Registro</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/1login/login.php">Login</a>
+                    <a class="nav-link" href="../1login/login.php">Login</a>
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto">
@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                             </li>
                         <?php endforeach; ?>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-center" href="cart.php">Ver Carrito</a></li>
+                        <li><a class="dropdown-item text-center" href="../9shopping/Cart.php">Ver Carrito</a></li>
                     <?php else: // Muestra cuando no hay productos en el carrito ?>
                         <li class="dropdown-item text-center">No hay productos en el carrito.</li>
                     <?php endif; ?>
@@ -117,4 +117,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
     </div>
 </nav>
 
-<script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
