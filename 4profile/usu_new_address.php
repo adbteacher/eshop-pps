@@ -16,13 +16,13 @@
 <body>
     <?php
     session_start(); // Iniciar la sesión si aún no se ha iniciado
-    include "../nav.php";
+
     // Verificar si el usuario está autenticado
     if (!isset($_SESSION['UserEmail']) || !isset($_SESSION['UserID'])) {
         header("Location: ../1login/login.php"); // Redirigir a la página de inicio de sesión si el usuario no está autenticado
         exit;
     }
-
+    include "../nav.php";
     require_once '../Database.php'; // Conexión a la PDO.
 
     $UserID = $_SESSION['UserID']; // ID de usuario
