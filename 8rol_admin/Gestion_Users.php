@@ -20,7 +20,7 @@ function MostrarUsuarios($conexion) {
 
     if ($result) {
         echo "<h2>Lista de Usuarios</h2>";
-        echo "<table>";
+        echo "<table class='table table-striped'>";
         echo "<tr><th>ID</th><th>Nombre</th><th>Rol</th><th>Teléfono</th><th>Correo</th><th>Acciones</th></tr>";
         foreach ($result as $row) {
             echo "<tr>";
@@ -32,12 +32,12 @@ function MostrarUsuarios($conexion) {
             echo "<td>";
             echo "<form action='Mod_user.php' method='post' style='display:inline;'>";
             echo "<input type='hidden' name='idUsuario' value='{$row['usu_id']}'>"; // Campo oculto para enviar el ID del usuario
-            echo "<button type='submit'>Modificar</button>"; // Botón para enviar el formulario
+            echo "<button type='submit' class='btn btn-primary btn-sm'>Modificar</button>"; // Botón para enviar el formulario
             echo "</form> ";
             echo "<form method='post' style='display:inline;'>";
             echo "<input type='hidden' name='idUsuario' value='{$row['usu_id']}'>"; // Campo oculto para enviar el ID del usuario
             echo "<input type='hidden' name='csrf_token' value='{$_SESSION['csrf_token']}'>"; // Token CSRF
-            echo "<button type='submit' name='eliminarUsuario'>Eliminar</button>"; // Botón para enviar el formulario de eliminación
+            echo "<button type='submit' name='eliminarUsuario' class='btn btn-danger btn-sm'>Eliminar</button>"; // Botón para enviar el formulario de eliminación
             echo "</form>";
             echo "</td>";
             echo "</tr>";
@@ -46,12 +46,6 @@ function MostrarUsuarios($conexion) {
     } else {
         echo "No se encontraron usuarios.";
     }
-}
-function ObtenerRol($conexion) {
-    $query = "SELECT usu_id, usu_rol FROM pps_users";
-    $stmt = $conexion->prepare($query);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 // Validar token anti-CSRF y manejar eliminación de usuario
@@ -93,68 +87,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="estilo.css">
+    <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css"> <!-- Añadir CSS de Bootstrap -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> <!-- Referencia a jQuery -->
     <title>Administración de Usuarios</title>
 </head>
 <body>
-    <h1>Administración de Usuarios</h1>
+    <div class="container mt-5">
+        <h1>Administración de Usuarios</h1>
 
-    <!-- Formulario para crear un nuevo usuario -->
-    <h2>Crear Nuevo Usuario</h2>
-    <form id="formCrearUsuario" method="post">
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" pattern="[a-zA-Z\s]+" required>
-        <br><br>
-        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-        <label for="passwd">Contraseña:</label>
-        <input type="password" id="passwd" name="passwd" pattern="^[a-zA-Z0-9!@#$%^&*()_+}{:;?]+$" required>
-        <br><br>
-        <label for="telf">Teléfono:</label>
-        <input type="text" id="telf" name="telf" pattern="\d{9}" title="El número de teléfono debe tener 9 dígitos" required>
-        <br><br>
-        <label for="rol">Rol:</label>
-        <?php
-        $categorias = ObtenerRol($conexion);
-        foreach ($roles as $rol) {
-            echo "<option value='{$rol['usu_id']}'>{$rol['usu_rol']}</option>";
-        }
-        ?>
-        </select><br><br>
-        <label for="email">Correo:</label>
-        <input type="email" id="email" name="email" required>
-        <br><br>
-        <button type="submit" id="btnCrearUsuario" name="crearUsuario">Crear Usuario</button>
-    </form>
-    <script>
-    $(document).ready(function(){
-        // AJAX para enviar el formulario de creación de usuario
-        $("#btnCrearUsuario").click(function(event){
-            event.preventDefault(); // Prevenir la acción predeterminada del botón
-            $.ajax({
-                url: "crear_usuario.php", // Ruta del archivo PHP que procesa el formulario
-                type: "POST",
-                data: $("#formCrearUsuario").serialize(), // Serializar el formulario
-                success: function(response){
-                    alert(response); // Mostrar mensaje de respuesta
-                    // Redireccionar a la página de administración de usuarios
-                    window.location.href = "Gestion_Users.php";
-                }
+        <!-- Formulario para crear un nuevo usuario -->
+        <h2>Crear Nuevo Usuario</h2>
+        <form id="formCrearUsuario" method="post">
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" pattern="[a-zA-Z\s]+" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="passwd" class="form-label">Contraseña:</label>
+                <input type="password" id="passwd" name="passwd" pattern="^[a-zA-Z0-9!@#$%^&*()_+}{:;?]+$" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="telf" class="form-label">Teléfono:</label>
+                <input type="text" id="telf" name="telf" pattern="\d{9}" title="El número de teléfono debe tener 9 dígitos" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="rol" class="form-label">Rol:</label>
+                <select id="rol" name="rol" class="form-select" required>
+                    <option value="A">Administrador</option> <!-- ADMIN -->
+                    <option value="U">Usuario</option> <!-- USER -->
+                    <option value="S">Soporte</option> <!-- SOPORTE -->
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo:</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+            <button type="submit" id="btnCrearUsuario" name="crearUsuario" class="btn btn-primary">Crear Usuario</button>
+        </form>
+        <script>
+        $(document).ready(function(){
+            // AJAX para enviar el formulario de creación de usuario
+            $("#btnCrearUsuario").click(function(event){
+                event.preventDefault(); // Prevenir la acción predeterminada del botón
+                $.ajax({
+                    url: "crear_usuario.php", // Ruta del archivo PHP que procesa el formulario
+                    type: "POST",
+                    data: $("#formCrearUsuario").serialize(), // Serializar el formulario
+                    success: function(response){
+                        alert(response); // Mostrar mensaje de respuesta
+                        // Redireccionar a la página de administración de usuarios
+                        window.location.href = "Gestion_Users.php";
+                    }
+                });
             });
         });
-    });
-    </script>
-    <button onclick="window.location.href='Rol_Admin.php'">Ir a Rol-Admin</button>
+        </script>
+        <button class="btn btn-secondary mt-3" onclick="window.location.href='Rol_Admin.php'">Ir a Rol-Admin</button>
 
-    <?php
-    // Mostrar la lista de usuarios al final de la página
-    MostrarUsuarios($conexion);
-    ?>
+        <?php
+        // Mostrar la lista de usuarios al final de la página
+        MostrarUsuarios($conexion);
+        ?>
+    </div>
+
+    <!-- Añadir JS de Bootstrap -->
+    <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 
 <?php
 $conexion = null;
 ?>
+
+
 
 

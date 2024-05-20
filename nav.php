@@ -5,14 +5,20 @@ require_once (__DIR__. "/autoload.php");
 
 if (isset($_SESSION["UserID"])) {
     $NameToDisplay = $_SESSION["UserName"];
-    $isAdmin = $_SESSION["is_admin"]; // Obtener el valor de 'is_admin' desde la sesión
+    
+    // Conexión a la base de datos
+    $conn = database::LoadDatabase();
+
+    // Consulta para verificar si el usuario tiene el rol "A"
+    $stmt = $conn->prepare("SELECT usu_rol FROM pps_users WHERE usu_id = ?");
+    $stmt->execute([$_SESSION["UserID"]]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $isAdmin = $user && $user['usu_rol'] === 'A'; // Verificar si el usuario tiene el rol "A"
 } else {
     $NameToDisplay = "Invitado";
     $isAdmin = false; // Valor predeterminado para los usuarios no autenticados
 }
-
-// Conexión a la base de datos
-$conn = database::LoadDatabase();
 
 // Manejar la lógica de eliminación del carrito
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) {
@@ -70,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                 </li>
                 <?php if ($isAdmin): ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="/Rol_Admin.php">Panel de Administrador</a>
+                        <a class="nav-link" href="/8rol_admin/Rol_Admin.php">Panel de Administrador</a>
                     </li>
                 <?php endif; ?>
             </ul>
@@ -121,4 +127,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
 </nav>
 
 <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
 

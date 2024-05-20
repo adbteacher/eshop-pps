@@ -50,9 +50,9 @@ try {
         <br><br>
         <label for="rol">Rol:</label>
         <select id="rol" name="rol">
-            <option value="Administrador" <?php if ($row['usu_rol'] == 'Administrador') echo 'selected'; ?>>Administrador</option>
-            <option value="Usuario" <?php if ($row['usu_rol'] == 'Usuario') echo 'selected'; ?>>Usuario</option>
-            <option value="Soporte" <?php if ($row['usu_rol'] == 'Soporte') echo 'selected'; ?>>Soporte</option>
+            <option value="A" <?php if ($row['usu_rol'] == 'A') echo 'selected'; ?>>Administrador</option> <!-- ADMIN   -->
+            <option value="U" <?php if ($row['usu_rol'] == 'U') echo 'selected'; ?>>Usuario</option> <!-- USER   -->
+            <option value="S" <?php if ($row['usu_rol'] == 'S') echo 'selected'; ?>>Soporte</option> <!-- SOPORTE   -->
         </select>
         <br><br>
         <label for="email">Correo:</label>
