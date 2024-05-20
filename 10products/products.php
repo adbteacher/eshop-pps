@@ -63,6 +63,7 @@
 
 -->
 <html lang="es">
+
 <head>
 
     <!-- Meta Etiquetas -->
@@ -86,7 +87,8 @@
 </head>
 
 <body>
-<?php include "../nav.php"; // Incluye el Navbar ?>
+<?php include "../nav.php"; // Incluye el Navbar
+?>
 
 <div class="container mt-4 mb-4">
     <div class="jumbotron">
@@ -104,7 +106,7 @@
             <input type="number" class="form-control" placeholder="Buscar por precio" name="search_price" step="0.01">
             <select class="form-control" name="category">
                 <option value="">Todas las categorías</option>
-				<?php foreach ($categories as $category): ?>
+				<?php foreach ($categories as $category) : ?>
                     <option value="<?php echo htmlspecialchars($category['cat_id']); ?>"><?php echo htmlspecialchars($category['cat_description']); ?></option>
 				<?php endforeach; ?>
             </select>
@@ -212,10 +214,12 @@
 		$stmt = null;
 	?>
 </div>
-<?php include "../footer.php"; // Incluye el footer ?>
+<?php include "../footer.php"; // Incluye el footer
+?>
 
 <!-- Script para guardar la posición del usuario
-	 en la web al añadir un producto al carrito   -->
+ en la web al añadir un producto al carrito   -->
 <script src="position.js"></script>
 </body>
+
 </html>

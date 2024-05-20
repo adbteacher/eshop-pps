@@ -20,26 +20,32 @@ if (isset($_SESSION["UserID"])) {
     $isAdmin = false; // Valor predeterminado para los usuarios no autenticados
 }
 
-// Manejar la lógica de eliminación del carrito
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) {
-    $removeProductId = $_POST['remove_product_id'];
+	// Manejar la lógica de eliminación del carrito
+	if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id']))
+	{
+		$removeProductId = $_POST['remove_product_id'];
 
-    if (isset($_SESSION['cart'][$removeProductId])) {
-        unset($_SESSION['cart'][$removeProductId]);
-    }
+		if (isset($_SESSION['cart'][$removeProductId]))
+		{
+			unset($_SESSION['cart'][$removeProductId]);
+		}
 
-    // Redirigir para evitar reenvío de formularios
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit();
-}
+		// Redirigir para evitar reenvío de formularios
+		header("Location: " . $_SERVER['PHP_SELF']);
+		exit();
+	}
 ?>
 <style>
     /* Estilo para la imagen del perfil */
     .profile-image {
-        width: 40px; /* Tamaño de la imagen */
-        height: 40px; /* Altura de la imagen */
-        border-radius: 50%; /* Hace que la imagen sea un círculo */
-        margin-right: 5px; /* Espacio entre la imagen y el texto */
+        width: 40px;
+        /* Tamaño de la imagen */
+        height: 40px;
+        /* Altura de la imagen */
+        border-radius: 50%;
+        /* Hace que la imagen sea un círculo */
+        margin-right: 5px;
+        /* Espacio entre la imagen y el texto */
     }
 </style>
 
