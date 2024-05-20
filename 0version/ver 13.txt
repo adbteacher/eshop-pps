@@ -1,0 +1,3 @@
+11 - CETI - Iván - Mailer and first rol support
+
+- Added PhPMailer library.

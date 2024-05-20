@@ -76,6 +76,16 @@
 						<?php echo $NameToDisplay ?>
                     </a>
                 </li>
+				<?php
+					if ($_SESSION["UserRol"] == "S")
+					{
+						?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/7rol_support/RolSupport.php">Tickets</a>
+                        </li>
+						<?php
+					}
+				?>
             </ul>
             <!-- Carrito de compra -->
             <div class="dropdown">
