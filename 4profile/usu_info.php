@@ -40,7 +40,8 @@ $stmt->execute([$user_id]);
 $UserRow = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$UserRow) {
-	echo "User not found";
+	$_SESSION['error_message'] = 'Usuario no encontrado.';
+	header("Location: usu_info.php");
 	exit;
 }
 
@@ -48,15 +49,35 @@ if (!$UserRow) {
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo'])) {
 	// Verificar el token CSRF
 	if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-		echo "Error: Invalid CSRF token.";
+		$_SESSION['error_message'] = 'Error: Token CSRF inválido.';
+		header("Location: usu_info.php");
 		exit;
 	}
 
 	// Retrieve form data
-	$Name     = isset($_POST['name']) ? cleanInput($_POST['name']) : '';
+	$Name = isset($_POST['name']) ? cleanInput($_POST['name']) : '';
 	$Surnames = isset($_POST['surnames']) ? cleanInput($_POST['surnames']) : '';
-	$Phone    = isset($_POST['phone']) ? cleanInput($_POST['phone']) : '';
-	$Email    = isset($_POST['email']) ? cleanInput($_POST['email']) : '';
+	$Phone = isset($_POST['phone']) ? cleanInput($_POST['phone']) : '';
+	$Email = isset($_POST['email']) ? cleanInput($_POST['email']) : '';
+
+	// Validations
+	if (!preg_match("/^[a-zA-Z\s]{1,50}$/", $Name)) {
+		$_SESSION['error_message'] = 'Nombre inválido.';
+		header("Location: usu_info.php");
+		exit;
+	}
+
+	if (!preg_match("/^[a-zA-Z\s]{1,50}$/", $Surnames)) {
+		$_SESSION['error_message'] = 'Apellidos inválidos.';
+		header("Location: usu_info.php");
+		exit;
+	}
+
+	if (!preg_match("/^\d{9}$/", $Phone)) {
+		$_SESSION['error_message'] = 'Teléfono inválido. Debe contener 9 dígitos.';
+		header("Location: usu_info.php");
+		exit;
+	}
 
 	// Update information in the database
 	$sql = "UPDATE pps_users SET 
@@ -74,7 +95,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 	$stmt->bindValue(5, $user_id);
 
 	if ($stmt->execute()) {
-		header("Location: usu_info.php");
 		// Update session if email has changed
 		if ($Email !== $user_email) {
 			$_SESSION['UserEmail'] = $Email;
@@ -82,11 +102,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 		if ($Name !== $user_name) {
 			$_SESSION['UserName'] = $Name;
 		}
+		$_SESSION['success_message'] = 'Información actualizada correctamente.';
+		header("Location: usu_info.php");
+		exit;
 	} else {
-		echo "Error updating information: " . $stmt->errorInfo()[2];
+		$_SESSION['error_message'] = 'Error al actualizar la información: ' . $stmt->errorInfo()[2];
+		header("Location: usu_info.php");
+		exit;
 	}
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -117,16 +143,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 	<div class="container">
 		<div class="form-container">
 			<h3 class="text-center">Información de usuario:</h3>
+			<?php
+			if (isset($_SESSION['error_message'])) {
+				echo '<div class="alert alert-danger">' . $_SESSION['error_message'] . '</div>';
+				unset($_SESSION['error_message']);
+			}
+			if (isset($_SESSION['success_message'])) {
+				echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
+				unset($_SESSION['success_message']);
+			}
+			?>
 			<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
 				<input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
 				<div class="mb-3">
 					<label for="name" class="form-label"><b>Nombre:</b></label>
-					<input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($UserRow['usu_name']); ?>">
+					<input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($UserRow['usu_name']); ?>" pattern="[a-zA-Z\s]{1,50}" title="Solo letras y espacios, máximo 50 caracteres" required>
 				</div>
 
 				<div class="mb-3">
 					<label for="surnames" class="form-label"><b>Apellidos:</b></label>
-					<input type="text" class="form-control" name="surnames" value="<?php echo htmlspecialchars($UserRow['usu_surnames']); ?>">
+					<input type="text" class="form-control" name="surnames" value="<?php echo htmlspecialchars($UserRow['usu_surnames']); ?>" pattern="[a-zA-Z\s]{1,50}" title="Solo letras y espacios, máximo 50 caracteres" required>
 				</div>
 
 				<div class="mb-3">
@@ -136,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 
 				<div class="mb-3">
 					<label for="phone" class="form-label"><b>Teléfono:</b></label>
-					<input type="text" class="form-control" name="phone" value="<?php echo htmlspecialchars($UserRow['usu_phone']); ?>">
+					<input type="text" class="form-control" name="phone" value="<?php echo htmlspecialchars($UserRow['usu_phone']); ?>" pattern="\d{9}" title="Debe contener 9 dígitos" required>
 				</div>
 
 				<div class="text-center">
@@ -149,8 +185,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 </body>
 
 </html>
-
-<?php
-// Close the database connection
-$connection = null;
-?>
