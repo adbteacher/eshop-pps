@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 26, 2024 at 06:07 PM
+-- Generation Time: May 14, 2024 at 06:40 PM
 -- Server version: 10.6.5-MariaDB
 -- PHP Version: 8.1.0
 
@@ -87,7 +87,15 @@ CREATE TABLE IF NOT EXISTS `pps_logs_login` (
   PRIMARY KEY (`lol_id`),
   UNIQUE KEY `rlo_id` (`lol_id`,`lol_user`),
   KEY `lol_user` (`lol_user`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `pps_logs_login`
+--
+
+INSERT INTO `pps_logs_login` (`lol_id`, `lol_user`, `lol_ip`, `lol_was_correct_login`, `lol_datetime`) VALUES
+(1, 7, '192.168.56.1', 1, '2024-05-14 19:47:00'),
+(2, 7, '192.168.56.1', 1, '2024-05-14 19:47:41');
 
 -- --------------------------------------------------------
 
@@ -189,18 +197,13 @@ CREATE TABLE IF NOT EXISTS `pps_payment_methods_per_user` (
   `pmu_user` int(3) NOT NULL,
   `pmu_account_number` varchar(30) NOT NULL,
   `pmu_swift` varchar(20) NOT NULL,
-  `pmu_card_number` int(20) NOT NULL,
-  `pmu_cve_number` int(3) NOT NULL,
+  `pmu_card_number` decimal(16,0) NOT NULL,
+  `pmu_cve_number` decimal(3,0) NOT NULL,
   `pmu_cardholder` varchar(50) NOT NULL,
   `pmu_expiration_date` varchar(5) NOT NULL,
   `pmu_online_account` varchar(50) NOT NULL COMMENT 'email',
   `pmu_online_password` varchar(50) NOT NULL,
-  PRIMARY KEY (`pmu_id`),
-  UNIQUE KEY `pmu_payment_method` (`pmu_payment_method`,`pmu_user`),
-  UNIQUE KEY `pmu_account_number` (`pmu_account_number`,`pmu_swift`),
-  UNIQUE KEY `pmu_card_number` (`pmu_card_number`,`pmu_cve_number`,`pmu_cardholder`,`pmu_expiration_date`),
-  UNIQUE KEY `pmu_online_account` (`pmu_online_account`,`pmu_online_password`),
-  KEY `pmu_user` (`pmu_user`)
+  PRIMARY KEY (`pmu_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
@@ -216,7 +219,14 @@ CREATE TABLE IF NOT EXISTS `pps_permission_per_rol` (
   `ppr_program` varchar(100) NOT NULL,
   `ppr_allowed` varchar(1) NOT NULL,
   PRIMARY KEY (`ppr_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `pps_permission_per_rol`
+--
+
+INSERT INTO `pps_permission_per_rol` (`ppr_id`, `ppr_rol`, `ppr_program`, `ppr_allowed`) VALUES
+(1, 'A', 'products.php', 'S');
 
 -- --------------------------------------------------------
 
@@ -302,8 +312,16 @@ CREATE TABLE IF NOT EXISTS `pps_users` (
   `usu_cif` varchar(12) NOT NULL,
   `usu_web` varchar(50) NOT NULL,
   `usu_documents` varchar(200) NOT NULL,
+  `usu_2fa` char(16) DEFAULT NULL,
   PRIMARY KEY (`usu_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='Users' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COMMENT='Users' ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `pps_users`
+--
+
+INSERT INTO `pps_users` (`usu_id`, `usu_type`, `usu_rol`, `usu_status`, `usu_verification_code`, `usu_datetime`, `usu_name`, `usu_surnames`, `usu_prefix`, `usu_phone`, `usu_email`, `usu_password`, `usu_company`, `usu_cif`, `usu_web`, `usu_documents`, `usu_2fa`) VALUES
+(7, 'U', 'U', 'N', '', '2024-05-05 19:18:25', 'ivan', 'martinez', '34', 645712080, 'ivan@email.com', '$2y$10$59FmINGOFYhBNua3mXHNqeuGGCvL43dsahVMgYj4QW.AQoG9EZere', '', '', '', '', NULL);
 
 --
 -- Constraints for dumped tables

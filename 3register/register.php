@@ -10,7 +10,9 @@
 	//{
 	//	die('No me seas cabrón y sal de aquí');
 	//}
-	include "../Database.php";
+	require_once("../vendor/autoload.php");
+	require_once("../autoload.php");
+
 	$Conn = database::LoadDatabase();
 
 	$UserType = isset($_POST['UserType']) ? $_POST['UserType'] : '';

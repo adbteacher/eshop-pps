@@ -1,0 +1,6 @@
+11 - CETI - Abel Romero/Sergio Montesa - Addresses, User info, 2FA
+
+- Added user address, edit and addition.
+- Added user info.
+- Added 2FA.
+
