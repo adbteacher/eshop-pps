@@ -1,28 +1,6 @@
-##### idea
 /.idea/deployment.xml
 /.idea/php.xml
 /.idea/sqldialects.xml
 /.idea/vcs.xml
 /.idea/workspace.xml
-
-##### VisualStudioCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
-
-##### MacOS
-# General
-.DS_Store
-.AppleDouble
-.LSOverride
-
-##### php libraries
-vendor
-
-##### secret
-.env
-
 
