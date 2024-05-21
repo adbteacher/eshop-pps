@@ -31,17 +31,7 @@
     <h1>Editar Producto</h1>
 
     <?php
-     session_start();
-     include "biblioteca.php";
-     $conn = connection();
- 
-     AddSecurityHeaders();  // Añade cabeceras de seguridad HTTP
- 
-     // Genera un token CSRF si no existe uno en la sesión actual
-     if (empty($_SESSION['csrf_token']))
-     {
-         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-     }
+    session_start();
 
     // Función para imprimir un mensaje de éxito y redirigir
     function redireccionar($mensaje, $url) {

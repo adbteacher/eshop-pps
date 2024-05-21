@@ -82,17 +82,8 @@
   </form><br>
 
   <?php
-   session_start();
-   include "biblioteca.php";
-   $conn = connection();
-
-   AddSecurityHeaders();  // Añade cabeceras de seguridad HTTP
-
- // Genera un token CSRF si no existe uno en la sesión actual
- if (empty($_SESSION['csrf_token']))
- {
-   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
- }
+  include "biblioteca.php"; // Incluir archivo con funciones de base de datos
+  session_start();
   if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csrf_token']) && $_POST['csrf_token'] === $_SESSION['csrf_token']) {
     $pdo = connection(); // Establecer conexión a la base de datos usando PDO
     // Realizar consulta a la base de datos

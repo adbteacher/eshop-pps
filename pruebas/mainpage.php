@@ -21,17 +21,9 @@
     </div>
 
     <?php
-        session_start();
         include "biblioteca.php";
+        
         $conn = connection();
-    
-        AddSecurityHeaders();  // Añade cabeceras de seguridad HTTP
-    
-        // Genera un token CSRF si no existe uno en la sesión actual
-        if (empty($_SESSION['csrf_token']))
-        {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
         
         // Verificar si la conexión fue exitosa
         if ($conn) {
