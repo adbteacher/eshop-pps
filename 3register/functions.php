@@ -132,7 +132,7 @@ function GetCompanyDocuments($CompanyDocuments, $Cif)
 			echo 'no se movido<br>';
 		}
 
-		$CompanyDocumentsPrepare += $CompanyDocumentsPath . $UnitSeparator;
+		$CompanyDocumentsPrepare .= $CompanyDocumentsPath . $UnitSeparator;
 	}
 
 }

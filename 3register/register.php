@@ -13,17 +13,12 @@
 require('functions.php');
 $Conn = database::LoadDatabase();
 
-//echo var_dump($GLOBALS)    . '<br>';
-//echo 'Files: '    . var_dump($_FILES['CompanyDocuments'])    . '<br><br>';
-//echo 'Files: '    . $_FILES['CompanyDocuments']    . '<br><br>';
-
-
 $UserType = isset($_POST['UserType']) ? $_POST['UserType'] : '';
 
 // Declarar variables
-$PhoneNumber = $Address = $Email = $ConfirmEmail = $Password = $ConfirmPassword = $CustomerName = $CustomerSurNames = $CompanyName = $Cif = $CompanyWeb = $CompanyDocuments = '';
+//$PhoneNumber = $Address = $Email = $ConfirmEmail = $Password = $ConfirmPassword = $CustomerName = $CustomerSurNames = $CompanyName = $Cif = $CompanyWeb = $CompanyDocuments = '';
 // Verificar si el formulario ha sido enviado
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register']))
+if (isset($_POST['register']))
 {
 	$PhoneNumber      = htmlspecialchars($_POST['PhoneNumber']);
 	$Address          = htmlspecialchars($_POST['Address']);
@@ -175,5 +170,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register']))
 else
 {
 	echo 'POST del Registro:<br>';
-	echo var_dump($_POST['register']);
+	echo('REQUEST: <br>');
+	print_r($_REQUEST);
+	echo('POST: <br>');
+	print_r($_POST);
+	echo('FILES: <br>');
+	print_r($_FILES);
 }

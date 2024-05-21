@@ -74,8 +74,8 @@ $Fields = array(
 	),
 	'CompanyDocuments' => array(
 		'label' => _('Documento comercial o información fiscal. Máx 2 pdf.'),
-		'data-form' => 'com',
-		'attr' => array('maxlength' => 200, 'type' => 'file', 'data-required' => 'true', 'accept' => '.pdf', 'multiple' => 'multiple'),
+		'data-form' => 'com', 'array' => '2',
+		'attr' => array('type' => 'file', 'data-required' => 'true', 'accept' => 'application/pdf'),
 	),
 );
 
@@ -90,45 +90,56 @@ $Fields = array(
 ?>
 
 <div class="RegisterForm">
-	<!--
-	<form method="POST" action="register.php">
-	-->
 	<form method="POST" action="register.php" enctype="multipart/form-data">
-	    <!--
-	    <input type="hidden" name="action" value="register"/>
-		-->
 	    
-	    <div id="SelectUserType">
-	        <label><?php echo _('Selecciona el tipo de usuario:'); ?></label>
-	        <input type="radio" name="UserType" value="cus" id="UserType_Cus" checked><label for="UserType_Cus"><?php echo _('Cliente'); ?></label>
-	        <input type="radio" name="UserType" value="com" id="UserType_Com"><label for="UserType_Com"><?php echo _('Empresa'); ?></label>
-	    </div>
-	    
-	    <div id="FormFields">
-	        <h2 id="FormTitle"><?php echo _('Registro de Usuario'); ?></h2>
-	        <ul>
+		<div id="SelectUserType">
+			<label><?php echo _('Selecciona el tipo de usuario:'); ?></label>
+			<input type="radio" name="UserType" value="cus" id="UserType_Cus" checked><label for="UserType_Cus"><?php echo _('Cliente'); ?></label>
+			<input type="radio" name="UserType" value="com" id="UserType_Com"><label for="UserType_Com"><?php echo _('Empresa'); ?></label>
+		</div>
+
+		<div id="FormFields">
+			<h2 id="FormTitle"><?php echo _('Registro de Usuario'); ?></h2>
+			<ul>
 				<?php
-					foreach ($Fields as $Key => $Value)
-					{
-						$Class    = ($Value['data-form'] == 'com') ? 'hidden' : '';
-						$Required = (isset($Value['attr']['data-required'])) ? ' required="required"' : '';
-						?>
-	                    <li data-form="<?php echo $Value['data-form']; ?>" class="<?php echo $Class; ?>">
-	                        <label for="<?php echo $Key; ?>"><?php echo $Value['label']; ?></label>
-	                        <input name="<?php echo $Key; ?>" id="<?php echo $Key; ?>" <?php
-								foreach ($Value['attr'] as $vKey => $vValue)
-								{
-									echo $vKey . '="' . $vValue . '" ';
-								}
-								echo $Required;
-							?>/>
-	                    </li>
-						<?php
-					}
+				foreach ($Fields as $Key => $Value)
+				{
+					$Class    = ($Value['data-form'] == 'com') ? 'hidden' : '';
+					$Required = (isset($Value['attr']['data-required'])) ? ' required="required"' : '';
 				?>
-	        </ul>
-	        <input type="submit" name="register" value="<?php echo _('Enviar'); ?>"/>
-	    </div>
+	                	<li data-form="<?php echo $Value['data-form']; ?>" class="<?php echo $Class; ?>">
+					<label for="<?php echo $Key; ?>"><?php echo $Value['label']; ?></label>
+					<?php
+					$items = 1;
+					$is_array = '';
+					if(isset($Value['array']) && $Value['array'] > 1 )
+					{
+						$items = $Value['array'];
+						$is_array = '[]';
+					}
+					$count = 1;
+					do
+					{
+					?>
+					<input name="<?php echo $Key . $is_array; ?>" id="<?php echo $Key . ((!empty($is_array)) ? $count : ''); ?>" <?php
+					foreach ($Value['attr'] as $vKey => $vValue)
+					{
+						echo $vKey . '="' . $vValue . '" ';
+					}
+					echo $Required;
+					?>/>
+					<?php
+						$count++;
+					}
+					while($count <= $items);
+					?>
+	                    </li>
+				<?php
+				}
+				?>
+			</ul>
+			<input type="submit" name="register" value="<?php echo _('Enviar'); ?>"/>
+		</div>
 	</form>
 </div>
 
@@ -144,3 +155,8 @@ jQuery(document).ready(function ($) {
 	});
 });
 </script>
+<style type="text/css">
+	.hidden{
+		display: none;
+	}
+</style>
