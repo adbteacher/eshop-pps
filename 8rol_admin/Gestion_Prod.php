@@ -19,38 +19,43 @@ function MostrarProductos($conexion) {
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if ($result) {
-        echo "<h2>Lista de Productos</h2>";
-        echo "<table>";
-        echo "<tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Detalles</th><th>Precio</th><th>Cantidad en Tienda</th><th>Stock</th><th>Imagen</th><th>Descripción</th><th>Acciones</th></tr>";
+        echo '<div class="table-responsive">';
+        echo '<h2 class="mt-4">Lista de Productos</h2>';
+        echo '<table class="table table-bordered table-striped">';
+        echo '<thead class="thead-dark"><tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Detalles</th><th>Precio</th><th>Cantidad en Tienda</th><th>Stock</th><th>Imagen</th><th>Descripción</th><th>Acciones</th></tr></thead>';
+        echo '<tbody>';
         foreach ($result as $row) {
-            echo "<tr>";
-            echo "<td>{$row['prd_id']}</td>";
-            echo "<td>{$row['prd_name']}</td>";
-            echo "<td>{$row['prd_category']}</td>";
-            echo "<td>{$row['prd_details']}</td>";
-            echo "<td>{$row['prd_price']}</td>";
-            echo "<td>{$row['prd_quantity_shop']}</td>";
-            echo "<td>{$row['prd_stock']}</td>";
-            echo "<td><img src='../0images/{$row['prd_image']}' alt='{$row['prd_name']}' width='50' height='50'></td>";
-            echo "<td>{$row['prd_description']}</td>";
-            echo "<td>";
-            echo "<form action='Mod_Prod.php' method='post' style='display:inline;'>";
-            echo "<input type='hidden' name='idProducto' value='{$row['prd_id']}'>";
-            echo "<button type='submit'>Editar</button>";
-            echo "</form> ";
-            echo "<form method='post' style='display:inline;'>";
-            echo "<input type='hidden' name='idProducto' value='{$row['prd_id']}'>";
-            echo "<input type='hidden' name='csrf_token' value='{$_SESSION['csrf_token']}'>";
-            echo "<button type='submit' name='eliminarProducto'>Eliminar</button>";
-            echo "</form>";
-            echo "</td>";
-            echo "</tr>";
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($row['prd_id']) . '</td>';
+            echo '<td>' . htmlspecialchars($row['prd_name']) . '</td>';
+            echo '<td>' . htmlspecialchars($row['prd_category']) . '</td>';
+            echo '<td>' . htmlspecialchars($row['prd_details']) . '</td>';
+            echo '<td>' . htmlspecialchars($row['prd_price']) . '</td>';
+            echo '<td>' . htmlspecialchars($row['prd_quantity_shop']) . '</td>';
+            echo '<td>' . htmlspecialchars($row['prd_stock']) . '</td>';
+            echo '<td><img src="../0images/' . htmlspecialchars($row['prd_image']) . '" alt="' . htmlspecialchars($row['prd_name']) . '" width="50" height="50"></td>';
+            echo '<td>' . htmlspecialchars($row['prd_description']) . '</td>';
+            echo '<td>';
+            echo '<form action="Mod_Prod.php" method="post" style="display:inline;">';
+            echo '<input type="hidden" name="idProducto" value="' . htmlspecialchars($row['prd_id']) . '">';
+            echo '<button type="submit" class="btn btn-warning btn-sm">Editar</button>';
+            echo '</form> ';
+            echo '<form method="post" style="display:inline;">';
+            echo '<input type="hidden" name="idProducto" value="' . htmlspecialchars($row['prd_id']) . '">';
+            echo '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($_SESSION['csrf_token']) . '">';
+            echo '<button type="submit" name="eliminarProducto" class="btn btn-danger btn-sm">Eliminar</button>';
+            echo '</form>';
+            echo '</td>';
+            echo '</tr>';
         }
-        echo "</table>";
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
     } else {
-        echo "No se encontraron productos.";
+        echo '<div class="alert alert-info">No se encontraron productos.</div>';
     }
 }
+
 function ObtenerCategorias($conexion) {
     $query = "SELECT cat_id, cat_description FROM pps_categories";
     $stmt = $conexion->prepare($query);
@@ -99,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if (!$categoria_inexistente) {
-                    echo "Todos los productos del archivo CSV fueron importados exitosamente.";
+                    echo '<div class="alert alert-success">Todos los productos del archivo CSV fueron importados exitosamente.</div>';
                 }
             }
         }
@@ -116,10 +121,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header("Location: {$_SERVER['REQUEST_URI']}");
                     exit();
                 } else {
-                    echo "Error al eliminar el producto.";
+                    echo '<div class="alert alert-danger">Error al eliminar el producto.</div>';
                 }
             } else {
-                echo "No se proporcionó un ID de producto válido.";
+                echo '<div class="alert alert-warning">No se proporcionó un ID de producto válido.</div>';
             }
         }
 
@@ -145,18 +150,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $query_insert = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_quantity_shop, prd_stock, prd_image, prd_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                         $stmt_insert = $conexion->prepare($query_insert);
                         if ($stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $cantidadTienda, $stock, $file_name, $descripcion])) {
-                            echo "Producto agregado exitosamente.";
+                            echo '<div class="alert alert-success">Producto agregado exitosamente.</div>';
                         } else {
-                            echo "Error al agregar el producto.";
+                            echo '<div class="alert alert-danger">Error al agregar el producto.</div>';
                         }
                     } else {
-                        echo "Error al subir la imagen.";
+                        echo '<div class="alert alert-danger">Error al subir la imagen.</div>';
                     }
                 } else {
-                    echo "El archivo seleccionado no es una imagen válida.";
+                    echo '<div class="alert alert-warning">El archivo seleccionado no es una imagen válida.</div>';
                 }
             } else {
-                echo "Debes seleccionar una imagen para el producto.";
+                echo '<div class="alert alert-warning">Debes seleccionar una imagen para el producto.</div>';
             }
         }
     }
@@ -167,66 +172,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="estilo.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <title>Gestión de Productos</title>
 </head>
 <body>
 
-<!-- Formulario para importar CSV -->
-<h2>Importar/Exportar Productos desde CSV</h2>
-<form method="post" enctype="multipart/form-data">
-    <input type="file" name="archivoCSV" accept=".csv">
-    <button type="submit" name="importarCSV">Importar CSV</button>
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-</form>
-<br>
-<!-- Botón para exportar productos a CSV -->
-<form method="post" action="Exportar.php">
-    <button type="submit" name="exportarCSV">Exportar Productos a CSV</button>
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-</form>
+<div class="container mt-5">
 
-<!-- Formulario para agregar un nuevo producto -->
-<h2>Agregar Nuevo Producto</h2>
-<form method="post" enctype="multipart/form-data">
-    <label for="nombre">Nombre:</label>
-    <input type="text" id="nombre" name="nombre" required><br><br>
+    <!-- Formulario para importar CSV -->
+    <h2>Importar/Exportar Productos desde CSV</h2>
+    <form method="post" enctype="multipart/form-data" class="form-inline mb-3">
+        <input type="file" name="archivoCSV" accept=".csv" class="form-control-file mr-2">
+        <button type="submit" name="importarCSV" class="btn btn-primary">Importar CSV</button>
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+    </form>
 
-    <label for="categoria">Categoría:</label>
-    <select id="categoria" name="categoria" required>
-    <?php
-        $categorias = ObtenerCategorias($conexion);
-        foreach ($categorias as $categoria) {
-            echo "<option value='{$categoria['cat_id']}'>{$categoria['cat_description']}</option>";
-        }
-        ?>
-    </select><br><br>
+    <!-- Botón para exportar productos a CSV -->
+    <form method="post" action="Exportar.php" class="form-inline mb-4">
+        <button type="submit" name="exportarCSV" class="btn btn-secondary">Exportar Productos a CSV</button>
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+    </form>
 
-    <label for="detalles">Detalles:</label>
-    <input type="text" id="detalles" name="detalles" required><br><br>
+    <!-- Formulario para agregar un nuevo producto -->
+    <h2>Agregar Nuevo Producto</h2>
+    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+        <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="categoria">Categoría:</label>
+            <select id="categoria" name="categoria" class="form-control" required>
+                <?php
+                $categorias = ObtenerCategorias($conexion);
+                foreach ($categorias as $categoria) {
+                    echo "<option value='{$categoria['cat_id']}'>{$categoria['cat_description']}</option>";
+                }
+                ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="detalles">Detalles:</label>
+            <input type="text" id="detalles" name="detalles" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="precio">Precio:</label>
+            <input type="number" id="precio" name="precio" step="0.01" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="cantidad_tienda">Cantidad en Tienda:</label>
+            <input type="number" id="cantidad_tienda" name="cantidad_tienda" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="stock">Stock:</label>
+            <input type="number" id="stock" name="stock" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="imagen">Imagen:</label>
+            <input type="file" id="imagen" name="imagen" accept="image/*" class="form-control-file" required>
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <textarea id="descripcion" name="descripcion" class="form-control" rows="3" required></textarea>
+        </div>
+        <button type="submit" name="agregarProducto" class="btn btn-success">Agregar Producto</button>
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+    </form>
 
-    <label for="precio">Precio:</label>
-    <input type="number" id="precio" name="precio" step="0.01" required><br><br>
+    <!-- Mostrar lista de productos -->
+    <?php MostrarProductos($conexion); ?>
 
-    <label for="cantidad_tienda">Cantidad en Tienda:</label>
-    <input type="number" id="cantidad_tienda" name="cantidad_tienda" required><br><br>
+</div>
 
-    <label for="stock">Stock:</label>
-    <input type="number" id="stock" name="stock" required><br><br>
-
-    <label for="imagen">Imagen:</label>
-    <input type="file" id="imagen" name="imagen" accept="image/*" required><br><br>
-
-    <label for="descripcion">Descripción:</label>
-    <textarea id="descripcion" name="descripcion" required></textarea><br><br>
-
-    <button type="submit" name="agregarProducto">Agregar Producto</button>
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-</form>
-
-<!-- Mostrar lista de productos -->
-<?php MostrarProductos($conexion); ?>
-
+<!-- Enlace al archivo JavaScript de Bootstrap -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+
 

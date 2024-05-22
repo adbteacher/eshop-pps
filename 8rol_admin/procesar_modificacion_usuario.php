@@ -53,13 +53,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt->rowCount() > 0) {
         echo "Usuario actualizado exitosamente.";
     } else {
-        echo "Error al actualizar usuario.";
+        echo "No se realizaron cambios en los datos del usuario.";
     }
 }
 
 // Cerrar la conexión
 $conexion = null;
 ?>
+
+
 
 
 

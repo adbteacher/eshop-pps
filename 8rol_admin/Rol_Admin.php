@@ -30,14 +30,12 @@ if (empty($_SESSION['csrf_token'])) {
 
         <?php
         // Validar token CSRF
-        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-            echo "<p class='mt-3 text-danger'>Error en la validación CSRF.</p>";
-        } else {
-            // Manejo de acciones
-            if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+                echo "<p class='mt-3 text-danger'>Error en la validación CSRF.</p>";
+            } else {
+                // Manejo de acciones
                 $action = $_POST["action"];
-
-                // Redirecciona a la página correspondiente según la acción seleccionada
                 switch ($action) {
                     case 'usuarios':
                         header("Location: Gestion_Users.php");
@@ -68,4 +66,3 @@ if (empty($_SESSION['csrf_token'])) {
     <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
