@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="/4profile/main_profile.php">
-                        <img src="../0images/default_user.png" alt="User" class="profile-image">
+                        <img src="/0images/default_user.png" alt="User" class="profile-image">
                         <?php echo $NameToDisplay ?>
                     </a>
                 </li>
