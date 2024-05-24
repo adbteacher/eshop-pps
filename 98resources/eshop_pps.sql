@@ -184,6 +184,10 @@ CREATE TABLE IF NOT EXISTS `pps_payment_methods` (
   UNIQUE KEY `pam_description` (`pam_description`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
+INSERT INTO `pps_payment_methods` (`pam_description`) VALUES
+('Tarjeta de Crédito'),
+('PayPal');
+
 -- --------------------------------------------------------
 
 --
@@ -203,6 +207,7 @@ CREATE TABLE IF NOT EXISTS `pps_payment_methods_per_user` (
   `pmu_expiration_date` varchar(5) NOT NULL,
   `pmu_online_account` varchar(50) NOT NULL COMMENT 'email',
   `pmu_online_password` varchar(50) NOT NULL,
+  `pmu_is_main` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`pmu_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
