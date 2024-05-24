@@ -1,6 +1,18 @@
 <?php
 	// Establecer conexión a la base de datos
 	require_once '../autoload.php';
+    session_start();
+    
+    if (!isset($_SESSION['UserRol'])) {
+        echo "<p class='text-danger'>Acceso denegado. No se encontró el rol de usuario en la sesión.</p>";
+        exit;
+    }
+    
+    // Verificar si el usuario es administrador
+    if ($_SESSION["UserRol"] !== 'A') {
+        echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
+        exit;
+    }
 	$conexion = database::LoadDatabase();
 
 	// Consulta para obtener el inventario de productos con campos relevantes
@@ -39,7 +51,7 @@
     <title>Inventario de Productos</title>
     <!-- Incluye Bootstrap CSS -->
 <!--    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
         .table td, .table th {
@@ -49,6 +61,7 @@
     </style>
 </head>
 <body>
+<?php include "../nav.php" ?>
 <div class="container mt-5">
     <!-- Mostrar la tabla de inventario de productos con campos relevantes -->
     <h2>Inventario de Productos</h2>
@@ -119,10 +132,7 @@
 </div>
 
 <!-- Incluye Bootstrap JS y dependencias -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
 

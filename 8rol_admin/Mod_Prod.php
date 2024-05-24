@@ -1,6 +1,16 @@
 <?php
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
-
+	session_start();
+	if (!isset($_SESSION['UserRol'])) {
+		echo "<p class='text-danger'>Acceso denegado. No se encontró el rol de usuario en la sesión.</p>";
+		exit;
+	}
+	
+	// Verificar si el usuario es administrador
+	if ($_SESSION["UserRol"] !== 'A') {
+		echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
+		exit;
+	}
 	// Obtener el ID del producto a modificar
 	$idProducto = $_POST['idProducto'];
 
