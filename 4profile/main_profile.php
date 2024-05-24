@@ -57,7 +57,7 @@ if (!isset($_SESSION['UserEmail'])) {
                     <h1 class="text-center mb-4"><i class="fas fa-user-circle"></i> Bienvenido al Perfil Personal</h1>
                     <ul class="list-group">
                         <li class="list-group-item"><i class="fas fa-user"></i> <a href="usu_info.php">Gestión de Información del Usuario</a></li>
-                        <li class="list-group-item"><i class="fas fa-map-marker-alt"></i> <a href="usu_addres.php">Gestión de Direcciones</a></li>
+                        <li class="list-group-item"><i class="fas fa-map-marker-alt"></i> <a href="usu_address.php">Gestión de Direcciones</a></li>
                         <li class="list-group-item"><i class="fas fa-lock"></i> <a href="usu_sec.php">Gestión de Seguridad</a></li>
                         <li class="list-group-item"><i class="fas fa-credit-card"></i> <a href="payment_methods.php">Gestión de métodos de Pago</a></li>
                     </ul>
