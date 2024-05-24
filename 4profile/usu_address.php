@@ -7,7 +7,7 @@ if (!isset($_SESSION['UserEmail'])) {
 	exit;
 }
 
-require_once '../Database.php';
+require_once '../autoload.php';
 
 $UserID = $_SESSION['UserID'];
 

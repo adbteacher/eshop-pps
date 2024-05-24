@@ -25,7 +25,7 @@ if (!isset($_SESSION['UserEmail'])) {
 
 <body>
 	<?php
-	require_once '../Database.php';
+	require_once '../autoload.php';
 	include "../nav.php";
 	// Función de limpieza:
 	function cleanInput($input)
