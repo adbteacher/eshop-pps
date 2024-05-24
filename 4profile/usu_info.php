@@ -181,7 +181,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 			</form>
 		</div>
 	</div>
-
+	<?php include "../footer.php"; ?>
 </body>
 
 </html>
