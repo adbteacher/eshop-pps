@@ -52,6 +52,17 @@
 	$stmt = $conn->prepare("SELECT cat_id, cat_description FROM pps_categories");
 	$stmt->execute();
 	$categories = $stmt->fetchAll();
+
+
+	// Consulta para obtener productos y sus medias de calificación
+    $sql = "SELECT p.*, IFNULL(AVG(r.rev_rating), 0) AS avg_rating 
+            FROM pps_products p
+            LEFT JOIN pps_reviews r ON p.prd_id = r.rev_product
+            GROUP BY p.prd_id";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $results = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <!--
@@ -115,6 +126,7 @@
             </div>
         </div>
     </form>
+
 	<?php
 		// Se comprueba que hay productos
 		$stmt = $conn->prepare("SELECT COUNT(*) FROM pps_products");
@@ -162,12 +174,31 @@
 					echo '<div class="card h-100 shadow">';
 
 					// Se utiliza htmlspecialchars para evitar XSS
-					echo '<img src="' . htmlspecialchars($row["prd_image"]) . '" class="card-img-top" style="height: 370px; width: auto; margin: auto;" alt="' . htmlspecialchars($row["prd_name"]) . '">';
+					echo '<div onclick="viewProductDetails(' . htmlspecialchars($row["prd_id"]) . ')">';
+					echo '<img src="' . htmlspecialchars($row["prd_image"]) . '" class="card-img-top" style="height: 370px; width: auto; margin: auto; display: block;" alt="' . htmlspecialchars($row["prd_name"]) . '">';
+					echo '</div>';
 					echo '<div class="card-body d-flex flex-column">';
 					echo '<h5 class="card-title">' . htmlspecialchars($row["prd_name"]) . '</h5>';
 					echo '<p class="card-text">' . htmlspecialchars($row["prd_details"]) . '</p>';
 					echo '<p class="card-text"><span class="badge bg-success" style="font-size: 0.9rem;">' . htmlspecialchars($row["prd_price"]) . '€</span></p>';
-
+					
+					// Mostrar la media de las estrellas
+                    echo '<div class="mb-3">';
+                    echo '<p class="card-text"><small class="text-muted">Valoración media:</small></p>';
+                    echo '<div class="d-flex">';
+                    $rating = round($row['avg_rating'] * 2) / 2; // Redondear a 0.5 más cercano
+                    for ($i = 0; $i < 5; $i++) {
+                        if ($i < floor($rating)) {
+                            echo '<i class="fas fa-star" style="color: #ffc107;"></i>';
+                        } elseif ($i < ceil($rating)) {
+                            echo '<i class="fas fa-star-half-alt" style="color: #ffc107;"></i>';
+                        } else {
+                            echo '<i class="far fa-star" style="color: #ffc107;"></i>';
+                        }
+                    }
+                    echo '</div>';
+                    echo '</div>';
+					
 					// Formulario que da los detalles los productos
 					echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF']) . '" method="post" class="mt-auto" onsubmit="saveScrollPosition();">';
 					echo '<input type="hidden" name="product_id" value="' . $row["prd_id"] . '">';
@@ -178,9 +209,22 @@
 					echo '<p class="card-text"><small class="text-muted">En stock: ' . $row["prd_stock"] . '</small></p>';
 					echo '<button type="submit" class="btn btn-primary">Añadir al carrito</button>';
 					echo '</form>';
+					echo '<button class="btn btn-secondary mt-3" onclick="viewProductDetails(' . htmlspecialchars($row["prd_id"]) . ')">Ver más detalles</button>';
 					echo '</div>';
 					echo '</div>';
 					echo '</div>';
+
+					// Incluir el formulario oculto y la función JavaScript para enviar el ID del producto por POST
+					echo '<form id="productDetailsForm" action="product.php" method="post" style="display: none;">';
+					echo '<input type="hidden" name="prd_id" id="prd_id">';
+					echo '</form>';
+
+					echo '<script>';
+					echo 'function viewProductDetails(productId) {';
+					echo '    document.getElementById("prd_id").value = productId;';
+					echo '    document.getElementById("productDetailsForm").submit();';
+					echo '}';
+					echo '</script>';
 				}
 			}
 			else

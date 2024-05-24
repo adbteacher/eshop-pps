@@ -43,30 +43,44 @@
         margin-right: 5px;
         /* Espacio entre la imagen y el texto */
     }
+        /* Estilo para la imagen del producto en el carrito */
+        .cart-product-image {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+        display: block;
+    }
 </style>
 
 <!-- Iconos de Bootstrap para el carrito -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/index.php">Frutería del Barrio</a>
+        <a class="navbar-brand" href="/index.php">
+            <img src="/0images/favicon-32x32.png" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
+            Frutería del Barrio
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Categorias</a>
+                    <a class="nav-link" href="/index.php">
+                        <i class="bi bi-box-seam"></i> Productos
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Productos</a>
+                    <a class="nav-link" href="/3register/register.form.php">
+                        <i class="bi bi-person-plus"></i> Registro
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/3register/register.form.php">Registro</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/1login/login.php">Login</a>
+                    <a class="nav-link" href="/1login/login.php">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </a>
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto">
@@ -76,18 +90,13 @@
 						<?php echo $NameToDisplay ?>
                     </a>
                 </li>
-				<?php
-					if ($_SESSION["UserRol"] == "S")
-					{
-						?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/7rol_support/RolSupport.php">Tickets</a>
-                        </li>
-						<?php
-					}
-				?>
+				<?php if ($_SESSION["UserRol"] == "S") : ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/7rol_support/RolSupport.php">Tickets</a>
+                    </li>
+				<?php endif; ?>
             </ul>
-            <!-- Carrito de compra -->
+             <!-- Carrito de compra -->
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle d-flex align-items-center" type="button" id="dropdownCartButton" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-cart-fill me-2"></i> Carrito
@@ -98,20 +107,21 @@
 						// Comprueba si hay productos en el carrito
 						if (!empty($_SESSION['cart'])) :
 							$productIds = array_keys($_SESSION['cart']);
-							if (!empty($productIds))
-							{
+							if (!empty($productIds)) {
 								$placeholders = implode(',', array_fill(0, count($productIds), '?'));
-								$stmt         = $conn->prepare("SELECT prd_id, prd_name, prd_price FROM pps_products WHERE prd_id IN ($placeholders)");
+								$stmt = $conn->prepare("SELECT prd_id, prd_name, prd_price, prd_image FROM pps_products WHERE prd_id IN ($placeholders)");
 								$stmt->execute($productIds);
 								$cartProducts = $stmt->fetchAll();
 							}
 							foreach ($cartProducts as $product) : // Muestra los productos en el carrito
-								?>
+					?>
                                 <li class="dropdown-item d-flex justify-content-between align-items-center">
-                                    <div class="d-flex flex-column">
-                                        <span><?php echo htmlspecialchars($product['prd_name']); ?></span>
-                                        <small class="text-muted"><?php echo number_format($product['prd_price'] * $_SESSION['cart'][$product['prd_id']], 2); ?>
-                                            €</small>
+                                    <div class="d-flex align-items-center">
+                                        <img src="<?php echo htmlspecialchars($product['prd_image']); ?>" alt="<?php echo htmlspecialchars($product['prd_name']); ?>" class="cart-product-image">
+                                        <div class="d-flex flex-column">
+                                            <span><?php echo htmlspecialchars($product['prd_name']); ?></span>
+                                            <small class="text-muted"><?php echo number_format($product['prd_price'] * $_SESSION['cart'][$product['prd_id']], 2); ?> €</small>
+                                        </div>
                                     </div>
                                     <div class="d-flex align-items-center">
                                         <span class="badge bg-primary rounded-pill me-2"><?php echo $_SESSION['cart'][$product['prd_id']]; ?></span>
@@ -128,8 +138,7 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li><a class="dropdown-item text-center" href="cart.php">Ver Carrito</a></li>
-						<?php else : // Muestra cuando no hay productos en el carrito
-							?>
+						<?php else : // Muestra cuando no hay productos en el carrito ?>
                             <li class="dropdown-item text-center">No hay productos en el carrito.</li>
 						<?php endif; ?>
                 </ul>
