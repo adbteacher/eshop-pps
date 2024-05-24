@@ -1,0 +1,59 @@
+table {
+    display: inline-table; /* La tabla se ajustará al contenido */
+    border-collapse: collapse;
+    border: 2px solid #dddddd; /* Borde de la tabla */
+    margin-left: auto; /* Centrar la tabla horizontalmente */
+}
+
+th, td {
+    border: 1px solid #dddddd; /* Borde de las celdas */
+    text-align: left;
+    padding: 8px;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+/* Estilo solo para la última celda de cada fila */
+tr td:last-child {
+    margin-right: 20px; /* Margen en el borde derecho de la última celda */
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+h1 {
+    margin-top: 50px;
+    text-align: center;
+}
+.container {
+    width: 80%;
+    margin: auto;
+    text-align: center;
+}
+.card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 20px;
+    display: inline-block;
+    width: 200px;
+    vertical-align: top;
+}
+.card h2 {
+    margin-top: 0;
+}
+.boton {
+    position: fixed;
+    bottom: 20px; /* Ajusta la distancia del botón desde la parte inferior */
+    right: 20px; /* Ajusta la distancia del botón desde el borde derecho */
+    z-index: 999; /* Ajusta la capa z para que esté sobre otros elementos */
+}
