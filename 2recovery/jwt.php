@@ -4,9 +4,9 @@
  * This script is the library for generating the JWT Tokens
  */
 
-session_start();
-require 'Database.php'; // Includes the database connection
+require_once '../autoload.php';
 
+session_start();
 class JWTHandler
 {
     private static string $secretKey;
@@ -19,7 +19,7 @@ class JWTHandler
      */
     public static function initialize(): void
     {
-        self::$pdo = GetDatabaseConnection(); // Gets the database connection
+        self::$pdo = database::LoadDatabase(); // Gets the database connection
         if (!isset($_SESSION['JWT_SECRET_KEY'])) {
             // Generate a random secret key and store it in the session
             $_SESSION['JWT_SECRET_KEY'] = bin2hex(random_bytes(32));
