@@ -1,13 +1,13 @@
 <?php
 session_start();
 
+require_once '../autoload.php';
+
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['UserEmail'])) {
     header("Location: ../1login/login.php");
     exit;
 }
-
-require_once '../Database.php';
 
 // Obtener el ID del usuario
 $user_id = $_SESSION['UserID'];
@@ -15,7 +15,7 @@ $user_id = $_SESSION['UserID'];
 $connection = database::LoadDatabase();
 
 // Función de limpieza:
-function cleanInput($input)
+function cleanInput($input): array|string
 {
     $input = trim($input);
     $input = stripslashes($input);
@@ -41,26 +41,26 @@ function getEncryptionKey()
     return $_SESSION['encryption_key'];
 }
 
-function encryptId($id)
+function encryptId($id): bool|string
 {
     $key = getEncryptionKey();
-    $iv = substr(hash('sha256', $key), 0, 16);
+    $iv  = substr(hash('sha256', $key), 0, 16);
     return openssl_encrypt($id, 'AES-256-CBC', $key, 0, $iv);
 }
 
-function decryptId($encryptedId)
+function decryptId($encryptedId): bool|string
 {
     $key = getEncryptionKey();
-    $iv = substr(hash('sha256', $key), 0, 16);
+    $iv  = substr(hash('sha256', $key), 0, 16);
     return openssl_decrypt($encryptedId, 'AES-256-CBC', $key, 0, $iv);
 }
 
 // Función para verificar si el ID del método de pago pertenece al usuario
-function validatePaymentMethodOwnership($pmu_id, $user_id)
+function validatePaymentMethodOwnership($pmu_id, $user_id): bool
 {
     $connection = database::LoadDatabase();
-    $sql = "SELECT COUNT(*) AS count FROM pps_payment_methods_per_user WHERE pmu_id = ? AND pmu_user = ?";
-    $stmt = $connection->prepare($sql);
+    $sql        = "SELECT COUNT(*) AS count FROM pps_payment_methods_per_user WHERE pmu_id = ? AND pmu_user = ?";
+    $stmt       = $connection->prepare($sql);
     $stmt->execute([$pmu_id, $user_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result['count'] > 0;
@@ -75,15 +75,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitAddPaymentMethod
         exit;
     }
 
-    $payment_method = cleanInput($_POST['pmu_payment_method']);
-    $account_number = isset($_POST['pmu_account_number']) ? cleanInput($_POST['pmu_account_number']) : '';
-    $swift = isset($_POST['pmu_swift']) ? cleanInput($_POST['pmu_swift']) : '';
-    $card_number = isset($_POST['pmu_card_number']) ? cleanInput($_POST['pmu_card_number']) : '';
-    $cve_number = isset($_POST['pmu_cve_number']) ? cleanInput($_POST['pmu_cve_number']) : '';
-    $cardholder = isset($_POST['pmu_cardholder']) ? cleanInput($_POST['pmu_cardholder']) : '';
+    $payment_method  = cleanInput($_POST['pmu_payment_method']);
+    $account_number  = isset($_POST['pmu_account_number']) ? cleanInput($_POST['pmu_account_number']) : '';
+    $swift           = isset($_POST['pmu_swift']) ? cleanInput($_POST['pmu_swift']) : '';
+    $card_number     = isset($_POST['pmu_card_number']) ? cleanInput($_POST['pmu_card_number']) : '';
+    $cve_number      = isset($_POST['pmu_cve_number']) ? cleanInput($_POST['pmu_cve_number']) : '';
+    $cardholder      = isset($_POST['pmu_cardholder']) ? cleanInput($_POST['pmu_cardholder']) : '';
     $expiration_date = isset($_POST['pmu_expiration_date']) ? cleanInput($_POST['pmu_expiration_date']) : '';
-    $online_account = isset($_POST['pmu_online_account']) ? cleanInput($_POST['pmu_online_account']) : '';
+    $online_account  = isset($_POST['pmu_online_account']) ? cleanInput($_POST['pmu_online_account']) : '';
     $online_password = isset($_POST['pmu_online_password']) ? cleanInput($_POST['pmu_online_password']) : '';
+    $online_password = password_hash($online_password, PASSWORD_BCRYPT);
 
     // Validar los campos según el método de pago
     if ($payment_method == "1") {
@@ -116,7 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitAddPaymentMethod
         }
 
         // Insertar método de pago de tarjeta de crédito
-        $sql = "INSERT INTO pps_payment_methods_per_user (pmu_payment_method, pmu_user, pmu_card_number, pmu_cve_number, pmu_cardholder, pmu_expiration_date) VALUES (?, ?, ?, ?, ?, ?)";
+        $sql  = "INSERT INTO pps_payment_methods_per_user (pmu_payment_method, pmu_user, pmu_card_number, pmu_cve_number, pmu_cardholder, pmu_expiration_date) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $connection->prepare($sql);
         if ($stmt->execute([$payment_method, $user_id, $card_number, $cve_number, $cardholder, $expiration_date])) {
             $_SESSION['success_message'] = 'Método de pago agregado exitosamente.';
@@ -139,7 +140,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitAddPaymentMethod
         }
 
         // Insertar método de pago de PayPal
-        $sql = "INSERT INTO pps_payment_methods_per_user (pmu_payment_method, pmu_user, pmu_online_account, pmu_online_password) VALUES (?, ?, ?, ?)";
+        $sql  = "INSERT INTO pps_payment_methods_per_user (pmu_payment_method, pmu_user, pmu_online_account, pmu_online_password) VALUES (?, ?, ?, ?)";
         $stmt = $connection->prepare($sql);
         if ($stmt->execute([$payment_method, $user_id, $online_account, $online_password])) {
             $_SESSION['success_message'] = 'Método de pago agregado exitosamente.';
@@ -164,7 +165,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitDeletePaymentMet
     }
 
     $encrypted_pmu_id = cleanInput($_POST['pmu_id']);
-    $pmu_id = decryptId($encrypted_pmu_id);
+    $pmu_id           = decryptId($encrypted_pmu_id);
 
     // Verificar si el ID del método de pago pertenece al usuario
     if (!validatePaymentMethodOwnership($pmu_id, $user_id)) {
@@ -174,7 +175,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitDeletePaymentMet
     }
 
 
-    $sql = "DELETE FROM pps_payment_methods_per_user WHERE pmu_id = ? AND pmu_user = ?";
+    $sql  = "DELETE FROM pps_payment_methods_per_user WHERE pmu_id = ? AND pmu_user = ?";
     $stmt = $connection->prepare($sql);
     if ($stmt->execute([$pmu_id, $user_id])) {
         $_SESSION['success_message'] = 'Método de pago eliminado exitosamente.';
@@ -195,7 +196,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEditPaymentMetho
     }
 
     $encrypted_pmu_id = cleanInput($_POST['pmu_id']);
-    $pmu_id = decryptId($encrypted_pmu_id);
+    $pmu_id           = decryptId($encrypted_pmu_id);
 
     // Verificar si el ID del método de pago pertenece al usuario
     if (!validatePaymentMethodOwnership($pmu_id, $user_id)) {
@@ -219,7 +220,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitSetPrimaryPaymen
     }
 
     $encrypted_pmu_id = cleanInput($_POST['pmu_id']);
-    $pmu_id = decryptId($encrypted_pmu_id);
+    $pmu_id           = decryptId($encrypted_pmu_id);
 
     // Verificar si el ID del método de pago pertenece al usuario
     if (!validatePaymentMethodOwnership($pmu_id, $user_id)) {
@@ -229,11 +230,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitSetPrimaryPaymen
     }
 
     // Marcar el método de pago como principal
-    $sqlUpdate = "UPDATE pps_payment_methods_per_user SET pmu_is_main = 0 WHERE pmu_user = ?";
+    $sqlUpdate  = "UPDATE pps_payment_methods_per_user SET pmu_is_main = 0 WHERE pmu_user = ?";
     $stmtUpdate = $connection->prepare($sqlUpdate);
     $stmtUpdate->execute([$user_id]);
 
-    $sqlSetPrimary = "UPDATE pps_payment_methods_per_user SET pmu_is_main = 1 WHERE pmu_id = ?";
+    $sqlSetPrimary  = "UPDATE pps_payment_methods_per_user SET pmu_is_main = 1 WHERE pmu_id = ?";
     $stmtSetPrimary = $connection->prepare($sqlSetPrimary);
     if ($stmtSetPrimary->execute([$pmu_id])) {
         $_SESSION['success_message'] = 'Método de pago establecido como principal exitosamente.';
@@ -246,7 +247,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitSetPrimaryPaymen
 }
 
 // Obtener todos los métodos de pago del usuario
-$sql = "SELECT * FROM pps_payment_methods_per_user WHERE pmu_user = ?";
+$sql  = "SELECT * FROM pps_payment_methods_per_user WHERE pmu_user = ?";
 $stmt = $connection->prepare($sql);
 $stmt->execute([$user_id]);
 $payment_methods = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -393,7 +394,8 @@ $payment_methods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <td><?php echo ($method['pmu_payment_method'] == 1) ? 'Tarjeta de Crédito' : 'PayPal'; ?></td>
                         <td>
                             <?php if ($method['pmu_payment_method'] == 1) : ?>
-                                Número de Tarjeta: <?php echo substr($method['pmu_card_number'], 0, 3) . '****' . substr($method['pmu_card_number'], -2); ?><br>
+                                Número de Tarjeta: <?php echo substr($method['pmu_card_number'], 0, 3) . '****' . substr($method['pmu_card_number'], -2); ?>
+                                <br>
                                 Nombre del Titular: <?php echo $method['pmu_cardholder']; ?><br>
                                 Fecha de Expiración: <?php echo $method['pmu_expiration_date']; ?>
                             <?php else : ?>
@@ -412,7 +414,9 @@ $payment_methods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="d-inline">
                                         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                         <input type="hidden" name="pmu_id" value="<?php echo encryptId($method['pmu_id']); ?>">
-                                        <button type="submit" name="submitSetPrimaryPaymentMethod" class="btn btn-info">Hacer Principal</button>
+                                        <button type="submit" name="submitSetPrimaryPaymentMethod" class="btn btn-info">Hacer
+                                            Principal
+                                        </button>
                                     </form>
                                 <?php endif; ?>
                             <?php endif; ?>
