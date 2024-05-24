@@ -83,18 +83,41 @@
                     </a>
                 </li>
             </ul>
+
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/4profile/main_profile.php">
-                        <img src="/0images/default_user.png" alt="User" class="profile-image">
-						<?php echo $NameToDisplay ?>
-                    </a>
-                </li>
-				<?php if ($_SESSION["UserRol"] == "S") : ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/7rol_support/RolSupport.php">Tickets</a>
-                    </li>
-				<?php endif; ?>
+				<?php
+					if (!empty($_SESSION["UserRol"])) {
+						?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="/0images/default_user.png" alt="User" class="profile-image">
+								<?php echo $NameToDisplay ?>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="/4profile/main_profile.php">Perfil</a></li>
+                                <li><a class="dropdown-item" href="/7rol_support/CreateTicket.php">Tickets</a></li>
+                                <?php
+									if ($_SESSION["UserRol"] == "S") {
+										?>
+                                        <li><a class="dropdown-item" href="/7rol_support/RolSupport.php">Gestión de tickets</a></li>
+										<?php
+									}
+								?>
+                                <li><a class="dropdown-item" href="/logout.php">Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+						<?php
+					} else {
+						?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/1login/login.php">Login
+                            <img src="/0images/default_user.png" alt="User" class="profile-image">
+								<?php echo $NameToDisplay ?>
+                            </a>
+                        </li>
+						<?php
+					}
+				?>
             </ul>
              <!-- Carrito de compra -->
             <div class="dropdown">
