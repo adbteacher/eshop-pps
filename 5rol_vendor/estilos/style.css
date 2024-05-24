@@ -12,7 +12,6 @@ html, body {
 #devolver:hover {
     color: #4CAF50;
 }
-  
 
 #contenido {
     width: 80%;
@@ -48,39 +47,39 @@ td, th {
     text-align: left;
     padding: 8px;
     max-width: 100px;
-    word-wrap:break-word;
+    word-wrap: break-word;
 }
-        
+
 tr:nth-child(even) {
     background-color: #eeeeee;
 }
 
-tr:nth-child(even) {
+tr:nth-child(odd) {
     background-color: #cccccc;
 }
-    
+
 #enlaces {
     text-decoration: none;
     color: black;
 }
-    
+
 #enlaces:hover {
     color: #4CAF50;
 }
-    
+
 #tablabicis {
     text-align: center;
 }
-    
+
 tr:nth-child(n+3):hover {
     background-color: #aaaaaa;
 }
-    
+
 h1 {
     text-align: center;
     color: #4CAF50;
 }
-    
+
 form {
     width: 50%;
     margin: 0 auto;
@@ -90,14 +89,14 @@ form {
     border: 2px solid #dddddd;
     border-radius: 5px;
 }
-    
+
 label {
     display: block;
     margin-bottom: 10px;
     font-size: 18px;
 }
-    
-input[type="text"] {
+
+input[type="text"], input[type="number"], input[type="file"], select {
     width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
@@ -105,7 +104,7 @@ input[type="text"] {
     border: 2px solid #dddddd;
     border-radius: 5px;
 }
-    
+
 input[type="submit"] {
     background-color: #4CAF50;
     border: none;
@@ -119,7 +118,7 @@ input[type="submit"] {
     cursor: pointer;
     border-radius: 5px;
 }
-    
+
 input[type="submit"]:hover {
     background-color: #45a049;
 }
@@ -129,40 +128,12 @@ input[type="submit"]:hover {
     justify-content: center;
 }
 
-.mensaje_ok {
+.mensaje_exito {
     font-size: 24px;
     font-weight: bold;
     color: green;
     text-align: center;
     margin: 20px 0;
-  }
-
-  .cuadrado-verde {
-    background-color: green;
-    border-radius: 3px;
-    display: inline-block;
-    height: 15px;
-    width: 15px;
-  }
-  
-  .cuadrado-rojo {
-    background-color: red;
-    border-radius: 3px;
-    display: inline-block;
-    height: 15px;
-    width: 15px;
-  }
-
-
-table.horizontal {
-    display: inline-table;
-    width: 33%;
-    margin: 10;
-    padding: 10px;
-}
-
-table.horizontal tr:nth-child(n+1):hover {
-    background-color: #aaaaaa;
 }
 
 .mensaje_error {
@@ -173,8 +144,45 @@ table.horizontal tr:nth-child(n+1):hover {
     margin: 20px 0;
 }
 
-.statics {
-    text-align: center;
-    color: black;
-    font-weight: bold;
+.estadisticas {
+    margin: 20px;
+}
+
+.estadisticas h2 {
+    margin-bottom: 20px;
+}
+
+.estadisticas table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.estadisticas th, .estadisticas td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.estadisticas th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+.grafico {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.volver-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.volver-btn:hover {
+    background-color: #45a049;
 }

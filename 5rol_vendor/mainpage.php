@@ -1,53 +1,130 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Página Principal</title>
-  <link rel="stylesheet" href="estilos/style.css?v=0.0.1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Principal</title>
+    <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .btn-separado {
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #ddd;
+            column-span: 10;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center; /* Centrar texto en las celdas */
+        }
+
+        th {
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+        }
+    </style>
+    <!-- Iconos de Bootstrap para el carrito -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
-    <div id="contenido"><br>
-        <form method="post" action="nuevo_producto.php" id="mainform">
-            <?php
-                // Generar y almacenar un token CSRF en la sesión
-                session_start();
-                if (empty($_SESSION['csrf_token'])) {
-                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+<?php 
+    // Start output buffering
+    ob_start();
+    
+    include "../nav.php"; // Incluye el Navbar
+
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    require_once '../vendor/autoload.php';
+    require_once 'biblioteca.php';
+
+    $conn = GetDatabaseConnection();
+    if (!$conn) {
+        ob_end_clean(); // Clean the output buffer
+        echo "<p>No se pudo conectar a la base de datos.</p>";
+        exit;
+    }
+
+    //AddSecurityHeaders();
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST['action'])) {
+            $action = $_POST['action'];
+            if ($action === 'Nuevo producto') {
+                if (!headers_sent()) {
+                    header('Location: nuevo_producto.php');
+                    exit;
                 }
-            ?>
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-            <input type="submit" name="Nuevo producto" value="Nuevo producto" class="boton">
-            <input type="submit" name="Stats de ventas" value="Stats de ventas" class="boton">
-        </form><br>
-    </div>
+            } elseif ($action === 'Stats de ventas') {
+                if (!headers_sent()) {
+                    header('Location: stats.php');
+                    exit;
+                }
+            } elseif ($action === 'Gestion clientes') {
+                if (!headers_sent()) {
+                    header('Location: gestion_clientes.php');
+                    exit;
+                }
+            }
+        }
+    }
+
+    if (isset($_GET['eliminar_id'])) {
+        $id = filter_var($_GET['eliminar_id'], FILTER_SANITIZE_NUMBER_INT);
+        if (eliminar_fila($id)) {
+            echo "<p>Producto eliminado correctamente</p>";
+        } else {
+            echo "<p>Error al eliminar el producto</p>";
+        }
+    }
+?>
+
+<div id="contenido" class="container mt-4">
+    <form method="post" action="" id="mainform" class="mb-3">
+        <button type="submit" name="action" value="Nuevo producto" class="btn btn-primary btn-separado">Nuevo producto</button>
+        <button type="submit" name="action" value="Stats de ventas" class="btn btn-secondary btn-separado">Stats de ventas</button>
+        <button type="submit" name="action" value="Gestion clientes" class="btn btn-info btn-separado">Gestión de Clientes</button>
+    </form>
 
     <?php
-        session_start();
-        include "biblioteca.php";
-        $conn = connection();
-    
-        AddSecurityHeaders();  // Añade cabeceras de seguridad HTTP
-    
-        // Genera un token CSRF si no existe uno en la sesión actual
-        if (empty($_SESSION['csrf_token']))
-        {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
-        
-        // Verificar si la conexión fue exitosa
         if ($conn) {
-            $result = consulta($conn);
-            
-            // Verificar si la consulta devolvió resultados
+            $result = consulta();
             if ($result) {
+                echo '<table class="table table-bordered">';
                 mostrar_tabla($result);
+                echo '</table>';
             } else {
                 echo "<p>Error al obtener los datos.</p>";
             }
-            
-            cerrar_conexion($conn);
-        } else {
-            echo "<p>No se pudo conectar a la base de datos.</p>";
         }
     ?>
+</div>
+
+<?php include "../footer.php"; // Incluye el footer ?>
+
+<script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<?php
+// End output buffering and flush the output
+ob_end_flush();
+?>
 </body>
 </html>

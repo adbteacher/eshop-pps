@@ -1,56 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Estadísticas de Ventas</title>
-  <link rel="stylesheet" href="estilos/style.css?v=0.0.1">
-  <style>
-    .estadisticas {
-      margin: 20px;
-    }
-    .estadisticas h2 {
-      margin-bottom: 20px;
-    }
-    .estadisticas table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .estadisticas th, .estadisticas td {
-      border: 1px solid #ddd;
-      padding: 8px;
-    }
-    .estadisticas th {
-      background-color: #f2f2f2;
-      text-align: left;
-    }
-    .grafico {
-      width: 80%;
-      margin: 0 auto;
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas de Ventas</title>
+    <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <div class="estadisticas">
+<?php include "../nav.php"; // Incluye el Navbar ?>
+<div class="container mt-5">
     <h1>Estadísticas de Ventas</h1>
     <?php
     session_start();
-    include "biblioteca.php";
-    $conn = connection();
+    require_once '../vendor/autoload.php';
+    require_once 'biblioteca.php';
 
-    AddSecurityHeaders();  // Añade cabeceras de seguridad HTTP
+    $conn = GetDatabaseConnection();
 
-	// Genera un token CSRF si no existe uno en la sesión actual
-	if (empty($_SESSION['csrf_token']))
-	{
-		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-	}
-
-    // Número de ventas e ingresos generados
     $ventas_totales_sql = "SELECT COUNT(*) AS total_ventas, SUM(subtotal) AS ingresos_totales FROM pps_order_details";
     $stmt = $conn->query($ventas_totales_sql);
     $ventas_totales = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Productos más vendidos
     $productos_mas_vendidos_sql = "SELECT p.prd_name, SUM(od.qty) AS cantidad_vendida 
                                    FROM pps_order_details od 
                                    JOIN pps_products p ON od.ord_det_prod_id = p.prd_id 
@@ -60,7 +30,6 @@
     $stmt = $conn->query($productos_mas_vendidos_sql);
     $productos_mas_vendidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Tendencias de ventas a lo largo del tiempo
     $tendencias_ventas_sql = "SELECT DATE_FORMAT(o.ord_purchase_date, '%Y-%m') AS mes, SUM(od.subtotal) AS ingresos_mensuales 
                               FROM pps_order_details od 
                               JOIN pps_orders o ON od.ord_det_order_id = o.ord_id 
@@ -69,53 +38,59 @@
     $stmt = $conn->query($tendencias_ventas_sql);
     $tendencias_ventas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    cerrar_conexion($conn);
+    cerrar_conexion();
     ?>
-    <h2>Resumen de Ventas</h2>
-    <p>Número total de ventas: <?php echo $ventas_totales['total_ventas']; ?></p>
-    <p>Ingresos totales generados: $<?php echo number_format($ventas_totales['ingresos_totales'], 2); ?></p>
-
-    <h2>Productos Más Vendidos</h2>
-    <table>
-      <tr>
-        <th>Producto</th>
-        <th>Cantidad Vendida</th>
-      </tr>
-      <?php foreach ($productos_mas_vendidos as $producto) : ?>
-        <tr>
-          <td><?php echo htmlspecialchars($producto['prd_name']); ?></td>
-          <td><?php echo $producto['cantidad_vendida']; ?></td>
-        </tr>
-      <?php endforeach; ?>
-    </table>
-
-    <h2>Tendencias de Ventas Mensuales</h2>
-    <div class="grafico">
-      <canvas id="ventasMensuales"></canvas>
+    <div class="my-4">
+        <h2>Resumen de Ventas</h2>
+        <p>Número total de ventas: <?php echo $ventas_totales['total_ventas']; ?></p>
+        <p>Ingresos totales generados: €<?php echo number_format($ventas_totales['ingresos_totales'], 2); ?></p>
     </div>
-    <script>
-      const ctx = document.getElementById('ventasMensuales').getContext('2d');
-      const ventasMensuales = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: <?php echo json_encode(array_column($tendencias_ventas, 'mes')); ?>,
-          datasets: [{
-            label: 'Ingresos Mensuales',
-            data: <?php echo json_encode(array_column($tendencias_ventas, 'ingresos_mensuales')); ?>,
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            fill: true,
-          }]
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-    </script>
-  </div>
+
+    <div class="my-4">
+        <h2>Productos Más Vendidos</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad Vendida</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($productos_mas_vendidos as $producto) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($producto['prd_name']); ?></td>
+                        <td><?php echo $producto['cantidad_vendida']; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="my-4">
+        <h2>Tendencias de Ventas Mensuales</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>Ingresos Mensuales</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($tendencias_ventas as $tendencia) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($tendencia['mes']); ?></td>
+                        <td>€<?php echo number_format($tendencia['ingresos_mensuales'], 2); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+    <form action="mainpage.php" method="post" class="my-4">
+        <button type="submit" name="Volver" formaction="mainpage.php" class="btn btn-primary">Volver</button>
+    </form>
+</div>
+<?php include "../footer.php"; // Incluye el footer ?>
+<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
