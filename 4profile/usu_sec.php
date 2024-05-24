@@ -173,7 +173,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     include "../nav.php";
     ?>
     <div class="container">
-        <div class="row">
+        <div class="row mb-5">
             <div class="col-md-6">
                 <div class="title-container">
                     <h3 class="text-center">Cambiar Contraseña</h3>
@@ -217,10 +217,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
                         <a href="../1login/activate_2fa.php" class="btn btn-primary">Activar segundo factor</a>
                     </div>
                 </div>
+                <div class="second-factor-container">
+                    <h3 class="text-center">Registros de Inicio de Sesión</h3>
+                    <div class="container mt-3 text-center">
+                        <a href="../1login/logins.php" class="btn btn-primary">Ver registro de Incios de Sesión</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-
+        <?php include "../footer.php"; ?>
 </body>
 
 </html>
