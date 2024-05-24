@@ -11,13 +11,13 @@
 
 	$Error = "<h1>Permission denied</h1>";
 
-	$Allowed = Functions::HasPermissions("A", "products.php");
+	/*$Allowed = Functions::HasPermissions("A", "products.php");
 
 	if (!$Allowed)
 	{
 		echo $Error;
 		exit;
-	}
+	}*/
 
 	// Agregar al carrito
 	if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['product_id']) && isset($_POST['quantity']))
