@@ -1,35 +1,42 @@
 <?php
-	session_start();
+session_start();
 
-	require_once(__DIR__ . "/autoload.php");
+require_once(__DIR__ . "/autoload.php");
 
-	if ($_SESSION["UserID"])
-	{
-		$NameToDisplay = $_SESSION["UserName"];
-	}
-	else
-	{
-		$NameToDisplay = "Invitado";
-	}
+// Conexión a la base de datos
+$conn = database::LoadDatabase();
 
+// Consulta para verificar si el usuario tiene el rol "A"
+$stmt = $conn->prepare("SELECT usu_rol FROM pps_users WHERE usu_id = ?");
+$stmt->execute([$_SESSION["UserID"]]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-	// Conexión a la base de datos
-	$conn = database::LoadDatabase();
+//TODO PENSAR SI SACAR A UNA FUNCION
+if ($user['usu_rol'] === 'A') {
+    $isAdmin = true; // Verificar si el usuario tiene el rol "A"
+} else {
+    $NameToDisplay = "Invitado";
+    $isAdmin       = false; // Valor predeterminado para los usuarios no autenticados
+}
 
-	// Manejar la lógica de eliminación del carrito
-	if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id']))
-	{
-		$removeProductId = $_POST['remove_product_id'];
+if ($_SESSION["UserID"]) {
+    $NameToDisplay = $_SESSION["UserName"];
+} else {
+    $NameToDisplay = "Invitado";
+}
 
-		if (isset($_SESSION['cart'][$removeProductId]))
-		{
-			unset($_SESSION['cart'][$removeProductId]);
-		}
+// Manejar la lógica de eliminación del carrito
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) {
+    $removeProductId = $_POST['remove_product_id'];
 
-		// Redirigir para evitar reenvío de formularios
-		header("Location: " . $_SERVER['PHP_SELF']);
-		exit();
-	}
+    if (isset($_SESSION['cart'][$removeProductId])) {
+        unset($_SESSION['cart'][$removeProductId]);
+    }
+
+    // Redirigir para evitar reenvío de formularios
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
 ?>
 <style>
     /* Estilo para la imagen del perfil */
