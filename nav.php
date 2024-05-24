@@ -3,6 +3,25 @@
 
 	require_once(__DIR__ . "/autoload.php");
 
+	// Conexión a la base de datos
+	$conn = database::LoadDatabase();
+
+	// Consulta para verificar si el usuario tiene el rol "A"
+	$stmt = $conn->prepare("SELECT usu_rol FROM pps_users WHERE usu_id = ?");
+	$stmt->execute([$_SESSION["UserID"]]);
+	$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+	//TODO PENSAR SI SACAR A UNA FUNCION
+	if ($user['usu_rol'] === 'A')
+	{
+		$isAdmin = true; // Verificar si el usuario tiene el rol "A"
+	}
+	else
+	{
+		$NameToDisplay = "Invitado";
+		$isAdmin       = false; // Valor predeterminado para los usuarios no autenticados
+	}
+
 	if ($_SESSION["UserID"])
 	{
 		$NameToDisplay = $_SESSION["UserName"];
@@ -11,10 +30,6 @@
 	{
 		$NameToDisplay = "Invitado";
 	}
-
-
-	// Conexión a la base de datos
-	$conn = database::LoadDatabase();
 
 	// Manejar la lógica de eliminación del carrito
 	if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id']))
@@ -66,7 +81,8 @@
 
             <ul class="navbar-nav ms-auto">
 				<?php
-					if (!empty($_SESSION["UserRol"])) {
+					if (!empty($_SESSION["UserRol"]))
+					{
 						?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -74,12 +90,21 @@
 								<?php echo $NameToDisplay ?>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+
+								<?php if ($isAdmin): ?>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/8rol_admin/Rol_Admin.php">Panel de Administrador</a>
+                                    </li>
+								<?php endif; ?>
+
                                 <li><a class="dropdown-item" href="/4profile/main_profile.php">Perfil</a></li>
                                 <li><a class="dropdown-item" href="/7rol_support/CreateTicket.php">Tickets</a></li>
-                                <?php
-									if ($_SESSION["UserRol"] == "S") {
+								<?php
+									if ($_SESSION["UserRol"] == "S")
+									{
 										?>
-                                        <li><a class="dropdown-item" href="/7rol_support/RolSupport.php">Gestión de tickets</a></li>
+                                        <li><a class="dropdown-item" href="/7rol_support/RolSupport.php">Gestión de
+                                                tickets</a></li>
 										<?php
 									}
 								?>
@@ -87,17 +112,19 @@
                             </ul>
                         </li>
 						<?php
-					} else {
+					}
+					else
+					{
 						?>
                         <li class="nav-item">
                             <a class="nav-link" href="/1login/login.php">Login
-                            <img src="/0images/default_user.png" alt="User" class="profile-image">
+                                <img src="/0images/default_user.png" alt="User" class="profile-image">
 								<?php echo $NameToDisplay ?>
                             </a>
                         </li>
 						<?php
 					}
-				?>
+                ?>
             </ul>
 
 
@@ -110,7 +137,7 @@
                 <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="dropdownCartButton" style="width: 350px;">
 					<?php
 						// Comprueba si hay productos en el carrito
-						if (!empty($_SESSION['cart'])) :
+						if (!empty($_SESSION['cart'])):
 							$productIds = array_keys($_SESSION['cart']);
 							if (!empty($productIds))
 							{
@@ -119,31 +146,30 @@
 								$stmt->execute($productIds);
 								$cartProducts = $stmt->fetchAll();
 							}
-							foreach ($cartProducts as $product) : // Muestra los productos en el carrito
-								?>
-                                <li class="dropdown-item d-flex justify-content-between align-items-center">
-                                    <div class="d-flex flex-column">
-                                        <span><?php echo htmlspecialchars($product['prd_name']); ?></span>
-                                        <small class="text-muted"><?php echo number_format($product['prd_price'] * $_SESSION['cart'][$product['prd_id']], 2); ?>
-                                            €</small>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <span class="badge bg-primary rounded-pill me-2"><?php echo $_SESSION['cart'][$product['prd_id']]; ?></span>
-                                        <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-                                            <input type="hidden" name="remove_product_id" value="<?php echo $product['prd_id']; ?>">
-                                            <button type="submit" class="btn btn-sm btn-danger rounded-circle d-flex justify-content-center align-items-center p-0" style="width: 24px; height: 24px;">
-                                                <i class="bi bi-x-lg"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </li>
-							<?php endforeach; ?>
+							?>
+							<?php foreach ($cartProducts as $product): // Muestra los productos en el carrito ?>
+                            <li class="dropdown-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex flex-column">
+                                    <span><?php echo htmlspecialchars($product['prd_name']); ?></span>
+                                    <small class="text-muted"><?php echo number_format($product['prd_price'] * $_SESSION['cart'][$product['prd_id']], 2); ?>
+                                        €</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary rounded-pill me-2"><?php echo $_SESSION['cart'][$product['prd_id']]; ?></span>
+                                    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                        <input type="hidden" name="remove_product_id" value="<?php echo $product['prd_id']; ?>">
+                                        <button type="submit" class="btn btn-sm btn-danger rounded-circle d-flex justify-content-center align-items-center p-0" style="width: 24px; height: 24px;">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+						<?php endforeach; ?>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li><a class="dropdown-item text-center" href="cart.php">Ver Carrito</a></li>
-						<?php else : // Muestra cuando no hay productos en el carrito
-							?>
+						<?php else: // Muestra cuando no hay productos en el carrito ?>
                             <li class="dropdown-item text-center">No hay productos en el carrito.</li>
 						<?php endif; ?>
                 </ul>
