@@ -15,7 +15,7 @@ if (empty($_SESSION['csrf_token'])) {
 $csrf_token = $_SESSION['csrf_token']; // CSRF TOKEN
 
 // Función de limpieza:
-function cleanInput($input)
+function cleanInput($input): array|string
 {
     $input = trim($input);
     $input = stripslashes($input);
@@ -51,7 +51,7 @@ function ChangePassword($user_email, $old_password, $new_password, $confirm_new_
     $connection = database::LoadDatabase(); // Obtener la conexión a la base de datos
 
     // Verificar la contraseña antigua
-    $sql = "SELECT usu_password FROM pps_users WHERE usu_email = ?";
+    $sql  = "SELECT usu_password FROM pps_users WHERE usu_email = ?";
     $stmt = $connection->prepare($sql);
     $stmt->execute([$user_email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -75,7 +75,7 @@ function ChangePassword($user_email, $old_password, $new_password, $confirm_new_
     $hashed_new_password = password_hash($new_password, PASSWORD_DEFAULT);
 
     // Actualizar la contraseña en la base de datos
-    $sql = "UPDATE pps_users SET usu_password = ? WHERE usu_email = ?";
+    $sql  = "UPDATE pps_users SET usu_password = ? WHERE usu_email = ?";
     $stmt = $connection->prepare($sql);
     $stmt->execute([$hashed_new_password, $user_email]);
 

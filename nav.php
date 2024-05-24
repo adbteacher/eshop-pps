@@ -3,15 +3,27 @@ session_start();
 
 require_once(__DIR__ . "/autoload.php");
 
+// Conexión a la base de datos
+$conn = database::LoadDatabase();
+
+// Consulta para verificar si el usuario tiene el rol "A"
+$stmt = $conn->prepare("SELECT usu_rol FROM pps_users WHERE usu_id = ?");
+$stmt->execute([$_SESSION["UserID"]]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+//TODO PENSAR SI SACAR A UNA FUNCION
+if ($user['usu_rol'] === 'A') {
+    $isAdmin = true; // Verificar si el usuario tiene el rol "A"
+} else {
+    $NameToDisplay = "Invitado";
+    $isAdmin       = false; // Valor predeterminado para los usuarios no autenticados
+}
+
 if ($_SESSION["UserID"]) {
     $NameToDisplay = $_SESSION["UserName"];
 } else {
     $NameToDisplay = "Invitado";
 }
-
-
-// Conexión a la base de datos
-$conn = database::LoadDatabase();
 
 // Manejar la lógica de eliminación del carrito
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) {
@@ -57,21 +69,53 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                 <li class="nav-item">
                     <a class="nav-link" href="#">Productos</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/3register/register.form.php">Registro</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/1login/login.php">Login</a>
-                </li>
             </ul>
+
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/4profile/main_profile.php">
-                        <img src="/0images/default_user.png" alt="User" class="profile-image">
-                        <?php echo $NameToDisplay ?>
-                    </a>
-                </li>
+                <?php
+                if (!empty($_SESSION["UserRol"])) {
+                ?>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="/0images/default_user.png" alt="User" class="profile-image">
+                            <?php echo $NameToDisplay ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+
+                            <?php if ($isAdmin) : ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/8rol_admin/Rol_Admin.php">Panel de Administrador</a>
+                                </li>
+                            <?php endif; ?>
+
+                            <li><a class="dropdown-item" href="/4profile/main_profile.php">Perfil</a></li>
+                            <li><a class="dropdown-item" href="/7rol_support/CreateTicket.php">Tickets</a></li>
+                            <?php
+                            if ($_SESSION["UserRol"] == "S") {
+                            ?>
+                                <li><a class="dropdown-item" href="/7rol_support/RolSupport.php">Gestión de
+                                        tickets</a></li>
+                            <?php
+                            }
+                            ?>
+                            <li><a class="dropdown-item" href="/logout.php">Cerrar sesión</a></li>
+                        </ul>
+                    </li>
+                <?php
+                } else {
+                ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/1login/login.php">Login
+                            <img src="/0images/default_user.png" alt="User" class="profile-image">
+                            <?php echo $NameToDisplay ?>
+                        </a>
+                    </li>
+                <?php
+                }
+                ?>
             </ul>
+
+
             <!-- Carrito de compra -->
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle d-flex align-items-center" type="button" id="dropdownCartButton" data-bs-toggle="dropdown" aria-expanded="false">
@@ -85,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                         $productIds = array_keys($_SESSION['cart']);
                         if (!empty($productIds)) {
                             $placeholders = implode(',', array_fill(0, count($productIds), '?'));
-                            $stmt = $conn->prepare("SELECT prd_id, prd_name, prd_price FROM pps_products WHERE prd_id IN ($placeholders)");
+                            $stmt         = $conn->prepare("SELECT prd_id, prd_name, prd_price FROM pps_products WHERE prd_id IN ($placeholders)");
                             $stmt->execute($productIds);
                             $cartProducts = $stmt->fetchAll();
                         }
@@ -95,7 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                             <li class="dropdown-item d-flex justify-content-between align-items-center">
                                 <div class="d-flex flex-column">
                                     <span><?php echo htmlspecialchars($product['prd_name']); ?></span>
-                                    <small class="text-muted"><?php echo number_format($product['prd_price'] * $_SESSION['cart'][$product['prd_id']], 2); ?>€</small>
+                                    <small class="text-muted"><?php echo number_format($product['prd_price'] * $_SESSION['cart'][$product['prd_id']], 2); ?>
+                                        €</small>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-primary rounded-pill me-2"><?php echo $_SESSION['cart'][$product['prd_id']]; ?></span>

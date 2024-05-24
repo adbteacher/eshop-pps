@@ -1,51 +1,57 @@
 <?php
 
-// PHP creado por
-// Twitter: @javiersureda
-// Github: @javiersureda
-// Youtube: @javiersureda3
+	// PHP creado por
+	// Twitter: @javiersureda
+	// Github: @javiersureda
+	// Youtube: @javiersureda3
 
-require_once("../autoload.php");
+	require_once("../autoload.php");
 
-session_start(); // Inicia sesión
+	session_start(); // Inicia sesión
 
-$Error = "<h1>Permission denied</h1>";
+	$Error = "<h1>Permission denied</h1>";
 
-$Allowed = Functions::HasPermissions("A", "products.php");
+	/*$Allowed = Functions::HasPermissions("A", "products.php");
 
-if (!$Allowed) {
-	echo $Error;
-	exit;
-}
+	if (!$Allowed)
+	{
+		echo $Error;
+		exit;
+	}*/
 
-// Agregar al carrito
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['product_id']) && isset($_POST['quantity'])) {
-	$productId = $_POST['product_id'];
-	$quantity  = $_POST['quantity'];
+	// Agregar al carrito
+	if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['product_id']) && isset($_POST['quantity']))
+	{
+		$productId = $_POST['product_id'];
+		$quantity  = $_POST['quantity'];
 
-	// Comprueba que el carrito esté inicializado
-	if (!isset($_SESSION['cart'])) {
-		$_SESSION['cart'] = [];
+		// Comprueba que el carrito esté inicializado
+		if (!isset($_SESSION['cart']))
+		{
+			$_SESSION['cart'] = [];
+		}
+
+		// Agregar producto al carrito
+		if (isset($_SESSION['cart'][$productId]))
+		{
+			$_SESSION['cart'][$productId] += $quantity;
+		}
+		else
+		{
+			$_SESSION['cart'][$productId] = $quantity;
+		}
+
+		// Redirigir para evitar reenvío de formularios
+		header("Location: " . $_SERVER['PHP_SELF']);
+		exit();
 	}
 
-	// Agregar producto al carrito
-	if (isset($_SESSION['cart'][$productId])) {
-		$_SESSION['cart'][$productId] += $quantity;
-	} else {
-		$_SESSION['cart'][$productId] = $quantity;
-	}
+	$conn = database::LoadDatabase(); // Conexión a la base de datos
 
-	// Redirigir para evitar reenvío de formularios
-	header("Location: " . $_SERVER['PHP_SELF']);
-	exit();
-}
-
-$conn = database::LoadDatabase(); // Conexión a la base de datos
-
-// Obtener categorías desde la base de datos
-$stmt = $conn->prepare("SELECT cat_id, cat_description FROM pps_categories");
-$stmt->execute();
-$categories = $stmt->fetchAll();
+	// Obtener categorías desde la base de datos
+	$stmt = $conn->prepare("SELECT cat_id, cat_description FROM pps_categories");
+	$stmt->execute();
+	$categories = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <!--
@@ -60,56 +66,56 @@ $categories = $stmt->fetchAll();
 
 <head>
 
-	<!-- Meta Etiquetas -->
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="Página web para PPS en CIPFP Mislata, por javiersureda">
-	<meta name="keywords" content="javiersureda, pps, mislata, cipfpmislata">
-	<meta name="author" content="Javier Sureda">
+    <!-- Meta Etiquetas -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Página web para PPS en CIPFP Mislata, por javiersureda">
+    <meta name="keywords" content="javiersureda, pps, mislata, cipfpmislata">
+    <meta name="author" content="Javier Sureda">
 
-	<!-- Titulo -->
-	<title>Frutería del Barrio</title>
+    <!-- Titulo -->
+    <title>Frutería del Barrio</title>
 
-	<!-- CSS / Hoja de estilos Bootstrap -->
-	<link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- CSS / Hoja de estilos Bootstrap -->
+    <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
-	<!-- Favicon -->
-	<link rel="apple-touch-icon" sizes="180x180" href="/0images/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="/0images/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="/0images/favicon-16x16.png">
-	<link rel="manifest" href="/0images/site.webmanifest">
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/0images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/0images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/0images/favicon-16x16.png">
+    <link rel="manifest" href="/0images/site.webmanifest">
 </head>
 
 <body>
-	<?php include "../nav.php"; // Incluye el Navbar 
-	?>
+<?php include "../nav.php"; // Incluye el Navbar
+?>
 
-	<div class="container mt-4 mb-4">
-		<div class="jumbotron">
-			<h1 class="display-4">¡Bienvenidos a Frutería del Barrio!</h1>
-			<p class="lead">Las mejores frutas frescos directo de los agricultores de Valencia a tu mesa.</p>
-			<hr class="my-4">
-			<p>Visita nuestra sección de ofertas especiales.</p>
-			<a class="btn btn-primary btn-lg mb-4" href="#" role="button">Ver Ofertas</a>
-		</div>
+<div class="container mt-4 mb-4">
+    <div class="jumbotron">
+        <h1 class="display-4">¡Bienvenidos a Frutería del Barrio!</h1>
+        <p class="lead">Las mejores frutas frescos directo de los agricultores de Valencia a tu mesa.</p>
+        <hr class="my-4">
+        <p>Visita nuestra sección de ofertas especiales.</p>
+        <a class="btn btn-primary btn-lg mb-4" href="#" role="button">Ver Ofertas</a>
+    </div>
 
-		<!-- Formulario de búsqueda de productos -->
-		<form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" class="mb-4">
-			<div class="input-group mb-3">
-				<input type="text" class="form-control" placeholder="Buscar por nombre" name="search_name">
-				<input type="number" class="form-control" placeholder="Buscar por precio" name="search_price" step="0.01">
-				<select class="form-control" name="category">
-					<option value="">Todas las categorías</option>
-					<?php foreach ($categories as $category) : ?>
-						<option value="<?php echo htmlspecialchars($category['cat_id']); ?>"><?php echo htmlspecialchars($category['cat_description']); ?></option>
-					<?php endforeach; ?>
-				</select>
-				<div class="input-group-append">
-					<button class="btn btn-primary" type="submit">Buscar</button>
-				</div>
-			</div>
-		</form>
-		<?php
+    <!-- Formulario de búsqueda de productos -->
+    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" class="mb-4">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Buscar por nombre" name="search_name">
+            <input type="number" class="form-control" placeholder="Buscar por precio" name="search_price" step="0.01">
+            <select class="form-control" name="category">
+                <option value="">Todas las categorías</option>
+				<?php foreach ($categories as $category) : ?>
+                    <option value="<?php echo htmlspecialchars($category['cat_id']); ?>"><?php echo htmlspecialchars($category['cat_description']); ?></option>
+				<?php endforeach; ?>
+            </select>
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">Buscar</button>
+            </div>
+        </div>
+    </form>
+	<?php
 		// Se comprueba que hay productos
 		$stmt = $conn->prepare("SELECT COUNT(*) FROM pps_products");
 		$stmt->execute();
@@ -119,21 +125,25 @@ $categories = $stmt->fetchAll();
 			Si no hay productos en la DB, va directamente a la alerta de que no hay productos,
 			si hay productos, se realiza la consulta principal o de busqueda
 		*/
-		if ($count > 0) {
+		if ($count > 0)
+		{
 			$sql = "SELECT prd_id, prd_name, prd_category, prd_details, prd_price, prd_image, prd_stock FROM pps_products WHERE 1";
 
 			$params = [];
 
 			// Barra de búsqueda
-			if (!empty($_POST['search_name'])) {
+			if (!empty($_POST['search_name']))
+			{
 				$sql                   .= " AND prd_name LIKE :search_name";
 				$params['search_name'] = '%' . $_POST['search_name'] . '%';
 			}
-			if (!empty($_POST['search_price'])) {
+			if (!empty($_POST['search_price']))
+			{
 				$sql                    .= " AND prd_price = :search_price";
 				$params['search_price'] = $_POST['search_price'];
 			}
-			if (!empty($_POST['category']) && is_numeric($_POST['category'])) {
+			if (!empty($_POST['category']) && is_numeric($_POST['category']))
+			{
 				$sql                .= " AND prd_category = :category";
 				$params['category'] = $_POST['category'];
 			}
@@ -143,9 +153,11 @@ $categories = $stmt->fetchAll();
 			$results = $stmt->fetchAll();
 
 			// Comprueba que hay productos y los muestra en tarjetas
-			if (!empty($results)) {
+			if (!empty($results))
+			{
 				echo '<div class="row row-cols-1 row-cols-md-3 g-4">';
-				foreach ($results as $row) {
+				foreach ($results as $row)
+				{
 					echo '<div class="col">';
 					echo '<div class="card h-100 shadow">';
 
@@ -170,7 +182,9 @@ $categories = $stmt->fetchAll();
 					echo '</div>';
 					echo '</div>';
 				}
-			} else {
+			}
+			else
+			{
 				// Cartel cuando no ha encontrado productos en la busqueda
 				echo '<div class="row row-cols-12 row-cols-md-12 g-4">';
 				echo '<div class="col-12 mt-4 d-flex align-items-center justify-content-center">';
@@ -181,7 +195,9 @@ $categories = $stmt->fetchAll();
 				echo '</div>';
 			}
 			echo '</div>';
-		} else {
+		}
+		else
+		{
 			// Cartel de cuando no hay productos en la tienda
 			echo '<div class="row row-cols-12 row-cols-md-12 g-4">';
 			echo '<div class="col-12 mt-4 d-flex align-items-center justify-content-center">';
@@ -196,14 +212,14 @@ $categories = $stmt->fetchAll();
 		}
 		// Se pone la conexión a NULL por seguridad y ahorrar memoria
 		$stmt = null;
-		?>
-	</div>
-	<?php include "../footer.php"; // Incluye el footer 
 	?>
+</div>
+<?php include "../footer.php"; // Incluye el footer
+?>
 
-	<!-- Script para guardar la posición del usuario
-	 en la web al añadir un producto al carrito   -->
-	<script src="position.js"></script>
+<!-- Script para guardar la posición del usuario
+ en la web al añadir un producto al carrito   -->
+<script src="position.js"></script>
 </body>
 
 </html>

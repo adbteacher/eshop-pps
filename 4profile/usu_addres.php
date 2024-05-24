@@ -12,7 +12,7 @@ require_once '../Database.php';
 $UserID = $_SESSION['UserID'];
 
 // Función para generar un token CSRF
-function generateCSRFToken()
+function generateCSRFToken(): string
 {
     return bin2hex(random_bytes(32));
 }
@@ -96,7 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitMainAddress'])) 
     $stmt->execute([$UserID]);
 
     // Marcar la dirección seleccionada como principal
-    $sql = "UPDATE pps_addresses_per_user SET adr_is_main = 1 WHERE adr_id = ?";
+    $sql  = "UPDATE pps_addresses_per_user SET adr_is_main = 1 WHERE adr_id = ?";
     $stmt = $connection->prepare($sql);
     $stmt->execute([$main_address_id]);
 

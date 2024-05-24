@@ -10,8 +10,8 @@ if (!isset($_SESSION['UserEmail']) || !isset($_SESSION['UserID'])) {
 require_once '../Database.php';
 
 $user_email = $_SESSION['UserEmail'];
-$user_id = $_SESSION['UserID'];
-$user_name = $_SESSION['UserName'];
+$user_id    = $_SESSION['UserID'];
+$user_name  = $_SESSION['UserName'];
 
 // Generar un token CSRF y almacenarlo en la sesión
 if (empty($_SESSION['csrf_token'])) {
@@ -34,7 +34,7 @@ function cleanInput($input): array|string
 $connection = database::LoadDatabase();
 
 // Retrieve user data
-$sql = "SELECT * FROM pps_users WHERE usu_id = ?";
+$sql  = "SELECT * FROM pps_users WHERE usu_id = ?";
 $stmt = $connection->prepare($sql);
 $stmt->execute([$user_id]);
 $UserRow = $stmt->fetch(PDO::FETCH_ASSOC);

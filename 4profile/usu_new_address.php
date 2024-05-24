@@ -36,7 +36,7 @@
     $csrf_token = $_SESSION['csrf_token']; // CSRF TOKEN
 
     // Función de limpieza:
-    function cleanInput($input)
+    function cleanInput($input): array|string
     {
         $input = trim($input);
         $input = stripslashes($input);

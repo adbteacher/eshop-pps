@@ -148,7 +148,7 @@ if (!isset($_SESSION['UserEmail'])) {
 
         <?php if ($edit_adress && !empty($edit_adress['adr_id'])) : ?>
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <input type="hidden" name="edit_address_id" value="<?php echo $edit_adress['adr_id']; ?>">
+                <input type="hidden" name="edit_address_id" value="<?php echo $edit_address['adr_id']; ?>">
                 <div class="mb-3">
                     <label for="adr_country" class="form-label">País:</label>
                     <select id="adr_country" name="adr_country" class="form-control" required>
