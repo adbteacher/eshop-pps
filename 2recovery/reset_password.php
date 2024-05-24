@@ -11,9 +11,11 @@ use PHPMailer\PHPMailer\Exception;
 require 'vendor/autoload.php'; // Autoload all the composer Libraries
 require 'Database.php';        // Database connection
 require 'jwt.php';             // JWT handling library
+require '../mail_config.php';     // PHPMailer configuration
+
 session_start();
 
-function logPasswordResetAttempt($pdo, $userId, $email, $ipAddress, $isSuccessful)
+function logPasswordResetAttempt(PDO $pdo, ?int $userId, string $email, string $ipAddress, bool $isSuccessful): void
 {
     $stmt = $pdo->prepare("INSERT INTO pps_logs_recovery (lor_user, lor_email, lor_ip, lor_datetime, lor_attempt) VALUES (:userId, :email, :ipAddress, NOW(), :isSuccessful)");
     $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
@@ -60,22 +62,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email'])) {
             'exp' => time() + 3600 // Expiry Time
         ];
         $token = JWTHandler::createToken($payload);
-        $resetLink = "https://eshop-pps-whatever.com/update_password.php?token=" . urlencode($token);
+        $resetLink = dirname($_SERVER['PHP_SELF']) . "/update_password.php?token=" . urlencode($token);
 
         // Setup PHPMailer
-        $mail = new PHPMailer(true);
+        $mail = getMailer();
         try {
-            //Server settings
-            $mail->isSMTP();
-            $mail->Host       = 'smtp.example.com';  // Set the SMTP server to send through
-            $mail->SMTPAuth   = true;               // Enable SMTP authentication
-            $mail->Username   = 'user@example.com'; // SMTP username
-            $mail->Password   = 'secret';           // SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Enable TLS encryption
-            $mail->Port       = 587;                // TCP port to connect to
-
-            //Recipients
-            $mail->setFrom('no-reply@example.com', 'Mailer');
             $mail->addAddress($email);     // Add a recipient
 
             // Content

@@ -9,15 +9,15 @@ require 'Database.php'; // Includes the database connection
 
 class JWTHandler
 {
-    private static $secretKey;
-    private static $algorithm = 'sha256';
-    private static $encryptAlgorithm = 'HS256';
+    private static string $secretKey;
+    private static string $algorithm = 'sha256';
+    private static string $encryptAlgorithm = 'HS256';
     private static $pdo;
 
     /**
      * Initializes the JWT handler by creating a secret key if not already set.
      */
-    public static function initialize()
+    public static function initialize(): void
     {
         self::$pdo = GetDatabaseConnection(); // Gets the database connection
         if (!isset($_SESSION['JWT_SECRET_KEY'])) {
@@ -32,7 +32,7 @@ class JWTHandler
      * @param array $payload The data to be encoded into the JWT.
      * @return string The encoded JWT.
      */
-    public static function createToken(array $payload)
+    public static function createToken(array $payload): string
     {
         $header = json_encode(['typ' => 'JWT', 'alg' => self::$encryptAlgorithm]);
         $base64UrlHeader = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
@@ -60,11 +60,11 @@ class JWTHandler
         $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
 
         // Decode the payload to an array
-        $payload = json_decode($payload, true);
+        $payloadArray = json_decode($payload, true);
 
         // Check if the provided signature matches and the token is not expired
-        if ($signatureProvided === $base64UrlSignature && isset($payload['exp']) && $payload['exp'] > time()) {
-            return $payload;
+        if ($signatureProvided === $base64UrlSignature && isset($payloadArray['exp']) && $payloadArray['exp'] > time()) {
+            return $payloadArray;
         }
         return false;
     }

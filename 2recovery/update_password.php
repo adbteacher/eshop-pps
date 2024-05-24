@@ -5,7 +5,7 @@
  * It verifies the provided JWT token and updates the password if the token is valid.
  */
 
-require 'db.php';
+require 'Database.php';
 require 'jwt.php'; // JWT handling library
 session_start();
 
