@@ -10,6 +10,8 @@
     "require": {
         "twbs/bootstrap": "^5.3",
         "robthree/twofactorauth": "^2.1",
+        "tecnickcom/tcpdf": "^6.4",
       "ext-pdo": "*"
     }
 }
+

@@ -49,13 +49,13 @@
         <div class="card">
             <h2>Ventas</h2>
             <p>Analiza tus ventas para identificar patrones y tendencias.</p>
-            <a href="Anal_Ventas.php">Ir a análisis de ventas</a>
+            <a href="Datos_Ventas.php">Ir a análisis de ventas</a>
         </div>
 
         <div class="card">
             <h2>Inventario</h2>
             <p>Controla tu inventario para asegurarte de mantener stock suficiente.</p>
-            <a href="analisis_inventario.php">Ir a análisis de inventario</a>
+            <a href="Inventario.php">Ir a análisis de inventario</a>
         </div>
 
         <div class="card">
