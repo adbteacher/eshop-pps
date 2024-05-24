@@ -7,7 +7,7 @@ setx DB_PASS "" -M
 setx DB_NAME "eshop_pps" -M
 setx DB_PORT "3306" -M
 
-REM - Mail configuration variables
+REM - MAIL CONFIGURATION VARIABLES
 setx MAIL_HOST "smtp.example.com" -M
 setx MAIL_USERNAME "user@example.com" -M
 setx MAIL_PASSWORD "secret" -M

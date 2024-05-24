@@ -2,7 +2,7 @@
 
 use PHPMailer\PHPMailer\PHPMailer;
 
-require 'vendor/autoload.php'; // Autoload all the composer Libraries
+require 'autoload.php'; // Autoload all the composer Libraries
 
 /**
  * Configures and returns an instance of PHPMailer.
