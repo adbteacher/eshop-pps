@@ -1,17 +1,17 @@
 {
-    "name": "ivanm/eshop-pps",
-    "description": "tienda pps",
-    "authors": [
-        {
-            "name": "Ivan",
-            "email": "ivanmarmi@hotmail.es"
-        }
-    ],
-    "require": {
-        "twbs/bootstrap": "^5.3",
-        "robthree/twofactorauth": "^2.1",
-        "tecnickcom/tcpdf": "^6.4",
-      "ext-pdo": "*"
+  "name": "ivanm/eshop-pps",
+  "description": "tienda pps",
+  "authors": [
+    {
+      "name": "Agustín",
+      "email": "agustin@esuncrack.com"
     }
+  ],
+  "require": {
+    "twbs/bootstrap": "^5.3",
+    "robthree/twofactorauth": "^2.1",
+    "ext-pdo": "*",
+    "phpmailer/phpmailer": "^6.9",
+    "tecnickcom/tcpdf": "^6.4"
+  }
 }
-

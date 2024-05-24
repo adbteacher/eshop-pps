@@ -51,6 +51,7 @@
 				$_SESSION["UserID"]    = $User["usu_id"];
 				$_SESSION["UserName"]  = $User["usu_name"];
 				$_SESSION["UserEmail"] = $User["usu_email"];
+				$_SESSION["UserRol"]   = $User["usu_rol"];
 
 				// Redirige al usuario a la página de verificación de 2FA o al perfil principal.
 				$redirectUrl = Has2FA($Email) ? 'verify_2fa.php' : '../4profile/main_profile.php';
@@ -72,7 +73,7 @@
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="estilo.css">
+    <link rel="stylesheet" type="text/css" href="estilo.css">
 </head>
 <body>
 
