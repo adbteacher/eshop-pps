@@ -32,7 +32,7 @@
     <title>Gestión de Tickets de Soporte Técnico</title>
 
     <!-- CSS / Hoja de estilos Bootstrap -->
-<!--    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">-->
+    <!--    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">-->
     <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Favicon -->
