@@ -51,6 +51,7 @@
 				$_SESSION["UserID"]    = $User["usu_id"];
 				$_SESSION["UserName"]  = $User["usu_name"];
 				$_SESSION["UserEmail"] = $User["usu_email"];
+				$_SESSION["UserRol"]   = $User["usu_rol"];
 
 				// Redirige al usuario a la página de verificación de 2FA o al perfil principal.
 				$redirectUrl = Has2FA($Email) ? 'verify_2fa.php' : '../4profile/main_profile.php';
@@ -72,13 +73,10 @@
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-    <!--    <link rel="stylesheet" type="text/css" href="estilo.css">-->
+    <link rel="stylesheet" type="text/css" href="estilo.css">
 </head>
 <body>
-<?php
-	include "../nav.php";
-?>
-<div class="version">Versión 1.4</div>
+
 <div class="form-box">
     <h1>Iniciar Sesión</h1>
     <form method="post">
@@ -89,13 +87,15 @@
             <div class="error"><?php echo $msg; ?></div>
 		<?php endif; ?>
         <!-- Campos para ingresar el correo electrónico y la contraseña. -->
-        <label for="email">Correo electrónico:</label>
+        <label for="email">Correo electrónico</label>
         <input type="email" name="email" id="email" required>
-        <label for="password">Contraseña:</label>
+        <label for="password">Contraseña</label>
         <input type="password" name="password" id="password" required>
         <input type="submit" value="Iniciar Sesión">
     </form>
     <a href="/3register/register.form.php">¿No tienes cuenta? ¡Regístrate!</a>
+    <br>
+    <a href="../index.php">Volver</a>
 </div>
 
 </body>

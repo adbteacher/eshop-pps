@@ -1,4 +1,0 @@
-1 - CETI - Folder structure and database
-
-- Created folder structure
-- Created first tables in database

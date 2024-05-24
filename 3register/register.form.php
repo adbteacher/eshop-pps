@@ -72,6 +72,11 @@
 			'data-form' => 'all',
 			'attr' => array('maxlength' => 300, 'type' => 'password', 'data-required' => 'true'),
 		),
+		'CompanyDocuments' => array(
+			'label' => _('Documento comercial o información fiscal. Máx 2 pdf.'),
+			'data-form' => 'com', 'array' => '2',
+			'attr' => array('type' => 'file', 'data-required' => 'true', 'accept' => 'application/pdf'),
+		),
 	);
 
 ?>
@@ -92,8 +97,8 @@
 ?>
 
 <div class="RegisterForm">
-    <form method="post" action="register.php">
-        <input type="hidden" name="action" value="register"/>
+    <form method="POST" action="register.php" enctype="multipart/form-data">
+
         <div id="SelectUserType">
             <label><?php echo _('Selecciona el tipo de usuario:'); ?></label>
             <input type="radio" name="UserType" value="cus" id="UserType_Cus" checked><label for="UserType_Cus"><?php echo _('Cliente'); ?></label>
@@ -113,13 +118,29 @@
 						?>
                         <li data-form="<?php echo $Value['data-form']; ?>" class="<?php echo $Class; ?>">
                             <label for="<?php echo $Key; ?>"><?php echo $Value['label']; ?></label>
-                            <input name="<?php echo $Key; ?>" id="<?php echo $Key; ?>" <?php
-								foreach ($Value['attr'] as $vKey => $vValue)
+							<?php
+								$items    = 1;
+								$is_array = '';
+								if (isset($Value['array']) && $Value['array'] > 1)
 								{
-									echo $vKey . '="' . $vValue . '" ';
+									$items    = $Value['array'];
+									$is_array = '[]';
 								}
-								echo $Required;
-							?>/>
+								$count = 1;
+								do
+								{
+									?>
+                                    <input name="<?php echo $Key . $is_array; ?>" id="<?php echo $Key . ((!empty($is_array)) ? $count : ''); ?>" <?php
+										foreach ($Value['attr'] as $vKey => $vValue)
+										{
+											echo $vKey . '="' . $vValue . '" ';
+										}
+										echo $Required; ?>/>
+									<?php
+									$count++;
+								}
+								while ($count <= $items);
+							?>
                         </li>
 						<?php
 					}
@@ -148,7 +169,8 @@
 		});
 	});
 </script>
-
-</body>
-
-</html>
+<style type="text/css">
+    .hidden {
+        display: none;
+    }
+</style>
