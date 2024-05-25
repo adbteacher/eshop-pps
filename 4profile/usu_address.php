@@ -1,6 +1,8 @@
 <?php
 	session_start(); // Iniciar la sesión si aún no se ha iniciado
 
+	require_once '../autoload.php';
+
 	// Verificar si el usuario está autenticado
 	if (!isset($_SESSION['UserEmail']))
 	{
@@ -8,12 +10,10 @@
 		exit;
 	}
 
-	require_once '../Database.php';
-
 	$UserID = $_SESSION['UserID'];
 
 	// Función para generar un token CSRF
-	function generateCSRFToken(): string
+	function generateCSRFToken()
 	{
 		return bin2hex(random_bytes(32));
 	}
@@ -27,7 +27,7 @@
 	$csrf_token = $_SESSION['csrf_token'];
 
 	// Función de limpieza:
-	function cleanInput($input): array|string
+	function cleanInput($input)
 	{
 		$input = trim($input);
 		$input = stripslashes($input);
@@ -37,7 +37,7 @@
 	}
 
 	// Función para obtener las direcciones del usuario
-	function getUserAddresses($user): bool|array
+	function getUserAddresses($user)
 	{
 		$connection = database::LoadDatabase();
 		$sql        = "SELECT * FROM pps_addresses_per_user WHERE adr_user = ?";
@@ -47,7 +47,7 @@
 	}
 
 	// Función para verificar que la dirección pertenece al usuario
-	function verifyUserAddress($address_id, $user_id): bool
+	function verifyUserAddress($address_id, $user_id)
 	{
 		$connection = database::LoadDatabase();
 		$sql        = "SELECT COUNT(*) FROM pps_addresses_per_user WHERE adr_id = ? AND adr_user = ?";
