@@ -91,16 +91,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
 								<?php echo $NameToDisplay ?>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="/4profile/main_profile.php">Perfil</a></li>
-                                <li><a class="dropdown-item" href="/7rol_support/CreateTicket.php">Tickets</a></li>
+
+                            <?php if ($isAdmin) : ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/8rol_admin/Rol_Admin.php"><i class="bi bi-shield-lock"></i> Panel de Administrador</a>
+                                </li>
+                            <?php endif; ?>
+
+                                <li><a class="dropdown-item" href="/4profile/main_profile.php"><i class="bi bi-person-circle"></i> Perfil</a></li>
+                                <li><a class="dropdown-item" href="/7rol_support/CreateTicket.php"><i class="bi bi-ticket-perforated"></i> Tickets</a></li>
                                 <?php
 									if ($_SESSION["UserRol"] == "S") {
 										?>
-                                        <li><a class="dropdown-item" href="/7rol_support/RolSupport.php">Gestión de tickets</a></li>
+                                        <li><a class="dropdown-item" href="/7rol_support/RolSupport.php"><i class="bi bi-tools"></i> Gestión de tickets</a></li>
 										<?php
 									}
 								?>
-                                <li><a class="dropdown-item" href="/logout.php">Cerrar sesión</a></li>
+                                <li><a class="dropdown-item" href="/logout.php"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                             </ul>
                         </li>
 						<?php
@@ -166,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item text-center" href="cart.php">Ver Carrito</a></li>
+                            <li><a class="dropdown-item text-center" href="/9shopping/cart.php">Ver Carrito</a></li>
 						<?php else : // Muestra cuando no hay productos en el carrito ?>
                             <li class="dropdown-item text-center">No hay productos en el carrito.</li>
 						<?php endif; ?>

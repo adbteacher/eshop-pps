@@ -48,7 +48,7 @@
     $categories = $stmt->fetchAll();
 
     // Variables de paginación
-    $productsPerPage = isset($_POST['products_per_page']) ? (int)$_POST['products_per_page'] : 8;
+    $productsPerPage = isset($_POST['products_per_page']) ? (int)$_POST['products_per_page'] : 10;
     $currentPage = isset($_POST['page']) ? (int)$_POST['page'] : 1;
     $offset = ($currentPage - 1) * $productsPerPage;
 
