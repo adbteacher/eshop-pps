@@ -20,6 +20,13 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        echo "<p class='text-danger'>Error en la validación CSRF.</p>";
+        exit;
+    }
+}
+
 $conexion = database::LoadDatabase();
 
 // Consulta para obtener el total de ventas
@@ -42,7 +49,6 @@ $totalIngresos = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Cerrar la conexión a la base de datos
 $conexion = null;
-
 ?>
 
 <!DOCTYPE html>
@@ -120,3 +126,4 @@ $conexion = null;
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+

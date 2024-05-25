@@ -1,9 +1,9 @@
 <?php
 session_start();
 require_once '../autoload.php';
-
+require_once '../functions.php';
 // Verificar si el rol del usuario está en la sesión
-if (!isset($_SESSION['UserRol'])) {
+/*if (!isset($_SESSION['UserRol'])) {
     echo "<p class='text-danger'>Acceso denegado. No se encontró el rol de usuario en la sesión.</p>";
     exit;
 }
@@ -12,7 +12,8 @@ if (!isset($_SESSION['UserRol'])) {
 if ($_SESSION["UserRol"] !== 'A') {
     echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
     exit;
-}
+}*/
+functions::checkAdminAccess();
 
 // Generar token CSRF si no está definido
 if (empty($_SESSION['csrf_token'])) {

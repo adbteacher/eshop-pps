@@ -205,9 +205,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Si no hay errores, proceder con la inserción en la base de datos
             if (empty($msg)) {
+                $ruta_imagen_db = '../0images/' . $file_name; // Ruta a guardar en la base de datos
                 $query_insert = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_quantity_shop, prd_stock, prd_image, prd_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt_insert  = $conexion->prepare($query_insert);
-                if ($stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $cantidadTienda, $stock, $file_name, $descripcion])) {
+                if ($stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $cantidadTienda, $stock, $ruta_imagen_db, $descripcion])) {
                     echo '<div class="alert alert-success">Producto agregado exitosamente.</div>';
                 } else {
                     echo '<div class="alert alert-danger">Error al agregar el producto.</div>';
@@ -228,7 +229,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-   
     <title>Gestión de Productos</title>
 </head>
 <body>
@@ -309,6 +309,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
-
-
 
