@@ -1,14 +1,14 @@
 <?php
 	session_start(); // Iniciar la sesión si aún no se ha iniciado
 
+	require_once '../autoload.php';
+
 	// Verificar si el usuario está autenticado
 	if (!isset($_SESSION['UserEmail']) || !isset($_SESSION['UserID']))
 	{
 		header("Location: ../1login/login.php"); // Redirigir a la página de inicio de sesión si el usuario no está autenticado
 		exit;
 	}
-
-	require_once '../Database.php';
 
 	$user_email = $_SESSION['UserEmail'];
 	$user_id    = $_SESSION['UserID'];
@@ -87,6 +87,13 @@
 			exit;
 		}
 
+		if (!filter_var($Email, FILTER_VALIDATE_EMAIL) || strlen($Email) > 50)
+		{
+			$_SESSION['error_message'] = 'Correo electrónico inválido o demasiado largo (máximo 50 caracteres).';
+			header("Location: usu_info.php");
+			exit;
+		}
+
 		// Update information in the database
 		$sql = "UPDATE pps_users SET 
         usu_name = ?,  
@@ -104,7 +111,6 @@
 
 		if ($stmt->execute())
 		{
-			// Update session if email has changed
 			if ($Email !== $user_email)
 			{
 				$_SESSION['UserEmail'] = $Email;
@@ -125,7 +131,6 @@
 		}
 	}
 ?>
-
 
 <!DOCTYPE html>
 <html lang="es">
@@ -182,12 +187,12 @@
 
             <div class="mb-3">
                 <label for="email" class="form-label"><b>Email:</b></label>
-                <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($UserRow['usu_email']); ?>" readonly>
+                <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($UserRow['usu_email']); ?>" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" maxlength="50" title="Debe ser un correo electrónico válido y no más de 50 caracteres" required>
             </div>
 
             <div class="mb-3">
                 <label for="phone" class="form-label"><b>Teléfono:</b></label>
-                <input type="text" class="form-control" name="phone" value="<?php echo htmlspecialchars($UserRow['usu_phone']); ?>" pattern="\d{9}" title="Debe contener 9 dígitos" required>
+                <input type="number" class="form-control" name="phone" value="<?php echo htmlspecialchars($UserRow['usu_phone']); ?>" pattern="\d{9}" title="Debe contener 9 dígitos" required>
             </div>
 
             <div class="text-center">
