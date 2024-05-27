@@ -1,6 +1,8 @@
 <?php
 	session_start(); // Iniciar la sesión si aún no se ha iniciado
 
+	require_once '../autoload.php';
+
 	// Verificar si el usuario está autenticado
 	if (!isset($_SESSION['UserEmail']))
 	{
@@ -26,10 +28,9 @@
 
     <body>
 	<?php
-		require_once '../Database.php';
 		include "../nav.php";
 		// Función de limpieza:
-		function cleanInput($input): array|string
+		function cleanInput($input)
 		{
 			$input = trim($input);
 			$input = stripslashes($input);
@@ -39,7 +40,7 @@
 		}
 
 		// Función comprobación de País
-		function isValidCountry($country): bool
+		function isValidCountry($country)
 		{
 			return in_array($country, ['Estados Unidos', 'España', 'Alemania', 'Francia']);
 		}
@@ -162,7 +163,7 @@
 
 		<?php if ($edit_adress && !empty($edit_adress['adr_id'])) : ?>
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <input type="hidden" name="edit_address_id" value="<?php echo $edit_address['adr_id']; ?>">
+                <input type="hidden" name="edit_address_id" value="<?php echo $edit_adress['adr_id']; ?>">
                 <div class="mb-3">
                     <label for="adr_country" class="form-label">País:</label>
                     <select id="adr_country" name="adr_country" class="form-control" required>
@@ -206,7 +207,7 @@
             <p class="text-danger">No se pudo encontrar la dirección para editar.</p>
 		<?php endif; ?>
     </div>
-	<?php include "../footer.php"; // Incluye el footer
+	<?php include "../footer.php"; // Incluye el footer 
 	?>
 
     </body>
