@@ -168,6 +168,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEditPaymentMetho
 			'pmu_id' => $pmu_id,
 			'pmu_user' => $user_id,
 		];
+	} else {
+		$_SESSION['success_message'] = 'Método de pago no encontrado.';
+		header("Location: payment_methods.php");
+		exit;
 	}
 
 	// Ejecutar la consulta de actualización
