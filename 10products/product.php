@@ -162,6 +162,14 @@ if (isset($_POST['product_id']) && isset($_POST['quantity'])) {
     }
 ?>
 <!DOCTYPE html>
+    <!--
+
+        Página web creada por
+        Twitter: @javiersureda
+        Github: @javiersureda
+        Youtube: @javiersureda3
+
+    -->
 <html lang="es">
     <head>
         <!-- Meta Etiquetas -->
@@ -176,7 +184,7 @@ if (isset($_POST['product_id']) && isset($_POST['quantity'])) {
 
         <!-- CSS / Hoja de estilos Bootstrap -->
         <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+        <link href="/vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
 
         <!-- Favicon -->
         <link rel="apple-touch-icon" sizes="180x180" href="/0images/apple-touch-icon.png">
