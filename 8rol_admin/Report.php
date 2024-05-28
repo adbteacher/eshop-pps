@@ -72,7 +72,7 @@
     <div class="card">
         <h2>Comportamiento del Usuario</h2>
         <p>Entiende el comportamiento de los usuarios para mejorar la conversión.</p>
-        <a href="analisis_comportamiento.php">Ir a análisis de comportamiento del usuario</a>
+        <a href="Comp_User.php">Ir a análisis de comportamiento del usuario</a>
     </div>
 </div>
 

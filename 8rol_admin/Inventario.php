@@ -1,10 +1,11 @@
 <?php
 // Establecer conexión a la base de datos
 require_once '../Database.php';
-
+require_once '../Functions.php';
 session_start();
+functions::checkAdminAccess();
 
-if (!isset($_SESSION['UserRol'])) {
+/*if (!isset($_SESSION['UserRol'])) {
     echo "<p class='text-danger'>Acceso denegado. No se encontró el rol de usuario en la sesión.</p>";
     exit;
 }
@@ -13,7 +14,7 @@ if (!isset($_SESSION['UserRol'])) {
 if ($_SESSION["UserRol"] !== 'A') {
     echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
     exit;
-}
+}*/
 
 // Generar token CSRF si no está definido
 if (empty($_SESSION['csrf_token'])) {

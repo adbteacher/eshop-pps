@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once '../autoload.php';
-require_once '../functions.php';
+require_once '../Functions.php';
 // Verificar si el rol del usuario está en la sesión
 /*if (!isset($_SESSION['UserRol'])) {
     echo "<p class='text-danger'>Acceso denegado. No se encontró el rol de usuario en la sesión.</p>";

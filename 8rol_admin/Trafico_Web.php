@@ -1,8 +1,10 @@
 <?php
-require_once '../autoload.php'; // Incluye el archivo de conexión PDO
+require_once '../autoload.php';
+require_once '../Functions.php'; 
 session_start();
+functions::checkAdminAccess();
 
-if (!isset($_SESSION['UserRol']) || $_SESSION["UserRol"] !== 'A') {
+/*if (!isset($_SESSION['UserRol']) || $_SESSION["UserRol"] !== 'A') {
     echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
     exit;
 }
@@ -10,7 +12,7 @@ if (!isset($_SESSION['UserRol']) || $_SESSION["UserRol"] !== 'A') {
 // Generar token CSRF si no está definido
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+}*/
 
 // Establecer conexión a la base de datos
 $conexion = database::LoadDatabase();

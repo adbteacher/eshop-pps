@@ -1,8 +1,10 @@
 <?php
 require_once '../autoload.php'; // Incluye el archivo de conexión PDO
+require_once '../Functions.php';
 session_start();
+functions::checkAdminAccess();
 
-if (!isset($_SESSION['UserRol'])) {
+/*if (!isset($_SESSION['UserRol'])) {
     echo "<p class='text-danger'>Acceso denegado. No se encontró el rol de usuario en la sesión.</p>";
     exit;
 }
@@ -11,7 +13,7 @@ if (!isset($_SESSION['UserRol'])) {
 if ($_SESSION["UserRol"] !== 'A') {
     echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
     exit;
-}
+}*/
 
 // Generar token CSRF si no está definido
 if (empty($_SESSION['csrf_token'])) {
@@ -67,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idUsuario'])) {
 
 <div class="container mt-5">
     <h1>Modificar Usuario</h1>
-    <form id="formModificarUsuario" method="post" action="procesar_modificacion_usuario.php" class="needs-validation" novalidate>
+    <form id="formModificarUsuario" method="post" class="needs-validation" novalidate>
         <input type="hidden" name="idUsuario" value="<?php echo $idUsuario; ?>"> <!-- Campo oculto con el ID del usuario -->
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"> <!-- Token CSRF -->
         <div class="form-group">
@@ -99,12 +101,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idUsuario'])) {
             <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($row['usu_email']); ?>" class="form-control" required>
         </div>
         <br>
-        <button type="submit" class="btn btn-primary">Modificar Usuario</button>
+        <button type="button" id="btnModificarUsuario" class="btn btn-primary">Modificar Usuario</button>
     </form>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        // AJAX para enviar el formulario de modificación de usuario
+        $("#btnModificarUsuario").click(function(event){
+            event.preventDefault();
+            $.ajax({
+                url: "procesar_modificacion_usuario.php", // Ruta del archivo PHP que procesa el formulario
+                type: "POST",
+                data: $("#formModificarUsuario").serialize(), // Serializar el formulario
+                success: function(response){
+                    // Suponiendo que el archivo procesar_modificacion_usuario.php retorna una respuesta JSON con el estado y mensaje
+                    var res = JSON.parse(response);
+                    alert(res.message); // Mostrar mensaje de respuesta
+                    if(res.status === "success"){
+                        window.location.href = "Gestion_Users.php"; // Redireccionar si la modificación fue exitosa
+                    }
+                },
+                error: function(){
+                    alert("Error en la solicitud. Por favor, inténtelo de nuevo.");
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
+
+
 
 
