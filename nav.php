@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 require_once(__DIR__ . "/autoload.php");
 
@@ -27,14 +29,18 @@ if ($_SESSION["UserID"]) {
 
 // Manejar la lógica de eliminación del carrito
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) {
-    $removeProductId = $_POST['remove_product_id'];
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die("Error: Invalid CSRF token");
+    }
+
+    $removeProductId = (int)$_POST['remove_product_id'];
 
     if (isset($_SESSION['cart'][$removeProductId])) {
         unset($_SESSION['cart'][$removeProductId]);
     }
 
     // Redirigir para evitar reenvío de formularios
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: " . htmlspecialchars($_SERVER['PHP_SELF']));
     exit();
 }
 ?>
@@ -91,27 +97,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
 								<?php echo $NameToDisplay ?>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="width: 230px;">
-
-                            <?php if ($isAdmin) : ?>
-                                <li><a class="dropdown-item" href="/8rol_admin/Rol_Admin.php"><i class="bi bi-shield-lock"></i> Panel de Administrador</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <?php endif; ?>
-                                <?php
-									if ($_SESSION["UserRol"] == "S") {
-										?>
-                                        <li><a class="dropdown-item" href="/7rol_support/RolSupport.php"><i class="bi bi-tools"></i> Gestión de tickets</a></li>
-										<li>
+                                <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                                    <?php if ($isAdmin) : ?>
+                                        <li><a class="dropdown-item" href="/8rol_admin/Rol_Admin.php"><i class="bi bi-shield-lock"></i> Panel de Administrador</a></li>
+                                        <li>
                                             <hr class="dropdown-divider">
                                         </li>
+                                        <?php endif; ?>
                                         <?php
-									}
-								?>
-                                <li><a class="dropdown-item" href="/4profile/main_profile.php"><i class="bi bi-person-circle"></i> Perfil</a></li>
-                                <li><a class="dropdown-item" href="/7rol_support/CreateTicket.php"><i class="bi bi-ticket-perforated"></i> Tickets</a></li>
-                                
-                                <li><a class="dropdown-item" href="/logout.php"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                                            if ($_SESSION["UserRol"] == "S") {
+                                                ?>
+                                                <li><a class="dropdown-item" href="/7rol_support/RolSupport.php"><i class="bi bi-tools"></i> Gestión de tickets</a></li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <?php
+                                            }
+                                        ?>
+                                        <li><a class="dropdown-item" href="/4profile/main_profile.php"><i class="bi bi-person-circle"></i> Perfil</a></li>
+                                        <li><a class="dropdown-item" href="/7rol_support/CreateTicket.php"><i class="bi bi-ticket-perforated"></i> Tickets</a></li>
+                                        
+                                        <li><a class="dropdown-item" href="/logout.php"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                                    </form>
                             </ul>
                         </li>
 						<?php
@@ -142,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                     <i class="bi bi-cart-fill me-2"></i> Carrito
                     <span class="badge bg-secondary ms-2"><?php echo isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0; ?></span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="dropdownCartButton" style="width: 350px;">
+                <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="dropdownCartButton" style="width: auto;">
 					<?php
 						// Comprueba si hay productos en el carrito
 						if (!empty($_SESSION['cart'])) :
@@ -163,10 +171,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                                             <small class="text-muted"><?php echo number_format($product['prd_price'] * $_SESSION['cart'][$product['prd_id']], 2); ?> €</small>
                                         </div>
                                     </div>
-                                    <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center ms-3 mb-3">
                                         <span class="badge bg-primary rounded-pill me-2"><?php echo $_SESSION['cart'][$product['prd_id']]; ?></span>
                                         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
                                             <input type="hidden" name="remove_product_id" value="<?php echo $product['prd_id']; ?>">
+                                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                             <button type="submit" class="btn btn-sm btn-danger rounded-circle d-flex justify-content-center align-items-center p-0" style="width: 24px; height: 24px;">
                                                 <i class="bi bi-x-lg"></i>
                                             </button>
