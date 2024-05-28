@@ -1,102 +1,128 @@
 <?php
-	require_once("../autoload.php");
+// Include external files for additional functions and autoload
+require_once 'funciones.php';
+require_once '../autoload.php';
 
-	require_once 'funciones.php';
+// Start the session
+session_start();
+// Add security headers to the HTTP response
+AddSecurityHeaders();
 
-	// Inicia una nueva sesión o continúa la existente para mantener el estado de autenticación del usuario.
-	session_start();
+// Generate and store a CSRF token if it doesn't exist in the session
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
-	// Incluye el script con las funciones.
-	require_once 'funciones.php';
+$message = '';
+$Email = '';
 
-	// Añade cabeceras de seguridad HTTP para prevenir vulnerabilidades comunes.
-	AddSecurityHeaders();
+// Check if the request method is POST (form submission)
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    usleep(500000); // "Está pensando"
+    $Email = SanitizeInput($_POST['email']);
+    $Password = SanitizeInput($_POST['password']);
+    
+    // Validate the email format
+    if (!filter_var($Email, FILTER_VALIDATE_EMAIL)) {
+        $message = "Formato de correo electrónico inválido.";
+    } 
+    // Check if there have been too many login attempts
+    else if (CheckLoginAttempts($Email)) {
+        $message = "Demasiados intentos de inicio de sesión fallidos. Inténtelo más tarde.";
+    } 
+    else {
+        // Validate the CSRF token
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            $message = "Error, vuelva a intentarlo más tarde.";
+            error_log("Error en la validación CSRF para el usuario con email: $Email");
+        } 
+        else {
+            // Verify the user's credentials
+            $LoginSuccessful = VerifyUser($Email, $Password, $message);
+            $UserId = GetUserIdByEmail($Email);
 
-	// Variable para almacenar mensajes de error durante el proceso de inicio de sesión.
-	$msg = '';
+            // If login is successful, set session variables and redirect
+            if ($LoginSuccessful) {
+                $User = GetUserByEmail($Email);
+                $_SESSION['UserID'] = $User['usu_id'];
+                $_SESSION['UserName'] = $User['usu_name'];
+                $_SESSION['UserEmail'] = $User['usu_email'];
+                $_SESSION['UserRol'] = $User['usu_rol'];
 
-	// Genera y almacena un token CSRF en la sesión si aún no se ha generado.
-	if (empty($_SESSION['csrf_token']))
-	{
-		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-	}
-
-	// Maneja el formulario cuando se envía por método POST.
-	if ($_SERVER["REQUEST_METHOD"] == "POST")
-	{
-		// Limpia y recupera el correo electrónico y la contraseña del formulario.
-		$Email    = SanitizeInput($_POST['email']);
-		$Password = SanitizeInput($_POST['password']);
-
-		// Verifica si hay múltiples intentos fallidos de inicio de sesión para prevenir ataques de fuerza bruta.
-		CheckLoginAttempts($Email);
-
-		// Verifica la validez del token CSRF para prevenir ataques de falsificación de solicitud en sitios cruzados.
-		if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']))
-		{
-			$msg = "Error en la validación CSRF.";
-		}
-		else
-		{
-			// Verifica las credenciales del usuario y registra el intento.
-			$LoginSuccessful = VerifyUser($Email, $Password, $msg);
-			LogAttempt($Email, $LoginSuccessful);
-
-			// Si las credenciales son correctas, procede según si tiene o no 2FA activado.
-			if ($LoginSuccessful)
-			{
-				$User = getUserByEmail($Email);
-
-				// Almacena el email en la sesión para identificar al usuario en futuras solicitudes.
-				$_SESSION["UserID"]    = $User["usu_id"];
-				$_SESSION["UserName"]  = $User["usu_name"];
-				$_SESSION["UserEmail"] = $User["usu_email"];
-				$_SESSION["UserRol"]   = $User["usu_rol"];
-
-				// Redirige al usuario a la página de verificación de 2FA o al perfil principal.
-				$redirectUrl = Has2FA($Email) ? 'verify_2fa.php' : '../4profile/main_profile.php';
-				header('Location: ' . $redirectUrl);
-				exit;
-			}
-			else
-			{
-				// Introduce un retraso para mitigar ataques de fuerza bruta y muestra el mensaje de error.
-				sleep(1);
-			}
-		}
-	}
+                // Check if 2FA is enabled and redirect accordingly
+                $redirectUrl = Has2FA($Email) ? 'verify_2fa.php' : '../10products/products.php';
+                header('Location: ' . $redirectUrl);
+                exit;
+            } 
+            else {
+                // Log the failed login attempt and set the error message
+                LogLoginAttempt($UserId, $_SERVER['REMOTE_ADDR'], false);
+                sleep(1); // Delay to mitigate brute force attacks
+                $message = "Credenciales incorrectas.";
+            }
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="estilo.css">
+    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <style>
+        .spinner-border {
+            display: none;
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.2em;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Set the focus to the appropriate input field based on the error message
+            <?php if (!empty($message) && $message === "Credenciales incorrectas."): ?>
+                document.getElementById('password').focus();
+            <?php else: ?>
+                document.getElementById('email').focus();
+            <?php endif; ?>
+
+            // Show spinner and disable login button on form submit
+            document.querySelector("form").addEventListener("submit", function() {
+                var loginButton = document.querySelector(".login-button");
+                var spinner = document.querySelector(".spinner-border");
+                loginButton.disabled = true;
+                spinner.style.display = "inline-block";
+            });
+        });
+    </script>
 </head>
 <body>
-
-<div class="form-box">
-    <h1>Iniciar Sesión</h1>
-    <form method="post">
-        <!-- Campo oculto para manejar el token CSRF. -->
-        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-        <!-- Muestra el mensaje de error si hay alguno. -->
-		<?php if (!empty($msg)): ?>
-            <div class="error"><?php echo $msg; ?></div>
-		<?php endif; ?>
-        <!-- Campos para ingresar el correo electrónico y la contraseña. -->
-        <label for="email">Correo electrónico</label>
-        <input type="email" name="email" id="email" required>
-        <label for="password">Contraseña</label>
-        <input type="password" name="password" id="password" required>
-        <input type="submit" value="Iniciar Sesión">
-    </form>
-    <a href="/3register/register.form.php">¿No tienes cuenta? ¡Regístrate!</a>
-    <br>
-    <a href="../index.php">Volver</a>
-</div>
-
+    <div class="version">Versión 1.5</div>
+    <div class="form-box">
+        <h1>Iniciar Sesión</h1>
+        <form method="post">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+            <?php if (!empty($message)): ?>
+                <div class="error"><?php echo $message; ?></div>
+            <?php endif; ?>
+            <input type="email" name="email" id="email" placeholder="Correo electrónico" required maxlength="255" value="<?php echo htmlspecialchars($Email); ?>">
+            <input type="password" name="password" id="password" placeholder="Contraseña" required maxlength="255">
+            <button type="submit" class="login-button">
+                Iniciar Sesión
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </button>
+        </form>
+        <a href="/3register/register.form.php" class="button">¿No tienes cuenta? ¡Regístrate!</a>
+        <br>
+        <a href="../index.php" class="button">Volver</a>
+    </div>
 </body>
 </html>

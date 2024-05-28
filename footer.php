@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <!-- Footer -->
 <footer class="text-center text-lg-start bg-light text-muted">
   <!-- Sección: Redes Sociales -->
@@ -66,7 +65,7 @@
             Enlaces Útiles
           </h6>
           <p>
-            <a href="#" class="text-reset">Tu cuenta</a>
+            <a href="/4profile/main_profile.php" class="text-reset">Tu cuenta</a>
           </p>
           <p>
             <a href="#" class="text-reset">Afíliate</a>
@@ -97,7 +96,7 @@
   <!-- Derechos de autor -->
   <div class="text-center p-4">
     © 2024 Copyright:
-    <a class="text-reset fw-bold" href="#">fruteriadelbarrio.com</a>
+    <a class="text-reset fw-bold" href="https://indianala.com">indianala.com</a>
   </div>
 </footer>
 <!-- Fin del footer -->
