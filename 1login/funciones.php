@@ -1,195 +1,200 @@
 <?php
 
+	// Include external files for database connection and autoload functions
+
 	require_once '../autoload.php';
 
+	// Use the TwoFactorAuth library from RobThree
 	use RobThree\Auth\TwoFactorAuth;
 
-	// Uso de la biblioteca de autenticación de dos factores
+	// Define constants for login wait time, max login attempts, and session lifetime
+	define('LOGIN_WAIT_TIME', 5);
+	define('MAX_LOGIN_ATTEMPTS', 5);
+	define('SESSION_LIFETIME', 900);
 
-	session_start();
-	/**
-	 * Obtiene una conexión a la base de datos usando la clase Database (Se cambia la función local de 1Login por la versión de ../Database.php sin modificar el código).
-	 *
-	 * @return PDO Objeto PDO para la interacción con la base de datos.
-	 */
+	// Function to get the database connection, using a static variable to ensure only one connection is made
 	function GetDatabaseConnection(): PDO
 	{
-		return Database::LoadDatabase();
+		static $Connection;
+		if ($Connection === null)
+		{
+			$Connection = Database::LoadDatabase();
+		}
+		return $Connection;
 	}
 
-	/**
-	 * Añade cabeceras de seguridad a las respuestas HTTP para mejorar la seguridad del cliente.
-	 */
+	// Function to add various security headers to the HTTP response
 	function AddSecurityHeaders(): void
 	{
-		header('X-Frame-Options: DENY');  // Previene el clickjacking
-		header('X-XSS-Protection: 1; mode=block');  // Activar la protección XSS en navegadores compatibles
-		header("Content-Security-Policy: default-src 'self'; img-src 'self' data:;");  // CSP para restringir recursos a los mismos origen
-		header('Strict-Transport-Security: max-age=63072000; includeSubDomains; preload');  // Activar HSTS para HTTPS estricto
-		header('X-Content-Type-Options: nosniff');  // Evitar que el navegador mime-type sniffing
+		header('X-Frame-Options: DENY');
+		header('X-XSS-Protection: 1; mode=block');
+		header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com; img-src 'self' data: https://maps.googleapis.com https://maps.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; frame-src https://www.google.com;");
+		header('Strict-Transport-Security: max-age=63072000; includeSubDomains; preload');
+		header('X-Content-Type-Options: nosniff');
+		header('Referrer-Policy: no-referrer');
 	}
 
-	/**
-	 * Limpia una cadena de entrada para evitar inyecciones y otros ataques.
-	 *
-	 * @param string $Input Cadena de entrada a sanear.
-	 * @return string Cadena saneada.
-	 */
-	function SanitizeInput($Input): string
+	// Function to sanitize user input by trimming, stripping slashes, and converting special characters to HTML entities
+	function SanitizeInput(string $Input): string
 	{
-		$Input = trim($Input);  // Elimina espacios en blanco al inicio y al final
-		$Input = stripslashes($Input);  // Elimina las barras invertidas
-		$Input = htmlspecialchars($Input);  // Convierte caracteres especiales en entidades HTML
-		return $Input;
+		return htmlspecialchars(stripslashes(trim($Input)), ENT_QUOTES, 'UTF-8');
 	}
 
-	/**
-	 * Obtiene el resgistro del usuario a partir de su email.
-	 *
-	 */
-	function GetUserByEmail($Email): array|bool
+	// Function to get user data by email from the database
+	function GetUserByEmail(string $Email): array|bool
 	{
-		$Connection = database::LoadDatabase();
-		$Query      = $Connection->prepare("SELECT * FROM pps_users WHERE usu_email = ?");
-		$Query->bindParam(1, $Email);
 		try
 		{
+			$Connection = GetDatabaseConnection();
+			$Query      = $Connection->prepare("SELECT * FROM pps_users WHERE usu_email = :email");
+			$Query->bindParam(':email', $Email, PDO::PARAM_STR);
 			$Query->execute();
-			$Result = $Query->fetch(PDO::FETCH_ASSOC);
-			return $Result;
+			return $Query->fetch(PDO::FETCH_ASSOC) ?: false;
 		}
 		catch (PDOException $e)
 		{
-			error_log("Error al obtener el usuario: " . $e->getMessage());
+			error_log($e->getMessage());
 			return false;
 		}
 	}
 
-	/**
-	 * Obtiene el ID de usuario a partir de su email.
-	 *
-	 * @param string $Email Email del usuario a buscar.
-	 * @return int ID del usuario o 0 si no se encuentra.
-	 */
+	// Function to get the user ID by email from the database
 	function GetUserIdByEmail(string $Email): int
 	{
-		$Connection = GetDatabaseConnection();  // Obtiene la conexión a la base de datos
-		$Query      = $Connection->prepare("SELECT usu_id FROM pps_users WHERE usu_email = ?");  // Prepara la consulta SQL
-		$Query->bindParam(1, $Email);
 		try
 		{
+			$Connection = GetDatabaseConnection();
+			$Query      = $Connection->prepare("SELECT usu_id FROM pps_users WHERE usu_email = :email");
+			$Query->bindParam(':email', $Email, PDO::PARAM_STR);
 			$Query->execute();
 			$Result = $Query->fetch(PDO::FETCH_ASSOC);
-			return $Result ? (int)$Result['usu_id'] : 0;  // Devuelve el ID del usuario o 0 si no existe
+			return $Result ? (int)$Result['usu_id'] : 0;
 		}
 		catch (PDOException $e)
 		{
-			error_log("Error al obtener el ID del usuario: " . $e->getMessage());
+			error_log($e->getMessage());
 			return 0;
 		}
 	}
 
-	/**
-	 * Verifica los intentos de inicio de sesión fallidos para un email y bloquea si excede los límites.
-	 *
-	 * @param string $Email Email del usuario a verificar.
-	 */
-	// Esta función hay que cambiarla porque patatas
-	function CheckLoginAttempts(string $Email): void
+	// Function to check the number of login attempts for a user within a specified time frame
+	function CheckLoginAttempts(string $Email): bool
 	{
-		$Connection = database::LoadDatabase();  // Obtiene la conexión a la base de datos
-		$Ip         = $_SERVER['REMOTE_ADDR'];  // Dirección IP del cliente
-		$UserId     = GetUserIdByEmail($Email);  // Obtiene el ID del usuario por su email
-
-		if ($UserId == 0)
+		try
 		{
-			return; // Si no existe el usuario, no se continúa con la verificación de intentos.
+			$Connection = GetDatabaseConnection();
+			$Ip         = $_SERVER['REMOTE_ADDR'];
+			$UserId     = GetUserIdByEmail($Email);
+			if ($UserId == 0)
+			{
+				return false;
+			}
+			$waitTime = LOGIN_WAIT_TIME;
+			$Query    = $Connection->prepare(
+				"SELECT COUNT(*) AS attempts 
+            FROM pps_logs_login 
+            WHERE lol_ip = :ip AND lol_user = :user_id AND lol_was_correct_login = 0 AND lol_datetime > DATE_SUB(NOW(), INTERVAL :wait_time MINUTE)"
+			);
+			$Query->bindParam(':ip', $Ip, PDO::PARAM_STR);
+			$Query->bindParam(':user_id', $UserId, PDO::PARAM_INT);
+			$Query->bindParam(':wait_time', $waitTime, PDO::PARAM_INT);
+			$Query->execute();
+			$Attempts = $Query->fetchColumn();
+			return $Attempts >= MAX_LOGIN_ATTEMPTS;
 		}
-
-		$WaitTime    = 3;  // Tiempo de espera de 3 minutos.
-		$MaxAttempts = 5; // Máximo de intentos fallidos permitidos.
-
-		// Prepara la consulta SQL para contar solo los intentos fallidos de inicio de sesión desde la misma IP y para el mismo usuario en los últimos 3 minutos.
-		$Query = $Connection->prepare("SELECT COUNT(*) AS attempts FROM pps_logs_login WHERE lol_ip = ? AND lol_user = ? AND lol_was_correct_login = 0 AND lol_datetime > DATE_SUB(NOW(), INTERVAL ? MINUTE)");
-
-		$Query->bindParam(1, $Ip);
-		$Query->bindParam(2, $UserId);
-		$Query->bindParam(3, $WaitTime);
-		$Query->execute();
-		$Attempts = $Query->fetchColumn();
-
-		// Si se han registrado 5 o más intentos fallidos, se restringe el acceso.
-		if ($Attempts >= $MaxAttempts)
+		catch (PDOException $e)
 		{
-			die("Demasiados intentos de inicio de sesión fallidos. Intentelo de nuevo más tarde.");
+			error_log($e->getMessage());
+			return false;
 		}
 	}
 
-	/**
-	 * Verifica si existe un usuario por su email.
-	 *
-	 * @param string $Email Email del usuario a verificar.
-	 * @return bool Verdadero si el usuario existe, falso si no.
-	 */
-	function UserExistsByEmail(string $Email): bool
+	// Function to log a login attempt in the database
+	function LogLoginAttempt(int $UserId, string $Ip, bool $WasSuccessful): void
 	{
-		$Connection = GetDatabaseConnection();
-		$Query      = $Connection->prepare("SELECT COUNT(*) FROM pps_users WHERE usu_email = ?");
-		$Query->bindParam(1, $Email);
 		try
 		{
+			$Connection = GetDatabaseConnection();
+			$Query      = $Connection->prepare(
+				"INSERT INTO pps_logs_login (lol_user, lol_ip, lol_was_correct_login, lol_datetime) 
+            VALUES (:user_id, :ip, :was_successful, NOW())"
+			);
+			$Query->bindParam(':user_id', $UserId, PDO::PARAM_INT);
+			$Query->bindParam(':ip', $Ip, PDO::PARAM_STR);
+			$Query->bindParam(':was_successful', $WasSuccessful, PDO::PARAM_BOOL);
+			$Query->execute();
+		}
+		catch (PDOException $e)
+		{
+			error_log($e->getMessage());
+		}
+	}
+
+	// Function to check if a user exists by email in the database
+	function UserExistsByEmail(string $Email): bool
+	{
+		try
+		{
+			$Connection = GetDatabaseConnection();
+			$Query      = $Connection->prepare("SELECT COUNT(*) FROM pps_users WHERE usu_email = :email");
+			$Query->bindParam(':email', $Email, PDO::PARAM_STR);
 			$Query->execute();
 			return $Query->fetchColumn() > 0;
 		}
 		catch (PDOException $e)
 		{
-			error_log("Error al verificar la existencia del usuario: " . $e->getMessage());
+			error_log($e->getMessage());
 			return false;
 		}
 	}
 
-	/**
-	 * Registra un nuevo usuario con su email y contraseña.
-	 *
-	 * @param string $Email Email del nuevo usuario.
-	 * @param string $Password Contraseña del nuevo usuario.
-	 * @return bool Verdadero si el registro es exitoso, falso si falla.
-	 */
-	// Funciones de mi registro que habrá que eliminar cuando esté implementado el registro de JV
+	// Function to register a new user in the database
 	function RegisterUser(string $Email, string $Password): bool
 	{
-		if (UserExistsByEmail($Email))
+		try
 		{
-			echo "Error: El usuario ya existe.";
-			return false;
+			if (UserExistsByEmail($Email))
+			{
+				echo "Error: El usuario ya existe.";
+				return false;
+			}
+			$Connection     = GetDatabaseConnection();
+			$HashedPassword = password_hash($Password, PASSWORD_DEFAULT);
+			$Query          = $Connection->prepare("INSERT INTO pps_users (usu_email, usu_password, usu_type, usu_rol, usu_status, usu_verification_code, usu_datetime, usu_name, usu_surnames, usu_prefix, usu_phone, usu_company, usu_cif, usu_web, usu_documents, usu_2fa) VALUES (:email, :password, 'U', 'U', 'N', '', NOW(), '', '', '', 0, '', '', '', '', '')");
+			$Query->bindParam(':email', $Email, PDO::PARAM_STR);
+			$Query->bindParam(':password', $HashedPassword, PDO::PARAM_STR);
+			$Query->execute();
+			if ($Query->rowCount() > 0)
+			{
+				echo "Usuario registrado con éxito.<br>";
+				return true;
+			}
+			else
+			{
+				echo "Error al registrar el usuario.";
+				return false;
+			}
 		}
-
-		$Connection     = database::LoadDatabase();  // Obtiene la conexión a la base de datos
-		$HashedPassword = password_hash($Password, PASSWORD_DEFAULT);  // Genera un hash de la contraseña
-		$Query          = $Connection->prepare("INSERT INTO pps_users (usu_email, usu_password) VALUES (?, ?)");  // Prepara la consulta SQL
-		$Query->bindParam(1, $Email);
-		$Query->bindParam(2, $HashedPassword);
-		$Query->execute();
-
-		if ($Query->rowCount() > 0)
+		catch (PDOException $e)
 		{
-			echo "Usuario registrado con éxito.<br>";
-			return true;
-		}
-		else
-		{
-			echo "Error al registrar el usuario.";
+			error_log($e->getMessage());
 			return false;
 		}
 	}
 
-	function VerifyUser($Email, $Password, &$msg = ""): bool
+	// Function to verify a user's credentials
+	function VerifyUser(string $Email, string $Password, string &$msg = ""): bool
 	{
-		$Connection = database::LoadDatabase();
-		$Query      = $Connection->prepare("SELECT usu_password FROM pps_users WHERE usu_email = ?");
-		$Query->bindParam(1, $Email);
 		try
 		{
+			if (!filter_var($Email, FILTER_VALIDATE_EMAIL))
+			{
+				$msg = "Formato de correo electrónico inválido.";
+				return false;
+			}
+			$Connection = GetDatabaseConnection();
+			$Query      = $Connection->prepare("SELECT usu_password, usu_id FROM pps_users WHERE usu_email = :email");
+			$Query->bindParam(':email', $Email, PDO::PARAM_STR);
 			$Query->execute();
 			$Result = $Query->fetch(PDO::FETCH_ASSOC);
 			if (!$Result)
@@ -197,93 +202,90 @@
 				$msg = "Usuario no encontrado.";
 				return false;
 			}
-
 			if (!password_verify($Password, $Result['usu_password']))
 			{
 				$msg = "Contraseña incorrecta.";
 				return false;
 			}
-
+			LogLoginAttempt((int)$Result['usu_id'], $_SERVER['REMOTE_ADDR'], true);
 			return true;
 		}
 		catch (PDOException $e)
 		{
-			error_log("Error al verificar el usuario: " . $e->getMessage());
-			$msg = "Error en la base de datos al verificar el usuario.";
+			error_log($e->getMessage());
+			$msg = "Error del servidor. Inténtalo de nuevo más tarde.";
 			return false;
 		}
 	}
 
-	function LogAttempt($Email, $Success): void
-	{
-		$Connection = database::LoadDatabase();
-		$Ip         = $_SERVER['REMOTE_ADDR'];
-		$Status     = $Success ? 1 : 0;
-
-		$UserId = GetUserIdByEmail($Email);  // Obtiene el ID del usuario por su email
-		if ($UserId == 0 && !$Success)
-		{
-			return;  // Si no existe el usuario y el intento fue fallido, no se registra
-		}
-
-		// Prepara la consulta SQL para insertar el registro de intento de inicio de sesión
-		$Query = $Connection->prepare("INSERT INTO pps_logs_login (lol_user, lol_ip, lol_was_correct_login, lol_datetime) VALUES (?, ?, ?, NOW())");  // Utiliza NOW() para insertar la fecha y hora actual
-		$Query->bindParam(1, $UserId);
-		$Query->bindParam(2, $Ip);
-		$Query->bindParam(3, $Status);
-		$Query->execute();
-
-		if (!$Success)
-		{
-			CheckLoginAttempts($Email);  // Verifica si se ha excedido el número de intentos fallidos
-		}
-	}
-
-	/**
-	 * Verifica si el usuario tiene activada la autenticación de dos factores (2FA).
-	 *
-	 * @param string $Email Email de usuario a verificar.
-	 * @return bool Verdadero si el usuario tiene 2FA activado, falso si no.
-	 */
+	// Function to check if a user has 2FA enabled
 	function Has2FA(string $Email): bool
 	{
-		$Connection = GetDatabaseConnection();  // Obtiene la conexión a la base de datos
-		$Query      = $Connection->prepare("SELECT usu_2fa FROM pps_users WHERE usu_email = ?");  // Cambiado a usu_2fa
-		$Query->bindParam(1, $Email);
 		try
 		{
+			$Connection = GetDatabaseConnection();
+			$Query      = $Connection->prepare("SELECT usu_2fa FROM pps_users WHERE usu_email = :email");
+			$Query->bindParam(':email', $Email, PDO::PARAM_STR);
 			$Query->execute();
 			$Result = $Query->fetch(PDO::FETCH_ASSOC);
-			return !empty($Result['usu_2fa']);  // Devuelve verdadero si el campo 2FA no está vacío
+			return !empty($Result['usu_2fa']);
 		}
 		catch (PDOException $e)
 		{
-			error_log("Error al verificar 2FA: " . $e->getMessage());
+			error_log($e->getMessage());
 			return false;
 		}
 	}
 
-	/**
-	 * Actualiza el secreto de 2FA en la base de datos para un usuario específico.
-	 *
-	 * @param string $Email Email del usuario.
-	 * @param string $Secret Secreto de 2FA generado.
-	 * @return bool Retorna verdadero si la actualización fue exitosa, falso si hubo errores.
-	 */
+	// Function to update a user's 2FA secret in the database
 	function UpdateUser2FASecret(string $Email, string $Secret): bool
 	{
-		$Connection = GetDatabaseConnection();  // Obtiene la conexión a la base de datos
-		$Query      = $Connection->prepare("UPDATE pps_users SET usu_2fa = ? WHERE usu_email = ?");  // Actualiza a usu_2fa
-		$Query->bindParam(1, $Secret);
-		$Query->bindParam(2, $Email);
 		try
 		{
+			$Connection = GetDatabaseConnection();
+			$Query      = $Connection->prepare("UPDATE pps_users SET usu_2fa = :secret WHERE usu_email = :email");
+			$Query->bindParam(':secret', $Secret, PDO::PARAM_STR);
+			$Query->bindParam(':email', $Email, PDO::PARAM_STR);
 			$Query->execute();
-			return $Query->rowCount() > 0;  // Retorna verdadero si se actualizó al menos un registro
+			return $Query->rowCount() > 0;
 		}
 		catch (PDOException $e)
 		{
-			error_log("Error al actualizar el código secreto de 2FA: " . $e->getMessage());
-			return false;  // Retorna falso si hay un error en la consulta
+			error_log($e->getMessage());
+			return false;
 		}
 	}
+
+	/*
+	// Function to start a secure session (commented out)
+	function StartSecureSession(): void {
+		if (session_status() === PHP_SESSION_NONE) {
+			$secure = true;
+			$httponly = true;
+
+			// Set various session settings
+			ini_set('session.cookie_httponly', '1');
+			ini_set('session.cookie_secure', '1');
+			ini_set('session.use_only_cookies', '1');
+			ini_set('session.gc_maxlifetime', (string)SESSION_LIFETIME);
+
+			$lifetime = SESSION_LIFETIME;
+			$path = '/';
+			$domain = $_SERVER['HTTP_HOST'];
+
+			session_set_cookie_params($lifetime, $path, $domain, $secure, $httponly);
+			session_start();
+			session_regenerate_id(true);
+		}
+	}
+	*/
+
+	// Function to redirect unauthorized users to the login page
+	function RedirectUnauthorizedUser(): void
+	{
+		header('Location: login.php');
+		exit;
+	}
+
+
+	// No cerrar etiqueta php para que Iván duerma tranquilo y para que la bestia no se vuelva a despertar

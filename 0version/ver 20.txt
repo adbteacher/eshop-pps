@@ -1,0 +1,4 @@
+20 - CETI - Sergio - Login fixes
+
+- Fixes for login.
+- Visual enhancements.
