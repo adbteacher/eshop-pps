@@ -1,5 +1,5 @@
 <?php
-
+require_once 'funciones.php';
 require_once("../autoload.php");
 
 if (session_status() == PHP_SESSION_NONE) {

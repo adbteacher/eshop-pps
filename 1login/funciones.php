@@ -1,7 +1,7 @@
 <?php
 
 // Include external files for database connection and autoload functions
-require_once '../Database.php';
+
 require_once '../autoload.php';
 // Use the TwoFactorAuth library from RobThree
 use RobThree\Auth\TwoFactorAuth;
