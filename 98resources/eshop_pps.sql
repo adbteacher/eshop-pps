@@ -142,6 +142,7 @@ CREATE TABLE IF NOT EXISTS `pps_logs_recovery` (
   `lor_ip` varchar(12) NOT NULL,
   `lor_datetime` datetime NOT NULL,
   `lor_attempt` int(1) NOT NULL,
+  `lor_lock_until` datetime,
   PRIMARY KEY (`lor_id`),
   UNIQUE KEY `lor_id` (`lor_id`,`lor_user`),
   KEY `lor_user` (`lor_user`)
