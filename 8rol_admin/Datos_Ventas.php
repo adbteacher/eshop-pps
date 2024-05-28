@@ -64,7 +64,7 @@ $conexion = null;
 </head>
 <body>
 <?php include "../nav.php" ?>
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <h2>Gráfico de Ventas</h2>
     <canvas id="grafico_ventas" width="400" height="200"></canvas>
     
@@ -125,6 +125,7 @@ $conexion = null;
     });
 </script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<?php include "../footer.php"; ?>
 </body>
 </html>
 

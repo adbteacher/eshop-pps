@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 <?php include "../nav.php"; ?>
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
 
     <!-- Formulario para importar CSV -->
     <h2>Importar/Exportar Productos desde CSV</h2>
@@ -308,6 +308,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- Enlace al archivo JavaScript de Bootstrap -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<?php include "../footer.php"; ?>
 </body>
 </html>
 

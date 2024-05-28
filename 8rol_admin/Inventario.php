@@ -76,7 +76,7 @@ $conexion = null;
 </head>
 <body>
 <?php include "../nav.php" ?>
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <!-- Mostrar la tabla de inventario de productos con campos relevantes -->
     <h2>Inventario de Productos</h2>
     <table class="table table-bordered table-striped w-auto">
@@ -150,6 +150,7 @@ $conexion = null;
 
 <!-- Incluye Bootstrap JS y dependencias -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<?php include "../footer.php"; ?>
 </body>
 </html>
 

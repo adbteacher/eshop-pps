@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idUsuario'])) {
 <body>
 <?php include "../nav.php"; ?>
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <h1>Modificar Usuario</h1>
     <form id="formModificarUsuario" method="post" class="needs-validation" novalidate>
         <input type="hidden" name="idUsuario" value="<?php echo $idUsuario; ?>"> <!-- Campo oculto con el ID del usuario -->
@@ -130,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idUsuario'])) {
         });
     });
 </script>
+<?php include "../footer.php"; ?>
 </body>
 </html>
 

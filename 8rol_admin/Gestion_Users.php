@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <?php include "../nav.php" ?>
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <h1>Administración de Usuarios</h1>
 
     <!-- Formulario para crear un nuevo usuario -->
@@ -166,6 +166,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         MostrarUsuarios($conexion);
     ?>
 </div>
+<?php include "../footer.php"; ?>
+
 </body>
 </html>
 

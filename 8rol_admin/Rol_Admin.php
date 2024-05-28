@@ -2,17 +2,8 @@
 session_start();
 require_once '../autoload.php';
 require_once '../Functions.php';
-// Verificar si el rol del usuario está en la sesión
-/*if (!isset($_SESSION['UserRol'])) {
-    echo "<p class='text-danger'>Acceso denegado. No se encontró el rol de usuario en la sesión.</p>";
-    exit;
-}
 
-// Verificar si el usuario es administrador
-if ($_SESSION["UserRol"] !== 'A') {
-    echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
-    exit;
-}*/
+// Verificar si el rol del usuario está en la sesión
 functions::checkAdminAccess();
 
 // Generar token CSRF si no está definido
@@ -32,18 +23,20 @@ if (empty($_SESSION['csrf_token'])) {
 <body>
 
 <?php include "../nav.php"; ?>
-<div class="container">
-    <h1 class="mt-5">Bienvenido al:</h1>
-    <h2>Panel de Control del Administrador</h2>
-    <div class="mt-3">
-        <a href="Gestion_Users.php" class="btn btn-primary">Gestionar Usuarios</a>
-        <a href="Gestion_Prod.php" class="btn btn-primary">Gestionar Productos</a>
-        <a href="Report.php" class="btn btn-primary">Análisis y Reporting</a>
-        <a href="/4profile/main_profile.php" class="btn btn-secondary">Volver a mi Perfil</a>
+<div class="container mt-5 mb-5">
+    <div class="shadow p-4 bg-white rounded">
+        <h1>Bienvenido al:</h1>
+        <h2>Panel de Control del Administrador</h2>
+        <div class="mt-3">
+            <a href="Gestion_Users.php" class="btn btn-primary">Gestionar Usuarios</a>
+            <a href="Gestion_Prod.php" class="btn btn-primary">Gestionar Productos</a>
+            <a href="Report.php" class="btn btn-primary">Análisis y Reporting</a>
+            <a href="/4profile/main_profile.php" class="btn btn-secondary">Volver a mi Perfil</a>
+        </div>
     </div>
 </div>
 
-<!-- Añadir JS de Bootstrap -->
+<?php include "../footer.php"; ?>
 </body>
 </html>
 

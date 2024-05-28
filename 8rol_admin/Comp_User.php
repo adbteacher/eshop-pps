@@ -106,7 +106,7 @@ $conexion = null;
 <body>
 <?php include "../nav.php"; ?>
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <h1>Informes de Compras</h1>
 
     <!-- Informe de Fruta Más Comprada por Usuario -->
@@ -208,5 +208,6 @@ $conexion = null;
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<?php include "../footer.php"; ?>
 </body>
 </html>
