@@ -1,6 +1,8 @@
 <?php
 	session_start(); // Iniciar la sesión si aún no se ha iniciado
 
+	require_once '../autoload.php';
+
 	// Verificar si el usuario está autenticado
 	if (!isset($_SESSION['UserEmail']))
 	{
@@ -26,9 +28,32 @@
 		return $input;
 	}
 
-	require_once '../Database.php'; //
+	function validatePassword($password): bool
+	{
+		if (strlen($password) < 8)
+		{
+			return false;
+		}
+		if (!preg_match('/[A-Z]/', $password))
+		{
+			return false;
+		}
+		if (!preg_match('/[a-z]/', $password))
+		{
+			return false;
+		}
+		if (!preg_match('/[0-9]/', $password))
+		{
+			return false;
+		}
+		if (!preg_match('/[.+\-*]/', $password))
+		{
+			return false;
+		}
+		return true;
+	}
 
-	function ChangePassword($user_email, $old_password, $new_password): bool
+	function ChangePassword($user_email, $old_password, $new_password, $confirm_new_password): bool
 	{
 		$connection = database::LoadDatabase(); // Obtener la conexión a la base de datos
 
@@ -40,7 +65,19 @@
 
 		if (!$user || !password_verify($old_password, $user['usu_password']))
 		{
-			echo "Error: La contraseña antigua es incorrecta.";
+			$_SESSION['error_message'] = 'Error: La contraseña antigua es incorrecta.';
+			return false;
+		}
+
+		if ($confirm_new_password !== $new_password)
+		{
+			$_SESSION['error_message'] = 'Error: Las contraseñas no coinciden.';
+			return false;
+		}
+
+		if (!validatePassword($new_password))
+		{
+			$_SESSION['error_message'] = 'Error: La nueva contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, una letra minúscula, un número y un símbolo (.+-*).';
 			return false;
 		}
 
@@ -54,12 +91,12 @@
 
 		if ($stmt->rowCount() > 0)
 		{
-			echo "Contraseña actualizada con éxito.<br>";
+			$_SESSION['success_message'] = 'Contraseña actualizada con éxito.';
 			return true;
 		}
 		else
 		{
-			echo "Error al actualizar la contraseña.";
+			$_SESSION['error_message'] = 'Error al actualizar la contraseña.';
 			return false;
 		}
 	}
@@ -70,19 +107,31 @@
 		// Verificar el token CSRF
 		if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token'])
 		{
-			echo "Error: Invalid CSRF token.";
+			$_SESSION['error_message'] = 'Error: Token CSRF inválido.';
+			header("Location: usu_sec.php");
 			exit;
 		}
 
-		$user_email   = $_SESSION['UserEmail'];
-		$old_password = isset($_POST['old_password']) ? cleanInput($_POST['old_password']) : '';
-		$new_password = isset($_POST['new_password']) ? cleanInput($_POST['new_password']) : '';
+		$user_email           = $_SESSION['UserEmail'];
+		$old_password         = isset($_POST['old_password']) ? cleanInput($_POST['old_password']) : '';
+		$new_password         = isset($_POST['new_password']) ? cleanInput($_POST['new_password']) : '';
+		$confirm_new_password = isset($_POST['confirm_new_password']) ? cleanInput($_POST['confirm_new_password']) : '';
 
-		ChangePassword($user_email, $old_password, $new_password);
+		if (ChangePassword($user_email, $old_password, $new_password, $confirm_new_password))
+		{
+			header("Location: usu_sec.php");
+		}
+		else
+		{
+			header("Location: usu_sec.php");
+		}
+		exit;
 	}
 ?>
 
-<html lang="ES">
+<!DOCTYPE html>
+<html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -91,17 +140,11 @@
     <style>
         .form-container {
             max-width: 400px;
-            /* Ancho máximo del formulario */
             margin: 0 auto;
-            /* Centra el formulario horizontalmente */
             padding: 20px;
-            /* Añade espaciado interior al formulario */
             border: 1px solid #ccc;
-            /* Añade un borde al formulario */
             border-radius: 5px;
-            /* Añade bordes redondeados al formulario */
             background-color: #f9f9f9;
-            /* Añade un color de fondo al formulario */
         }
 
         .form-group {
@@ -116,32 +159,30 @@
             padding: 10px;
         }
 
-        .title-container {
-            margin-top: 20px;
-            /* Ajusta el margen superior del contenedor del título */
-            border: 1px solid #ccc;
-            /* Añade un borde al contenedor del título */
-            border-radius: 5px;
-            /* Añade bordes redondeados al contenedor del título */
-            background-color: #f9f9f9;
-            /* Añade un color de fondo al contenedor del título */
-            padding: 20px;
-            /* Añade espaciado interior al contenedor del título */
-        }
-
+        .title-container,
         .second-factor-container {
             margin-top: 20px;
-            /* Ajusta el margen superior del contenedor del segundo factor */
             border: 1px solid #ccc;
-            /* Añade un borde al contenedor del segundo factor */
             border-radius: 5px;
-            /* Añade bordes redondeados al contenedor del segundo factor */
             background-color: #f9f9f9;
-            /* Añade un color de fondo al contenedor del segundo factor */
             padding: 20px;
-            /* Añade espaciado interior al contenedor del segundo factor */
         }
     </style>
+    <script>
+		function validatePassword() {
+			const password = document.getElementById('new_password').value;
+			const errorDiv = document.getElementById('password_error');
+			const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.+\-*]).{8,}$/;
+
+			if (!regex.test(password)) {
+				errorDiv.innerHTML = 'La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, una letra minúscula, un número y un símbolo (.+-*).';
+				return false;
+			}
+
+			errorDiv.innerHTML = '';
+			return true;
+		}
+    </script>
 </head>
 
 <body>
@@ -150,26 +191,39 @@
 	include "../nav.php";
 ?>
 <div class="container">
-    <div class="row">
+    <div class="row mb-5">
         <div class="col-md-6">
             <div class="title-container">
                 <h3 class="text-center">Cambiar Contraseña</h3>
-                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="form-container">
+				<?php
+					if (isset($_SESSION['error_message']))
+					{
+						echo '<div class="alert alert-danger">' . $_SESSION['error_message'] . '</div>';
+						unset($_SESSION['error_message']);
+					}
+					if (isset($_SESSION['success_message']))
+					{
+						echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
+						unset($_SESSION['success_message']);
+					}
+				?>
+                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="form-container" onsubmit="return validatePassword()">
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
 
                     <div class="form-group">
                         <label for="old_password" class="form-label">Contraseña Antigua:</label>
-                        <input type="password" name="old_password" class="form-control" required>
+                        <input type="password" id="old_password" name="old_password" class="form-control" required>
                     </div>
 
                     <div class="form-group">
                         <label for="new_password" class="form-label">Nueva Contraseña:</label>
-                        <input type="password" name="new_password" class="form-control" required>
+                        <input type="password" id="new_password" name="new_password" class="form-control" required oninput="validatePassword()">
+                        <div id="password_error" class="text-danger"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="confirm_new_password" class="form-label">Confirmar Nueva Contraseña:</label>
-                        <input type="password" name="confirm_new_password" class="form-control" required>
+                        <input type="password" id="confirm_new_password" name="confirm_new_password" class="form-control" required>
                     </div>
 
                     <button type="submit" name="submit" class="btn btn-primary">Cambiar Contraseña</button>
@@ -183,10 +237,15 @@
                     <a href="../1login/activate_2fa.php" class="btn btn-primary">Activar segundo factor</a>
                 </div>
             </div>
+            <div class="second-factor-container">
+                <h3 class="text-center">Registros de Inicio de Sesión</h3>
+                <div class="container mt-3 text-center">
+                    <a href="../1login/logins.php" class="btn btn-primary">Ver registro de Incios de Sesión</a>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-
+	<?php include "../footer.php"; ?>
 </body>
 
 </html>
