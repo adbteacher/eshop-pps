@@ -1,77 +1,151 @@
 <?php
-	session_start();
+// Include necessary files for additional functions and autoload
+require_once 'funciones.php';
+require_once '../autoload.php';
+// Use the TwoFactorAuth library from RobThree
+use RobThree\Auth\TwoFactorAuth;
 
-	require_once("../vendor/autoload.php");
-	require_once("../autoload.php");
+// Start the session
+session_start();
+// Add security headers to the HTTP response
+AddSecurityHeaders();
 
-	require_once 'funciones.php';
+$error = '';
+$additionalMessage = '';
 
-    // Usa la clase TwoFactorAuth para la gestión de la autenticación de dos factores.
-    use RobThree\Auth\TwoFactorAuth;
+// If the user's email is not set in the session, redirect them to the login page
+if (!isset($_SESSION['UserEmail'])) {
+    RedirectUnauthorizedUser();
+}
 
-    // Establece cabeceras de seguridad HTTP para proteger la página.
-    AddSecurityHeaders();
+// Get the user's email from the session
+$Email = $_SESSION['UserEmail'];
 
-    // Variable para manejar mensajes de error relacionados con la verificación de 2FA.
-    $error = '';
+// Initialize 2FA attempts counter in the session if not already set
+if (!isset($_SESSION['2fa_attempts'])) {
+    $_SESSION['2fa_attempts'] = 0;
+}
 
-    // Comprueba si el usuario está autenticado con una sesión válida.
-    if (!isset($_SESSION['UserEmail'])) {
-        echo '<div class="warning">Error 333 - No está autorizado para ver esta página. (Sal, por favor)</div>';
-        exit; // Finaliza la ejecución si el usuario no está autorizado.
-    }
-
-	$Email = $_SESSION['email'];
-
-    // Procesa el formulario cuando se envía mediante POST.
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Limpia el código de 2FA ingresado para evitar inyecciones SQL o XSS.
+// Check if the request method is POST (form submission)
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    usleep(500000); // "Está pensando"
+    // Validate the CSRF token
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $error = "Error, vuelva a intentarlo más tarde.";
+        error_log("Error en la validación CSRF para el usuario con email: $Email");
+        // Regenerate the CSRF token after a failed attempt
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    } else {
+        // Sanitize and validate the 2FA code input
         $Code2FA = SanitizeInput($_POST['code']);
-
-        // Crea una instancia de la clase TwoFactorAuth.
-        $Tfa = new TwoFactorAuth();
-
-        // Obtiene una conexión a la base de datos para realizar consultas.
-        $Connection = GetDatabaseConnection();
-
-        // Prepara y ejecuta una consulta SQL para obtener el secreto de 2FA del usuario.
-        $Query = $Connection->prepare("SELECT usu_2fa FROM pps_users WHERE usu_email = ?");
-        $Query->bindParam(1, $Email);
-        $Query->execute();
-        $Result = $Query->fetch(PDO::FETCH_ASSOC);
-
-        // Extrae el secreto de 2FA almacenado en la base de datos.
-        $Secret = $Result['usu_2fa'];
-
-        // Verifica si el código de 2FA ingresado coincide con el secreto guardado.
-        if ($Tfa->verifyCode($Secret, $Code2FA)) {
-            // Si el código es correcto, redirige al perfil principal del usuario.
-            header('Location: ../4profile/main_profile.php');
-            exit;
+        if (!preg_match('/^\d{6}$/', $Code2FA)) {
+            $error = "Formato de código 2FA incorrecto.";
         } else {
-            // Introduce un retraso para mitigar ataques de fuerza bruta.
-            sleep(1);
-            // Establece un mensaje de error si el código de 2FA es incorrecto.
-            $error = "Código 2FA incorrecto.";
+            // Initialize the TwoFactorAuth object
+            $Tfa = new TwoFactorAuth();
+            // Get the database connection
+            $Connection = GetDatabaseConnection();
+
+            // Prepare and execute the query to retrieve the user's 2FA secret
+            $Query = $Connection->prepare("SELECT usu_2fa FROM pps_users WHERE usu_email = ?");
+            $Query->execute([$Email]);
+            $Result = $Query->fetch(PDO::FETCH_ASSOC);
+
+            // Check if the secret was retrieved successfully
+            if (!$Result || empty($Result['usu_2fa'])) {
+                $error = "No se pudo recuperar el secreto 2FA.";
+                error_log("No se pudo recuperar el secreto 2FA para el usuario con email: $Email");
+            } else {
+                $Secret = $Result['usu_2fa'];
+                // Verify the 2FA code
+                if ($Tfa->verifyCode($Secret, $Code2FA)) {
+                    // Regenerate the CSRF token and reset 2FA attempts counter
+                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                    $_SESSION['2fa_attempts'] = 0;
+                    // Redirect to the products page upon successful verification
+                    header('Location: ../10products/products.php');
+                    exit;
+                } else {
+                    // Delay to mitigate brute force attacks and increment the 2FA attempts counter
+                    sleep(1);
+                    $_SESSION['2fa_attempts']++;
+                    $error = "Código 2FA incorrecto.";
+                    // Display additional message if the number of attempts is 2 or more
+                    if ($_SESSION['2fa_attempts'] >= 2) {
+                        $additionalMessage = "Si ha perdido el código, contacte con soporte.";
+                    }
+                    // Regenerate the CSRF token after a failed attempt
+                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                }
+            }
         }
     }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>Verificar 2FA</title>
-    <link rel="stylesheet" type="text/css" href="estilo.css">  <!-- Enlace al archivo de estilo CSS para el diseño de la página. -->
+    <link rel="stylesheet" type="text/css" href="estilo.css">
+    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <style>
+        .spinner-border {
+            display: none;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-width: 0.2em;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Set focus to the 2FA code input field when the page loads
+            document.getElementById('code').focus();
+            // Show spinner and disable the verify button on form submit
+            document.querySelector("form").addEventListener("submit", function() {
+                var verifyButton = document.querySelector(".btn-primary");
+                var spinner = document.querySelector(".spinner-border");
+                verifyButton.disabled = true;
+                spinner.style.display = "inline-block";
+            });
+        });
+    </script>
 </head>
 <body>
 <div class="form-box">
     <h1>Verificar 2FA</h1>
     <form method="post">
-        <!-- Campo de entrada para el código de 2FA que el usuario debe proporcionar. -->
-        Código 2FA: <input type="text" name="code" required><br>
-        <!-- Botón para enviar el formulario y verificar el código 2FA ingresado. -->
-        <input type="submit" value="Verificar">
+        <!-- Include the CSRF token as a hidden input -->
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+        <div class="form-group">
+            <!-- Input field for the 2FA code with validation pattern -->
+            <input type="text" name="code" id="code" class="form-control" placeholder="Ingrese su código 2FA" required pattern="\d{6}" title="El código debe ser de 6 dígitos" maxlength="6">
+        </div>
+        <div class="message-container">
+            <!-- Display the error message if it's not empty -->
+            <?php if (!empty($error)): ?>
+                <div class="error"><?php echo $error; ?></div>
+                <!-- Display additional message if it exists -->
+                <?php if (!empty($additionalMessage)): ?>
+                    <div class="info"><?php echo $additionalMessage; ?></div>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+        <div class="button-group">
+            <!-- Verify button with a spinner -->
+            <button type="submit" class="btn btn-primary">
+                Verificar
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </button>
+            <!-- Link to return to the login page -->
+            <a href="login.php" class="btn btn-secondary">Volver</a>
+        </div>
     </form>
 </div>
 </body>

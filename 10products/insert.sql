@@ -9,7 +9,7 @@ ALTER TABLE `pps_products` AUTO_INCREMENT = 1;
 ALTER TABLE `pps_categories` AUTO_INCREMENT = 1;
 
 -- MODIFICACIÓN DE LA BBDD
-/*
+
 -- Añadir el campo user_id a la tabla pps_reviews
 ALTER TABLE `pps_reviews` ADD `rev_user_id` INT NOT NULL;
 
@@ -35,7 +35,7 @@ DROP COLUMN `prd_quantity_shop`;
 ALTER TABLE `pps_products`
 ADD COLUMN `prd_on_offer` BOOLEAN DEFAULT FALSE,
 ADD COLUMN `prd_offer_price` DECIMAL(10, 2) DEFAULT NULL;
-*/
+
 
 -- Inserta las nuevas categorías
 INSERT INTO `pps_categories` (`cat_id`, `cat_description`) VALUES
