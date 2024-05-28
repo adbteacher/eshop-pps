@@ -6,27 +6,25 @@
  *
  */
 
-//if (!defined('SI_NO_EXISTE_PETA'))
-//{
-//	die('No me seas cabrón y sal de aquí');
-//}
+session_start();
+
 require('functions.php');
+
 $Conn = database::LoadDatabase();
+$Errors = array();
 
 $UserType = isset($_POST['UserType']) ? $_POST['UserType'] : '';
 
-// Declarar variables
-//$PhoneNumber = $Address = $Email = $ConfirmEmail = $Password = $ConfirmPassword = $CustomerName = $CustomerSurNames = $CompanyName = $Cif = $CompanyWeb = $CompanyDocuments = '';
 // Verificar si el formulario ha sido enviado
 if (isset($_POST['register']))
 {
-	$PhoneNumber      = htmlspecialchars($_POST['PhoneNumber']);
-	$Address          = htmlspecialchars($_POST['Address']);
+	$Prefix           = GetPrefix(htmlspecialchars($_POST['Prefix']));				// Limpieza de formato
+	$PhoneNumber      = GetPhoneNumber(htmlspecialchars($_POST['PhoneNumber']));	// Limpieza de formato
 	$Email            = htmlspecialchars($_POST['Email']);
 	$ConfirmEmail     = htmlspecialchars($_POST['ConfirmEmail']);
 	$Password         = htmlspecialchars($_POST['Password']);
 	$ConfirmPassword  = htmlspecialchars($_POST['ConfirmPassword']);
-	$VerificationCode = '';
+	$VerificationCode = GetVerificationCode();
 
 	if ($UserType == 'cus')
 	{
@@ -39,50 +37,48 @@ if (isset($_POST['register']))
 		$CompanyName      = htmlspecialchars($_POST['CompanyName']);
 		$Cif              = htmlspecialchars($_POST['Cif']);
 		$CompanyWeb       = htmlspecialchars($_POST['CompanyWeb']);
-		//$ArrayCompanyDocuments = $_FILES['CompanyDocuments'];
-		//echo var_dump($ArrayCompanyDocuments);
 		$CompanyDocuments = GetCompanyDocuments($_FILES['CompanyDocuments'], $Cif); // functions.php
-	
-		die('Conseguido!');
-		
 
 		// Validación del CIF
 		// Un CIF válido contiene 8 caracteres,
 		// 7 números y 1 letra en mayuscula
-		//if (!CifValidation($Cif)){
-		//	die("Validación del Cif incorrecta. La letra debe ser correcta y como máximo 7 números y 1 letra.");
-		//}
-
+		if (!CifValidation($Cif)){ // functions.php
+			$Errors +=["ErrorCif" => "Validación del Cif incorrecta. La letra debe ser correcta y como máximo 7 números y 1 letra."];
+		}
 	}
 
-	// Se admiten guiones, signos de suma, espacios y números.
-	$PatternPhoneNumber = '/^[\d+\s-]{1,16}$/';
-	$PhoneNumber = str_replace(' ', '', strval($PhoneNumber));
-	if (!preg_match($PatternPhoneNumber, $PhoneNumber)) {
+	// Validación del prefijo del número de teléfono
+	if (!is_numeric($Prefix) OR strlen($Prefix) > 5)
+	{
+		$Errors +=["ErrorPrefix" => "Prefijo inválido."];
+	}
+	
 	// Validación del teléfono
-	    die('El número de teléfono es inválido.');
+	if (!is_numeric($PhoneNumber) OR strlen($PhoneNumber) > 11)
+	{
+		$Errors +=["ErrorPhoneNumber" => "El número de teléfono es inválido."];
 	}
 
 	// Validación del correo electrónico
 	// Validar que los correos electrónicos coincidan
 	if ($Email !== $ConfirmEmail)
 	{
-		die("Los correos electrónicos no coinciden.");
+		$Errors +=["ErrorConfirmEmail" => "Los correos electrónicos no coinciden."];
 	}
-	
+
 	// Validar formato de correo electrónico
 	if (!filter_var($Email, FILTER_VALIDATE_EMAIL))
 	{
-		die('El correo electrónico no es válido.');
+		$Errors +=["ErrorEmail" => 'El correo electrónico no es válido.'];
 	}
-	
+
 	// Validación de las contraseñas
 	// Validar que las contraseñas coincidan
 	if ($Password !== $ConfirmPassword)
 	{
-		die("Las contraseñas no coinciden.");
+		$Errors +=["ErrorConfirmPassword" => "Las contraseñas no coinciden."];
 	}
-	
+
 	// Validar que las contraseñas cumplen los requisitos mínimos
 	// Al menos 8 caracteres
 	// Al menos 1 caracter minuscula
@@ -91,20 +87,26 @@ if (isset($_POST['register']))
 	$PatternPassword = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/';
 	if (!preg_match($PatternPassword, $Password))
 	{
-		die("La contraseña no cumple los requisitos mínimos.");
+		$Errors +=["ErrorPassword" => "La contraseña no cumple los requisitos mínimos."];
 	}
-	
+
 	// Hash de la contraseña
 	$Password = password_hash($Password, PASSWORD_DEFAULT);
 
-	// Generar codigo de verificacion enviado al correo
-	$VerificationCode = '1234';
+	// Generar código de verificación enviado al correo
+	$VerificationCode = GetVerificationCode();
 
 	// Variable con fecha y hora
 	$DateTime = date('Y-m-d H:i:s');
 
-	//Variables temporales
-	$Address          = 'C/ La amargura';
+	if (!empty($Errors)) {
+	// Guardar los errores en la sesión
+		$_SESSION['Errors'] = $Errors;
+		// Redirigir a la página de registro
+		header('Location: register.form.php');
+		exit;
+	}
+
 
 	// Insertar en base de datos al usuario/cliente
 	if ($UserType == 'cus')
@@ -114,14 +116,12 @@ if (isset($_POST['register']))
 		$ResultQuery = $Conn->query($Query);
 		if ($ResultQuery->rowCount() > 0)
 		{
-			die("El usuario con email: '" . $Email . ",' ya existe.");
+			$Errors +=["ErrorUserExist" => "El usuario con email: '" . $Email . ",' ya existe."];
 		}
 
 		// Preparación de datos a la Base de datos
 		//
-		// v1
-		$Query = ("INSERT INTO pps_users ( usu_type, usu_rol, usu_status, usu_verification_code, usu_2fa, usu_datetime, usu_phone, usu_name, usu_surnames, usu_email, usu_password, usu_company, usu_cif, usu_web, usu_documents ) 
-				VALUES ( 'U', 'U', 'N', '$VerificationCode', '', '$DateTime', '$PhoneNumber', '$CustomerName', '$CustomerSurNames', '$Email', '$Password', '', '', '', '' )");
+		$Query = ("INSERT INTO pps_users ( usu_type, usu_rol, usu_status, usu_verification_code, usu_datetime, usu_name, usu_surnames, usu_prefix, usu_phone, usu_email, usu_password, usu_company, usu_cif, usu_web, usu_documents, usu_2fa ) VALUES ( 'V', 'V', 'N', '$VerificationCode', '$DateTime','$CustomerName', '$CustomerSurNames', '$Prefix', '$PhoneNumber', '$Email', '$Password', '', '', '', '', '' )");
 	}
 
 	// Insertar en base de datos al usuario/empresa
@@ -132,12 +132,13 @@ if (isset($_POST['register']))
 		$ResultQuery = $Conn->query($Query);
 		if ($ResultQuery->rowCount() > 0)
 		{
-			die("La empresa con email: '" . $Email . ",' ya existe.");
+			$Errors +=["ErrorUserExist" => "La empresa con email: '" . $Email . ",' ya existe."];
 		}
 
 		// Preparación de datos a la Base de datos
 		//
-		$Query = ("INSERT INTO pps_users ( usu_type, usu_rol, usu_status, usu_verification_code, usu_2fa, usu_datetime, usu_phone, usu_name, usu_surnames, usu_email, usu_password, usu_company, usu_cif, usu_web, usu_documents ) VALUES ( 'V', 'V', 'N', '$VerificationCode', '', '$DateTime', '$PhoneNumber', '', '', '$Email', '$Password', '$CompanyName', '$Cif', '$CompanyWeb', '$CompanyDocuments' )");
+		$Query = ("INSERT INTO pps_users ( usu_type, usu_rol, usu_status, usu_verification_code, usu_datetime, usu_name, usu_surnames, usu_prefix, usu_phone, usu_email, usu_password, usu_company, usu_cif, usu_web, usu_documents, usu_2fa ) VALUES ( 'V', 'V', 'N', '$VerificationCode', '$DateTime','', '', '$Prefix', '$PhoneNumber', '$Email', '$Password', '$CompanyName', '$Cif', '$CompanyWeb', '$CompanyDocuments', '' )");
+
 	}
 
 	try
@@ -165,15 +166,4 @@ if (isset($_POST['register']))
 		// Cierra la conexión
 		$Conn = null;
 	}
-
-}
-else
-{
-	echo 'POST del Registro:<br>';
-	echo('REQUEST: <br>');
-	print_r($_REQUEST);
-	echo('POST: <br>');
-	print_r($_POST);
-	echo('FILES: <br>');
-	print_r($_FILES);
 }
