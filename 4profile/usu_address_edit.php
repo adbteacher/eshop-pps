@@ -46,8 +46,28 @@ if (!isset($_SESSION['UserEmail'])) {
 	// Obtener el ID de la dirección a editar
 	$edit_address_id = isset($_SESSION['edit_address_id']) ? $_SESSION['edit_address_id'] : (isset($_POST['edit_address_id']) ? cleanInput($_POST['edit_address_id']) : '');
 
+	// Obtener el ID del usuario
+	$user_id = $_SESSION['UserID'];
+
 	// Guardar el ID de la dirección en la sesión
 	$_SESSION['edit_address_id'] = $edit_address_id;
+
+	// Función para verificar que la dirección pertenece al usuario
+	function verifyUserAddress($address_id, $user_id)
+	{
+		$connection = database::LoadDatabase();
+		$sql        = "SELECT COUNT(*) FROM pps_addresses_per_user WHERE adr_id = ? AND adr_user = ?";
+		$stmt       = $connection->prepare($sql);
+		$stmt->execute([$address_id, $user_id]);
+		return $stmt->fetchColumn() > 0;
+	}
+
+	// Verificar si el ID de la dirección pertenece al usuario
+	if (!verifyUserAddress($edit_address_id, $user_id)) {
+		$_SESSION['error_message'] = 'Esta dirección que intentas editar no pertenece a tu cuenta.';
+		header("Location: usu_address.php");
+		exit;
+	}
 
 	if (isset($_SESSION['edit_address_id'])) {
 
