@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['token']) && isset($_P
                 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
                 // Update the user's password in the database
-                $stmt = $pdo->prepare("UPDATE users SET password = :password WHERE id = :userId");
+                $stmt = $pdo->prepare("UPDATE pps_users SET usu_password = :password WHERE usu_id = :userId");
                 $stmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
                 $stmt->bindParam(':userId', $userId['sub'], PDO::PARAM_INT);
                 $stmt->execute();
