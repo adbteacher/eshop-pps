@@ -4,16 +4,6 @@ require_once '../Functions.php';
 session_start();
 functions::checkAdminAccess();
 
-/*if (!isset($_SESSION['UserRol'])) {
-    echo "<p class='text-danger'>Acceso denegado. No se encontró el rol de usuario en la sesión.</p>";
-    exit;
-}
-
-// Verificar si el usuario es administrador
-if ($_SESSION["UserRol"] !== 'A') {
-    echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
-    exit;
-}*/
 // Obtener una conexión a la base de datos
 $conexion = database::LoadDatabase();
 
@@ -33,7 +23,7 @@ function MostrarProductos($conexion): void {
         echo '<div class="table-responsive">';
         echo '<h2 class="mt-4">Lista de Productos</h2>';
         echo '<table class="table table-bordered table-striped">';
-        echo '<thead class="thead-dark"><tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Detalles</th><th>Precio</th><th>Cantidad en Tienda</th><th>Stock</th><th>Imagen</th><th>Descripción</th><th>Acciones</th></tr></thead>';
+        echo '<thead class="thead-dark"><tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Detalles</th><th>Precio</th><th>Stock</th><th>Imagen</th><th>En Oferta</th><th>Precio Oferta</th><th>Acciones</th></tr></thead>';
         echo '<tbody>';
         foreach ($result as $row) {
             echo '<tr>';
@@ -42,10 +32,10 @@ function MostrarProductos($conexion): void {
             echo '<td>' . htmlspecialchars($row['prd_category']) . '</td>';
             echo '<td>' . htmlspecialchars($row['prd_details']) . '</td>';
             echo '<td>' . htmlspecialchars($row['prd_price']) . '</td>';
-            echo '<td>' . htmlspecialchars($row['prd_quantity_shop']) . '</td>';
             echo '<td>' . htmlspecialchars($row['prd_stock']) . '</td>';
-            echo '<td><img src="../0images/' . htmlspecialchars($row['prd_image']) . '" alt="' . htmlspecialchars($row['prd_name']) . '" width="50" height="50"></td>';
-            echo '<td>' . htmlspecialchars($row['prd_description']) . '</td>';
+            echo '<td><img src="' . htmlspecialchars($row['prd_image']) . '" alt="' . htmlspecialchars($row['prd_name']) . '" width="50" height="50"></td>';
+            echo '<td>' . ($row['prd_on_offer'] ? 'Sí' : 'No') . '</td>';
+            echo '<td>' . htmlspecialchars($row['prd_offer_price']) . '</td>';
             echo '<td>';
             echo '<form action="Mod_Prod.php" method="post" style="display:inline;">';
             echo '<input type="hidden" name="idProducto" value="' . htmlspecialchars($row['prd_id']) . '">';
@@ -85,21 +75,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $archivoTemporal = $_FILES['archivoCSV']['tmp_name'];
                 $contenidoCSV = file_get_contents($archivoTemporal);
                 $filas = explode(PHP_EOL, $contenidoCSV);
-                $query_insert = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_quantity_shop, prd_stock, prd_image, prd_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $query_insert = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_stock, prd_image, prd_on_offer, prd_offer_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt_insert = $conexion->prepare($query_insert);
                 $categoria_inexistente = false;
 
                 foreach ($filas as $fila) {
                     $datos = str_getcsv($fila);
-                    if (count($datos) === 8) {
+                    if (count($datos) === 8) { // Actualizado a 8 columnas
                         $nombre = $datos[0];
                         $categoria = $datos[1];
                         $detalles = $datos[2];
                         $precio = $datos[3];
-                        $cantidadTienda = $datos[4];
-                        $stock = $datos[5];
-                        $imagen = $datos[6];
-                        $descripcion = $datos[7];
+                        $stock = $datos[4];
+                        $imagen = $datos[5];
+                        $on_offer = $datos[6];
+                        $offer_price = $datos[7];
 
                         $query_categoria = "SELECT cat_id FROM pps_categories WHERE cat_id = ?";
                         $stmt_categoria = $conexion->prepare($query_categoria);
@@ -107,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $categoria_existente = $stmt_categoria->fetchColumn();
 
                         if ($categoria_existente) {
-                            $stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $cantidadTienda, $stock, $imagen, $descripcion]);
+                            $stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $stock, $imagen, $on_offer, $offer_price]);
                         } else {
                             $categoria_inexistente = true;
                         }
@@ -168,12 +158,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $precio = $_POST['precio'];
             }
 
-            if (empty($_POST['cantidad_tienda']) || !is_numeric($_POST['cantidad_tienda'])) {
-                $msg[] = 'La cantidad en tienda es obligatoria y debe ser un número.';
-            } else {
-                $cantidadTienda = $_POST['cantidad_tienda'];
-            }
-
             if (empty($_POST['stock']) || !is_numeric($_POST['stock'])) {
                 $msg[] = 'El stock es obligatorio y debe ser un número.';
             } else {
@@ -184,6 +168,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $msg[] = 'La descripción del producto es obligatoria.';
             } else {
                 $descripcion = $_POST['descripcion'];
+            }
+
+            if (!isset($_POST['on_offer'])) {
+                $msg[] = 'Indique si el producto está en oferta.';
+            } else {
+                $on_offer = $_POST['on_offer'];
+            }
+
+            if ($on_offer == 1) {
+                if (empty($_POST['offer_price']) || !is_numeric($_POST['offer_price'])) {
+                    $msg[] = 'El precio de oferta es obligatorio y debe ser un número si el producto está en oferta.';
+                } else {
+                    $offer_price = $_POST['offer_price'];
+                }
+            } else {
+                $offer_price = null; // Establecer el precio de oferta a NULL si no está en oferta
             }
 
             if (empty($_FILES['imagen']['name'])) {
@@ -207,9 +207,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Si no hay errores, proceder con la inserción en la base de datos
             if (empty($msg)) {
                 $ruta_imagen_db = '../0images/' . $file_name; // Ruta a guardar en la base de datos
-                $query_insert = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_quantity_shop, prd_stock, prd_image, prd_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $query_insert = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_stock, prd_image, prd_on_offer, prd_offer_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt_insert  = $conexion->prepare($query_insert);
-                if ($stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $cantidadTienda, $stock, $ruta_imagen_db, $descripcion])) {
+                if ($stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $stock, $ruta_imagen_db, $on_offer, $offer_price])) {
                     echo '<div class="alert alert-success">Producto agregado exitosamente.</div>';
                 } else {
                     echo '<div class="alert alert-danger">Error al agregar el producto.</div>';
@@ -278,12 +278,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="number" id="precio" name="precio" step="0.01" class="form-control" required>
         </div>
         <div class="form-group">
-            <label for="cantidad_tienda">Cantidad en Tienda:</label>
-            <input type="number" id="cantidad_tienda" name="cantidad_tienda" class="form-control" required>
-        </div>
-        <div class="form-group">
             <label for="stock">Stock:</label>
             <input type="number" id="stock" name="stock" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="on_offer">En Oferta:</label>
+            <select id="on_offer" name="on_offer" class="form-control" required>
+                <option value="1">Sí</option>
+                <option value="0">No</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="offer_price">Precio de Oferta:</label>
+            <input type="number" id="offer_price" name="offer_price" step="0.01" class="form-control">
         </div>
         <br>
         <div class="form-group">

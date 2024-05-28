@@ -77,19 +77,31 @@ $stmt = $conexion->prepare($queryCupones);
 $stmt->execute();
 $cupones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Consulta para obtener las reseñas de productos
-$queryResenas = "
-    SELECT 
-        pps_products.prd_name,
-        pps_reviews.rev_rating,
-        pps_reviews.rev_message
-    FROM 
-        pps_reviews
-    JOIN 
-        pps_products ON pps_reviews.rev_product = pps_products.prd_id";
-$stmt = $conexion->prepare($queryResenas);
-$stmt->execute();
-$resenas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Consulta para obtener todas las categorías
+$queryCategorias = "SELECT cat_id, cat_description FROM pps_categories";
+$stmtCategorias = $conexion->prepare($queryCategorias);
+$stmtCategorias->execute();
+$categorias = $stmtCategorias->fetchAll(PDO::FETCH_ASSOC);
+
+// Obtener las reseñas si se ha seleccionado una categoría
+$resenas = [];
+if (isset($_POST['categoria'])) {
+    $categoriaSeleccionada = $_POST['categoria'];
+    $queryResenas = "
+        SELECT 
+            pps_products.prd_name,
+            pps_reviews.rev_rating,
+            pps_reviews.rev_message
+        FROM 
+            pps_reviews
+        JOIN 
+            pps_products ON pps_reviews.rev_product = pps_products.prd_id
+        WHERE 
+            pps_products.prd_category = ?";
+    $stmtResenas = $conexion->prepare($queryResenas);
+    $stmtResenas->execute([$categoriaSeleccionada]);
+    $resenas = $stmtResenas->fetchAll(PDO::FETCH_ASSOC);
+}
 
 // Cerrar la conexión
 $conexion = null;
@@ -185,26 +197,44 @@ $conexion = null;
         </tbody>
     </table>
 
-    <!-- Informe de Reseñas de Productos -->
+    <!-- Sección de Reseñas -->
     <h2>Reseñas de Productos</h2>
-    <table class="table table-bordered table-striped">
-        <thead class="thead-dark">
+    <form method="post" class="mb-4">
+        <div class="form-group">
+            <label for="categoria">Seleccionar Categoría:</label>
+            <select id="categoria" name="categoria" class="form-control">
+                <?php foreach ($categorias as $categoria): ?>
+                    <option value="<?= htmlspecialchars($categoria['cat_id']); ?>" <?= isset($categoriaSeleccionada) && $categoriaSeleccionada == $categoria['cat_id'] ? 'selected' : ''; ?>>
+                        <?= htmlspecialchars($categoria['cat_description']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+        <button type="submit" class="btn btn-primary">Mostrar Reseñas</button>
+    </form>
+
+    <!-- Mostrar las reseñas -->
+    <?php if (!empty($resenas)): ?>
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
             <tr>
                 <th>Producto</th>
                 <th>Calificación</th>
                 <th>Mensaje</th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             <?php foreach ($resenas as $resena): ?>
-            <tr>
-                <td><?php echo htmlspecialchars($resena['prd_name']); ?></td>
-                <td><?php echo htmlspecialchars($resena['rev_rating']); ?></td>
-                <td><?php echo htmlspecialchars($resena['rev_message']); ?></td>
-            </tr>
+                <tr>
+                    <td><?php echo htmlspecialchars($resena['prd_name']); ?></td>
+                    <td><?php echo htmlspecialchars($resena['rev_rating']); ?></td>
+                    <td><?php echo htmlspecialchars($resena['rev_message']); ?></td>
+                </tr>
             <?php endforeach; ?>
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    <?php endif; ?>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
