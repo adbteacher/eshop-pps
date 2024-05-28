@@ -4,7 +4,7 @@
  * This script is the library for generating the JWT Tokens
  */
 
-require_once '../autoload.php';
+require_once '../autoload.php'; // Autoload necessary classes and Database connection
 
 session_start();
 class JWTHandler

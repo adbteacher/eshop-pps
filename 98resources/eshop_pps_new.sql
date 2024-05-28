@@ -126,12 +126,17 @@ INSERT INTO `pps_logs_login` (`lol_id`, `lol_user`, `lol_ip`, `lol_was_correct_l
 -- Estructura de tabla para la tabla `pps_logs_recovery`
 --
 
-CREATE TABLE `pps_logs_recovery` (
-  `lor_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `pps_logs_recovery`;
+CREATE TABLE IF NOT EXISTS `pps_logs_recovery` (
+  `lor_id` int(11) NOT NULL AUTO_INCREMENT,
   `lor_user` int(6) NOT NULL,
   `lor_ip` varchar(12) NOT NULL,
   `lor_datetime` datetime NOT NULL,
-  `lor_attempt` int(1) NOT NULL
+  `lor_attempt` int(1) NOT NULL,
+  `lor_lock_until` datetime,
+  PRIMARY KEY (`lor_id`),
+  UNIQUE KEY `lor_id` (`lor_id`,`lor_user`),
+  KEY `lor_user` (`lor_user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
