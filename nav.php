@@ -90,23 +90,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                                 <img src="/0images/default_user.png" alt="User" class="profile-image">
 								<?php echo $NameToDisplay ?>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="width: 230px;">
 
                             <?php if ($isAdmin) : ?>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/8rol_admin/Rol_Admin.php"><i class="bi bi-shield-lock"></i> Panel de Administrador</a>
+                                <li><a class="dropdown-item" href="/8rol_admin/Rol_Admin.php"><i class="bi bi-shield-lock"></i> Panel de Administrador</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
                                 </li>
-                            <?php endif; ?>
-
-                                <li><a class="dropdown-item" href="/4profile/main_profile.php"><i class="bi bi-person-circle"></i> Perfil</a></li>
-                                <li><a class="dropdown-item" href="/7rol_support/CreateTicket.php"><i class="bi bi-ticket-perforated"></i> Tickets</a></li>
+                                <?php endif; ?>
                                 <?php
 									if ($_SESSION["UserRol"] == "S") {
 										?>
                                         <li><a class="dropdown-item" href="/7rol_support/RolSupport.php"><i class="bi bi-tools"></i> Gestión de tickets</a></li>
-										<?php
+										<li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <?php
 									}
 								?>
+                                <li><a class="dropdown-item" href="/4profile/main_profile.php"><i class="bi bi-person-circle"></i> Perfil</a></li>
+                                <li><a class="dropdown-item" href="/7rol_support/CreateTicket.php"><i class="bi bi-ticket-perforated"></i> Tickets</a></li>
+                                
                                 <li><a class="dropdown-item" href="/logout.php"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                             </ul>
                         </li>
@@ -123,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                             </a>
                         </li>
                         <li class="nav-item">
-                             <a class="nav-link" href="/1login/login.php">
+                             <a class="nav-link" href="/4profile/main_profile.php">
                                 <img src="/0images/default_user.png" alt="User" class="profile-image">
 								<?php echo $NameToDisplay ?>
                             </a>
@@ -133,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
 				?>
             </ul>
              <!-- Carrito de compra -->
-            <div class="dropdown">
+            <div class="dropdown ms-2">
                 <button class="btn btn-secondary dropdown-toggle d-flex align-items-center" type="button" id="dropdownCartButton" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-cart-fill me-2"></i> Carrito
                     <span class="badge bg-secondary ms-2"><?php echo isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0; ?></span>
