@@ -8,10 +8,10 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require_once '../autoload.php';
-require 'jwt.php';             // JWT handling library
-require '../mail_config.php';  // PHPMailer configuration
-require 'csrf.php';            // CSRF token handling
+require_once '../autoload.php'; // Autoload necessary classes and Database connection
+require 'jwt.php';              // JWT handling library
+require '../mail_config.php';   // PHPMailer configuration
+require 'csrf.php';             // CSRF token handling
 
 session_start();
 
@@ -21,11 +21,12 @@ if (!isset($_SESSION['UserEmail'])) {
     exit;
 }
 
-function logPasswordResetAttempt(PDO $pdo, ?int $userId, string $email, string $ipAddress, bool $isSuccessful): void
+$pdo = database::LoadDatabase();
+
+function logPasswordResetAttempt(PDO $pdo, ?int $userId, string $ipAddress, bool $isSuccessful): void
 {
-    $stmt = $pdo->prepare("INSERT INTO pps_logs_recovery (lor_user, lor_email, lor_ip, lor_datetime, lor_attempt) VALUES (:userId, :email, :ipAddress, NOW(), :isSuccessful)");
+    $stmt = $pdo->prepare("INSERT INTO pps_logs_recovery (lor_user, lor_ip, lor_datetime, lor_attempt) VALUES (:userId, :ipAddress, NOW(), :isSuccessful)");
     $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
     $stmt->bindParam(':ipAddress', $ipAddress, PDO::PARAM_STR);
     $stmt->bindParam(':isSuccessful', $isSuccessful, PDO::PARAM_BOOL);
     $stmt->execute();
@@ -48,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email'])) {
     }
 
     // Prepare and execute SQL statement to fetch user data
-    $stmt = $pdo->prepare("SELECT id, failed_attempts, lock_until FROM users WHERE email = :email LIMIT 1");
+    $stmt = $pdo->prepare("SELECT usu_id, lor_attempt, lor_lock_until FROM pps_users LEFT JOIN pps_logs_recovery ON pps_users.usu_id = pps_logs_recovery.lor_user WHERE usu_email = :email LIMIT 1");
     $stmt->bindParam(':email', $email, PDO::PARAM_STR);
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -56,25 +57,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email'])) {
     // Check if the account is temporarily locked
     if ($user) {
         $currentTime = new DateTime();
-        if ($user['lock_until'] !== NULL && (new DateTime($user['lock_until']))->getTimestamp() > $currentTime->getTimestamp()) {
+        if ($user['lor_lock_until'] !== NULL && (new DateTime($user['lor_lock_until']))->getTimestamp() > $currentTime->getTimestamp()) {
             echo "Your account is temporarily locked. Please try again later.";
-            logPasswordResetAttempt($pdo, $user['id'], $email, $ipAddress, false);
+            logPasswordResetAttempt($pdo, $user['usu_id'], $ipAddress, false);
             exit;
         }
 
         // Reset failed attempts on successful email verification
-        $stmt = $pdo->prepare("UPDATE users SET failed_attempts = 0 WHERE id = :userId");
-        $stmt->bindParam(':userId', $user['id'], PDO::PARAM_INT);
+        $stmt = $pdo->prepare("UPDATE pps_logs_recovery SET lor_attempt = 0 WHERE lor_user = :userId");
+        $stmt->bindParam(':userId', $user['usu_id'], PDO::PARAM_INT);
         $stmt->execute();
 
         // Generate a JWT for the password reset link
         $payload = [
-            'sub' => $user['id'],  // Subject
-            'iat' => time(),       // Issued At
-            'exp' => time() + 3600 // Expiry Time
+            'sub' => $user['usu_id'],  // Subject
+            'iat' => time(),           // Issued At
+            'exp' => time() + 3600     // Expiry Time
         ];
         $token = JWTHandler::createToken($payload);
-        $resetLink = dirname($_SERVER['PHP_SELF']) . "/update_password.php?token=" . urlencode($token);
+        $resetLink = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/update_password.php?token=" . urlencode($token);
 
         // Setup PHPMailer
         $mail = getMailer();
@@ -88,14 +89,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email'])) {
 
             $mail->send();
             $message = 'If your account exists, a password reset link has been sent to your email.';
-            logPasswordResetAttempt($pdo, $user['id'], $email, $ipAddress, true);
+            logPasswordResetAttempt($pdo, $user['usu_id'], $ipAddress, true);
         } catch (Exception $e) {
             $message = 'Message could not be sent. Mailer Error: ' . htmlspecialchars($mail->ErrorInfo);
-            logPasswordResetAttempt($pdo, $user['id'], $email, $ipAddress, false);
+            logPasswordResetAttempt($pdo, $user['usu_id'], $ipAddress, false);
         }
     } else {
         $message = "If your account exists, a password reset link will be sent to your email.";
-        logPasswordResetAttempt($pdo, null, $email, $ipAddress, false);
+        logPasswordResetAttempt($pdo, null, $ipAddress, false);
     }
 }
 
@@ -113,18 +114,18 @@ $csrfToken = generateCsrfToken();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
-        .section {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            padding: 20px;
-        }
+    .section {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        padding: 20px;
+    }
 
-        .section-title {
-            color: #007bff;
-            margin-bottom: 15px;
-        }
+    .section-title {
+        color: #007bff;
+        margin-bottom: 15px;
+    }
     </style>
 </head>
 
@@ -135,9 +136,9 @@ $csrfToken = generateCsrfToken();
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <div class="section">
-                    <h1 class="text-center mb-4"> <i class="fas fa-key"> </i> Password Reset</h2>
+                    <h1 class="text-center mb-4"> <i class="fas fa-key"></i> Password Reset</h2>
                         <?php if (isset($message)) : ?>
-                            <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
+                        <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
                         <?php endif; ?>
                         <form method="POST" action="">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">

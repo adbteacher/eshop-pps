@@ -5,7 +5,7 @@
  * It verifies the provided JWT token and updates the password if the token is valid.
  */
 
-require_once '../autoload.php';
+require_once '../autoload.php'; // Autoload necessary classes and Database connection
 require 'jwt.php'; // JWT handling library
 require 'csrf.php'; // CSRF handling
 session_start();
@@ -15,6 +15,8 @@ if (!isset($_SESSION['UserEmail'])) {
     header("Location: ../1login/login.php");
     exit;
 }
+
+$pdo = database::LoadDatabase();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['token']) && isset($_POST['password']) && isset($_POST['confirmPassword'])) {
     $csrfToken = $_POST['csrf_token'];
@@ -110,7 +112,8 @@ $csrfToken = generateCsrfToken();
             </div>
         </div>
     </div>
-    </div>
     <?php include "../footer.php"; ?>
 
 </body>
+
+</html>
