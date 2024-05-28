@@ -146,7 +146,7 @@
 
         <!-- CSS / Hoja de estilos Bootstrap -->
         <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+        <link href="/vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
 
         <!-- Favicon -->
         <link rel="apple-touch-icon" sizes="180x180" href="/0images/apple-touch-icon.png">
