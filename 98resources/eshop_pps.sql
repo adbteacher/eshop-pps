@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: May 29, 2024 at 04:25 PM
+-- Generation Time: May 29, 2024 at 04:30 PM
 -- Server version: 10.6.5-MariaDB
 -- PHP Version: 8.1.0
 
@@ -155,6 +155,7 @@ CREATE TABLE IF NOT EXISTS `pps_logs_recovery` (
   `lor_ip` varchar(12) NOT NULL,
   `lor_datetime` datetime NOT NULL,
   `lor_attempt` int(1) NOT NULL,
+  `lor_lock_until` datetime DEFAULT NULL,
   PRIMARY KEY (`lor_id`),
   UNIQUE KEY `lor_id` (`lor_id`,`lor_user`),
   KEY `lor_user` (`lor_user`)
@@ -527,12 +528,6 @@ ALTER TABLE `pps_addresses_per_user`
 --
 ALTER TABLE `pps_logs_login`
   ADD CONSTRAINT `pps_logs_login_ibfk_1` FOREIGN KEY (`lol_user`) REFERENCES `pps_users` (`usu_id`) ON UPDATE CASCADE;
-
---
--- Constraints for table `pps_logs_recovery`
---
-ALTER TABLE `pps_logs_recovery`
-  ADD CONSTRAINT `pps_logs_recovery_ibfk_1` FOREIGN KEY (`lor_user`) REFERENCES `pps_users` (`usu_id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `pps_messages`
