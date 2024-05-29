@@ -6,7 +6,7 @@
  *
  */
 
-session_start();
+if(session_status() != PHP_SESSION_ACTIVE) session_start();
 
 require('functions.php');
 
@@ -43,40 +43,40 @@ if (isset($_POST['register']))
 		// Un CIF válido contiene 8 caracteres,
 		// 7 números y 1 letra en mayuscula
 		if (!CifValidation($Cif)){ // functions.php
-			$Errors +=["ErrorCif" => "Validación del Cif incorrecta. La letra debe ser correcta y como máximo 7 números y 1 letra."];
+			$Errors[] = 'Cif';
 		}
 	}
 
 	// Validación del prefijo del número de teléfono
 	if (!is_numeric($Prefix) OR strlen($Prefix) > 5)
 	{
-		$Errors +=["ErrorPrefix" => "Prefijo inválido."];
+		$Errors[] = 'Prefix';
 	}
 	
 	// Validación del teléfono
 	if (!is_numeric($PhoneNumber) OR strlen($PhoneNumber) > 11)
 	{
-		$Errors +=["ErrorPhoneNumber" => "El número de teléfono es inválido."];
+		$Errors[] = 'PhoneNumber';
 	}
 
 	// Validación del correo electrónico
 	// Validar que los correos electrónicos coincidan
 	if ($Email !== $ConfirmEmail)
 	{
-		$Errors +=["ErrorConfirmEmail" => "Los correos electrónicos no coinciden."];
+		$Errors[] = 'ConfirmEmail';
 	}
 
 	// Validar formato de correo electrónico
 	if (!filter_var($Email, FILTER_VALIDATE_EMAIL))
 	{
-		$Errors +=["ErrorEmail" => 'El correo electrónico no es válido.'];
+		$Errors[] = 'Email';
 	}
 
 	// Validación de las contraseñas
 	// Validar que las contraseñas coincidan
 	if ($Password !== $ConfirmPassword)
 	{
-		$Errors +=["ErrorConfirmPassword" => "Las contraseñas no coinciden."];
+		$Errors[] = 'ConfirmPassword';
 	}
 
 	// Validar que las contraseñas cumplen los requisitos mínimos
@@ -87,7 +87,7 @@ if (isset($_POST['register']))
 	$PatternPassword = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/';
 	if (!preg_match($PatternPassword, $Password))
 	{
-		$Errors +=["ErrorPassword" => "La contraseña no cumple los requisitos mínimos."];
+		$Errors[] = 'Password';
 	}
 
 	// Hash de la contraseña
@@ -107,7 +107,6 @@ if (isset($_POST['register']))
 		exit;
 	}
 
-
 	// Insertar en base de datos al usuario/cliente
 	if ($UserType == 'cus')
 	{
@@ -116,7 +115,7 @@ if (isset($_POST['register']))
 		$ResultQuery = $Conn->query($Query);
 		if ($ResultQuery->rowCount() > 0)
 		{
-			$Errors +=["ErrorUserExist" => "El usuario con email: '" . $Email . ",' ya existe."];
+			$Errors[] = 'UserExist';
 		}
 
 		// Preparación de datos a la Base de datos
@@ -132,7 +131,7 @@ if (isset($_POST['register']))
 		$ResultQuery = $Conn->query($Query);
 		if ($ResultQuery->rowCount() > 0)
 		{
-			$Errors +=["ErrorUserExist" => "La empresa con email: '" . $Email . ",' ya existe."];
+			$Errors[] = 'UserExist';
 		}
 
 		// Preparación de datos a la Base de datos

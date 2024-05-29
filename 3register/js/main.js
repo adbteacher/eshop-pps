@@ -21,7 +21,7 @@ jQuery(document).ready(function ($)
 	$('form').on('click', 'input[name="register"]', function(e){
 		var error = false;
 		$('input[data-required="true"]').each(function(){
-			var msgError = 'div.' + $(this).attr('id') + '_error';
+			var msgError = 'div.' + $(this).attr('id') + 'Error';
 			if(!$(msgError).hasClass('hidden')){ $(msgError).addClass('hidden'); }
 			if($(this).val().trim() == '' && !$(this).parent().hasClass('hidden')){
 				$(msgError).removeClass('hidden')
