@@ -2,15 +2,27 @@
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
 
 	session_start();
+	functions::checkAdminAccess();
 
-	// Obtener una conexión a la base de datos
-	$conexion = database::LoadDatabase();
+	/*if (!isset($_SESSION['UserRol'])) {
+		echo "<p class='text-danger'>Acceso denegado. No se encontró el rol de usuario en la sesión.</p>";
+		exit;
+	}
 
-	// Generar token anti-CSRF si no está definido
+	// Verificar si el usuario es administrador
+	if ($_SESSION["UserRol"] !== 'A') {
+		echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
+		exit;
+	}*/
+
+	// Generar token CSRF si no está definido
 	if (empty($_SESSION['csrf_token']))
 	{
 		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 	}
+
+	// Obtener una conexión a la base de datos
+	$conexion = database::LoadDatabase();
 
 	// Función para mostrar la lista de usuarios
 	function MostrarUsuarios($conexion): void
@@ -36,6 +48,7 @@
 				echo "<td>";
 				echo "<form action='Mod_user.php' method='post' style='display:inline;'>";
 				echo "<input type='hidden' name='idUsuario' value='{$row['usu_id']}'>"; // Campo oculto para enviar el ID del usuario
+				echo "<input type='hidden' name='csrf_token' value='{$_SESSION['csrf_token']}'>"; // Token CSRF
 				echo "<button type='submit' class='btn btn-primary btn-sm'>Modificar</button>"; // Botón para enviar el formulario
 				echo "</form> ";
 				echo "<form method='post' style='display:inline;'>";
@@ -59,7 +72,8 @@
 	{
 		if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']))
 		{
-			echo "Error en la validación CSRF.";
+			echo "<p class='text-danger'>Error en la validación CSRF.</p>";
+			exit;
 		}
 		else
 		{
@@ -114,7 +128,7 @@
 </head>
 <body>
 <?php include "../nav.php" ?>
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <h1>Administración de Usuarios</h1>
 
     <!-- Formulario para crear un nuevo usuario -->
@@ -172,16 +186,10 @@
 		MostrarUsuarios($conexion);
 	?>
 </div>
+<?php include "../footer.php"; ?>
 
-<!-- Añadir JS de Bootstrap -->
-<script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 
 <?php
 	$conexion = null;
-?>
-
-
-
-

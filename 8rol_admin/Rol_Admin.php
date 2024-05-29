@@ -1,12 +1,14 @@
 <?php
-	session_start();
+session_start();
+require_once '../autoload.php';
 
-	// Generar token CSRF si no está definido
-	if (empty($_SESSION['csrf_token']))
-	{
-		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-	}
+// Verificar si el rol del usuario está en la sesión
+functions::checkAdminAccess();
 
+// Generar token CSRF si no está definido
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,61 +21,20 @@
 </head>
 <body>
 
-<?php include "../nav.php"; ?>;
-<div class="container">
-    <h1 class="mt-5">Bienvenido al:</h1>
-    <h2>Panel de Control del Administrador</h2>
-    <form method="post" class="mt-3">
-        <button type="submit" name="action" value="usuarios" class="btn btn-primary">Gestionar Usuarios</button>
-        <button type="submit" name="action" value="productos" class="btn btn-primary">Gestionar Productos</button>
-        <button type="submit" name="action" value="analisis" class="btn btn-primary">Análisis y Reporting</button>
-        <button type="submit" name="action" value="perfil" class="btn btn-secondary">Volver a mi Perfil</button>
-        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-    </form>
-
-	<?php
-		// Validar token CSRF
-		if ($_SERVER["REQUEST_METHOD"] == "POST")
-		{
-			if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']))
-			{
-				echo "<p class='mt-3 text-danger'>Error en la validación CSRF.</p>";
-			}
-			else
-			{
-				// Manejo de acciones
-				$action = $_POST["action"];
-
-				switch ($action)
-				{
-					case 'usuarios':
-						//header("Location: 10products/products.php");
-
-						header("Location: Gestion_Users.php");
-						exit;
-						break;
-					case 'productos':
-						header("Location: Gestion_Prod.php");
-						exit;
-						break;
-					case 'analisis':
-						header("Location: Report.php");
-						exit;
-						break;
-					case 'perfil':
-						header("Location: /4profile/main_profile.php");
-						exit;
-						break;
-					default:
-						echo "<p class='mt-3 text-danger'>Acción no válida</p>";
-						break;
-				}
-			}
-		}
-	?>
+<?php include "../nav.php"; ?>
+<div class="container mt-5 mb-5">
+    <div class="shadow p-4 bg-white rounded">
+        <h1>Bienvenido al:</h1>
+        <h2>Panel de Control del Administrador</h2>
+        <div class="mt-3">
+            <a href="Gestion_Users.php" class="btn btn-primary">Gestionar Usuarios</a>
+            <a href="Gestion_Prod.php" class="btn btn-primary">Gestionar Productos</a>
+            <a href="Report.php" class="btn btn-primary">Análisis y Reporting</a>
+            <a href="/4profile/main_profile.php" class="btn btn-secondary">Volver a mi Perfil</a>
+        </div>
+    </div>
 </div>
 
-<!-- Añadir JS de Bootstrap -->
-<script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<?php include "../footer.php"; ?>
 </body>
 </html>

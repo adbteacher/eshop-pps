@@ -1,6 +1,6 @@
 <?php
 	// Establecer conexión a la base de datos
-	require_once '../Database.php';
+	require_once '../autoload.php';
 	$conexion = database::LoadDatabase();
 
 	// Consulta para obtener los productos

@@ -1,29 +1,38 @@
 <?php
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
+	session_start();
 
-	// Obtener una conexión a la base de datos
-	$conexion = database::LoadDatabase();
-
+	// Verificar el token CSRF
 	if ($_SERVER["REQUEST_METHOD"] == "POST")
 	{
-		$idUsuario = $_POST['idUsuario'];
-		$nombre    = $_POST['nombre'];
-		$telf      = $_POST['telf'];
-		$rol       = $_POST['rol'];
-		$email     = $_POST['email'];
-		$passwd    = $_POST['passwd']; // Obtener la contraseña del formulario
+		if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']))
+		{
+			echo json_encode(['status' => 'error', 'message' => 'Error en la validación CSRF.']);
+			exit;
+		}
+
+		// Obtener una conexión a la base de datos
+		$conexion = database::LoadDatabase();
+
+		$idUsuario        = $_POST['idUsuario'];
+		$nombre           = $_POST['nombre'];
+		$telf             = $_POST['telf'];
+		$rol              = $_POST['rol'];
+		$email            = $_POST['email'];
+		$nueva_passwd     = $_POST['nueva_passwd']; // Obtener la nueva contraseña del formulario
+		$confirmar_passwd = $_POST['confirmar_passwd']; // Obtener la confirmación de la nueva contraseña
 
 		// Validar que el nombre no contenga caracteres susceptibles a inyección SQL
 		if (!preg_match("/^[a-zA-Z\s]+$/", $nombre))
 		{
-			echo "El nombre contiene caracteres inválidos.";
+			echo json_encode(['status' => 'error', 'message' => 'El nombre contiene caracteres inválidos.']);
 			exit; // Detener la ejecución si el nombre es inválido
 		}
 
 		// Validar que el número de teléfono tenga exactamente 9 caracteres y sean todos numéricos
 		if (strlen($telf) !== 9 || !ctype_digit($telf))
 		{
-			echo "El número de teléfono debe tener exactamente 9 dígitos y ser numérico.";
+			echo json_encode(['status' => 'error', 'message' => 'El número de teléfono debe tener exactamente 9 dígitos y ser numérico.']);
 			exit; // Detener la ejecución si el número de teléfono es inválido
 		}
 
@@ -32,16 +41,24 @@
 		$params = [$nombre, $telf, $rol, $email];
 
 		// Verificar si se proporcionó una nueva contraseña
-		if (!empty($passwd))
+		if (!empty($nueva_passwd) && !empty($confirmar_passwd))
 		{
-			// Validar que la contraseña tenga al menos 8 caracteres y no contenga caracteres susceptibles a inyección SQL
-			if (strlen($passwd) < 8 || !preg_match("/^[a-zA-Z0-9!@#$%^&*()_+}{:;?]+$/", $passwd))
+			// Validar que la nueva contraseña y la confirmación coincidan
+			if ($nueva_passwd !== $confirmar_passwd)
 			{
-				echo "La contraseña debe tener al menos 8 caracteres y no contener caracteres inválidos.";
+				echo json_encode(['status' => 'error', 'message' => 'Las contraseñas no coinciden.']);
+				exit; // Detener la ejecución si las contraseñas no coinciden
+			}
+
+			// Validar que la contraseña tenga al menos 8 caracteres y no contenga caracteres susceptibles a inyección SQL
+			if (strlen($nueva_passwd) < 8 || !preg_match("/^[a-zA-Z0-9!@#$%^&*()_+}{:;?]+$/", $nueva_passwd))
+			{
+				echo json_encode(['status' => 'error', 'message' => 'La contraseña debe tener al menos 8 caracteres y no contener caracteres inválidos.']);
 				exit; // Detener la ejecución si la contraseña es inválida
 			}
+
 			// Hashear la nueva contraseña
-			$hashed_passwd = password_hash($passwd, PASSWORD_DEFAULT);
+			$hashed_passwd = password_hash($nueva_passwd, PASSWORD_DEFAULT);
 			// Agregar la contraseña hasheada a la consulta y parámetros
 			$query    .= ", usu_password=?";
 			$params[] = $hashed_passwd;
@@ -57,21 +74,17 @@
 
 		if ($stmt->rowCount() > 0)
 		{
-			echo "Usuario actualizado exitosamente.";
+			echo json_encode(['status' => 'success', 'message' => 'Usuario actualizado exitosamente.']);
 		}
 		else
 		{
-			echo "No se realizaron cambios en los datos del usuario.";
+			echo json_encode(['status' => 'error', 'message' => 'No se realizaron cambios en los datos del usuario.']);
 		}
+
+		// Cerrar la conexión
+		$conexion = null;
 	}
-
-	// Cerrar la conexión
-	$conexion = null;
-
-
-
-
-
-
-
-
+	else
+	{
+		echo json_encode(['status' => 'error', 'message' => 'Solicitud no válida.']);
+	}
