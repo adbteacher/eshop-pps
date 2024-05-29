@@ -9,6 +9,17 @@
 		exit;
 	}
 
+	// Función para verificar si el ID del método de pago pertenece al usuario
+	function validatePaymentMethodOwnership($pmu_id, $user_id): bool
+	{
+		$connection = database::LoadDatabase();
+		$sql        = "SELECT COUNT(*) AS count FROM pps_payment_methods_per_user WHERE pmu_id = ? AND pmu_user = ?";
+		$stmt       = $connection->prepare($sql);
+		$stmt->execute([$pmu_id, $user_id]);
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		return $result['count'] > 0;
+	}
+
 	// Función de limpieza:
 	function cleanInput($input)
 	{
@@ -38,6 +49,14 @@
 
 	$pmu_id     = $_SESSION['edit_pmu_id'];
 	$connection = database::LoadDatabase();
+
+	// Verificar si el ID del método de pago pertenece al usuario
+	if (!validatePaymentMethodOwnership($pmu_id, $user_id))
+	{
+		$_SESSION['error_message'] = 'El método de pago que intentas editar no pertenece a tu cuenta.';
+		header("Location: payment_methods.php");
+		exit;
+	}
 
 	// Obtener los datos del método de pago a editar
 	$sql  = "SELECT * FROM pps_payment_methods_per_user WHERE pmu_id = :pmu_id AND pmu_user = :pmu_user";
@@ -166,6 +185,12 @@
 				'pmu_id' => $pmu_id,
 				'pmu_user' => $user_id,
 			];
+		}
+		else
+		{
+			$_SESSION['success_message'] = 'Método de pago no encontrado.';
+			header("Location: payment_methods.php");
+			exit;
 		}
 
 		// Ejecutar la consulta de actualización

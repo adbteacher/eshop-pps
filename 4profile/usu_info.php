@@ -94,6 +94,7 @@
 			exit;
 		}
 
+
 		// Update information in the database
 		$sql = "UPDATE pps_users SET 
         usu_name = ?,  
@@ -120,6 +121,14 @@
 				$_SESSION['UserName'] = $Name;
 			}
 			$_SESSION['success_message'] = 'Información actualizada correctamente.';
+
+			// Si el usuario cambia de correo electrónico, cierra sesión por seguridad.
+			if ($Email !== $user_email)
+			{
+				header("Location: ../logout.php");
+				exit;
+			}
+
 			header("Location: usu_info.php");
 			exit;
 		}
@@ -150,13 +159,19 @@
             /* Añade espaciado interior al formulario */
         }
     </style>
+    <script>
+		window.addEventListener('DOMContentLoaded', (event) => {
+			const emailInput = document.querySelector('input[name="email"]');
+			emailInput.addEventListener('change', (event) => {
+				confirm('Al modificar el correo, se cerrará la sesión por motivos de seguridad.');
+			});
+		});
+    </script>
 </head>
 
 <body>
 
-<?php
-	include "../nav.php";
-?>
+<?php include "../nav.php"; ?>
 
 <div class="container">
     <div class="form-container">

@@ -28,7 +28,6 @@
 
     <body>
 	<?php
-		include "../nav.php";
 		// Función de limpieza:
 		function cleanInput($input)
 		{
@@ -48,8 +47,29 @@
 		// Obtener el ID de la dirección a editar
 		$edit_address_id = isset($_SESSION['edit_address_id']) ? $_SESSION['edit_address_id'] : (isset($_POST['edit_address_id']) ? cleanInput($_POST['edit_address_id']) : '');
 
+		// Obtener el ID del usuario
+		$user_id = $_SESSION['UserID'];
+
 		// Guardar el ID de la dirección en la sesión
 		$_SESSION['edit_address_id'] = $edit_address_id;
+
+		// Función para verificar que la dirección pertenece al usuario
+		function verifyUserAddress($address_id, $user_id)
+		{
+			$connection = database::LoadDatabase();
+			$sql        = "SELECT COUNT(*) FROM pps_addresses_per_user WHERE adr_id = ? AND adr_user = ?";
+			$stmt       = $connection->prepare($sql);
+			$stmt->execute([$address_id, $user_id]);
+			return $stmt->fetchColumn() > 0;
+		}
+
+		// Verificar si el ID de la dirección pertenece al usuario
+		if (!verifyUserAddress($edit_address_id, $user_id))
+		{
+			$_SESSION['error_message'] = 'Esta dirección que intentas editar no pertenece a tu cuenta.';
+			header("Location: usu_address.php");
+			exit;
+		}
 
 		if (isset($_SESSION['edit_address_id']))
 		{
@@ -142,6 +162,7 @@
 			header("Location: usu_address.php");
 			exit;
 		}
+		include "../nav.php";
 	?>
 
     <div class="container">
@@ -168,16 +189,24 @@
                     <label for="adr_country" class="form-label">País:</label>
                     <select id="adr_country" name="adr_country" class="form-control" required>
                         <option value="Estados Unidos" <?php if ($edit_adress['adr_country'] === 'Estados Unidos')
-							echo 'selected'; ?>>Estados Unidos
+						{
+							echo 'selected';
+						} ?>>Estados Unidos
                         </option>
                         <option value="Alemania" <?php if ($edit_adress['adr_country'] === 'Alemania')
-							echo 'selected'; ?>>Alemania
+						{
+							echo 'selected';
+						} ?>>Alemania
                         </option>
                         <option value="España" <?php if ($edit_adress['adr_country'] === 'España')
-							echo 'selected'; ?>>España
+						{
+							echo 'selected';
+						} ?>>España
                         </option>
                         <option value="Francia" <?php if ($edit_adress['adr_country'] === 'Francia')
-							echo 'selected'; ?>>Francia
+						{
+							echo 'selected';
+						} ?>>Francia
                         </option>
                     </select>
                 </div>

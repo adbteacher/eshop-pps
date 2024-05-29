@@ -24,7 +24,7 @@
 		header("Location: ../1login/login.php"); // Redirigir a la página de inicio de sesión si el usuario no está autenticado
 		exit;
 	}
-	include "../nav.php";
+
 	require_once '../autoload.php'; // Conexión a la PDO.
 
 	$UserID = $_SESSION['UserID']; // ID de usuario
@@ -155,6 +155,7 @@
 		header("Location: usu_address.php");
 		exit;
 	}
+	include "../nav.php";
 ?>
 
 <div class="container">

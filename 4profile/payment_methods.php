@@ -28,8 +28,8 @@
 	// Cifrar contraseña
 	function hashPassword($password)
 	{
-		// Aplicar el cifrado SHA256
-		$hashed_password = hash('sha256', $password);
+		// Aplicar el cifrado con Password_hash (bcrypt)
+		$hashed_password = password_hash($password, PASSWORD_DEFAULT);
 		return $hashed_password;
 	}
 
