@@ -152,7 +152,11 @@ if (!isset($_SESSION['UserEmail'])) {
 	include "../nav.php";
 	?>
 
+
 	<div class="container">
+		<div class="back-button-container">
+			<a href="usu_address.php" class="btn btn-secondary"><i class='fa-solid fa-arrow-left'></i></a>
+		</div>
 		<!-- Formulario para editar la dirección -->
 		<h1 class="text-center mb-4">Editar Dirección</h1>
 		<!-- Mensajes de éxito y error -->

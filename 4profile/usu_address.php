@@ -183,6 +183,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEditAddress'])) 
 			top: 10px;
 			right: 10px;
 		}
+
+		.back-button-container {
+			margin-top: 10px;
+			margin-left: 50px;
+		}
 	</style>
 	<script>
 		function confirmDelete() {
@@ -194,10 +199,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEditAddress'])) 
 <body>
 	<!-- Navbar -->
 	<?php include "../nav.php"; ?>
-
+	<div class="back-button-container">
+		<a href="main_profile.php" class="btn btn-secondary"><i class='fa-solid fa-arrow-left'></i></a>
+	</div>
 	<div class="container mt-4 p-4 bg-white rounded">
+
 		<h1 class="text-center text-dark bg-light p-2 rounded">Direcciones de Usuario</h1>
 
+		<!-- Mensajes de éxito y error -->
+		<?php
+		if (isset($_SESSION['error_message'])) {
+			echo '<div class="alert alert-danger">' . $_SESSION['error_message'] . '</div>';
+			unset($_SESSION['error_message']);
+		}
+		if (isset($_SESSION['success_message'])) {
+			echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
+			unset($_SESSION['success_message']);
+		}
+		?>
 		<!-- Mostrar las direcciones existentes del usuario -->
 		<div class="row">
 			<?php foreach ($addresses as $address) : ?>
@@ -212,7 +231,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEditAddress'])) 
 								<?php echo $address['adr_country']; ?>
 							</p>
 							<?php if ($address['adr_is_main']) : ?>
-								<strong class="custom-strong"><i class="fa-solid fa-house"></i> Principal</strong>
+								<strong class="custom-strong"><i class="fa-solid fa-house"></i></strong>
 							<?php endif; ?>
 							<div class="d-flex justify-content-between mt-3">
 								<?php if (!$address['adr_is_main']) : ?>

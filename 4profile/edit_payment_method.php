@@ -208,6 +208,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEditPaymentMetho
 	<?php include "../nav.php"; ?>
 
 	<div class="container">
+		<div class="back-button-container">
+			<a href="payment_methods.php" class="btn btn-secondary"><i class='fa-solid fa-arrow-left'></i></a>
+		</div>
 		<h1 class="text-center mb-4">Editar Método de Pago</h1>
 
 		<?php if (isset($_SESSION['error_message'])) : ?>

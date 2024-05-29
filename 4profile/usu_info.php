@@ -144,6 +144,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 			padding: 20px;
 			/* Añade espaciado interior al formulario */
 		}
+
+		.back-button-container {
+			margin-top: 10px;
+		}
 	</style>
 	<script>
 		window.addEventListener('DOMContentLoaded', (event) => {
@@ -160,6 +164,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 	<?php include "../nav.php"; ?>
 
 	<div class="container">
+		<div class="back-button-container">
+			<a href="main_profile.php" class="btn btn-secondary"><i class='fa-solid fa-arrow-left'></i></a>
+		</div>
 		<div class="form-container">
 			<h3 class="text-center">Información de usuario:</h3>
 			<?php

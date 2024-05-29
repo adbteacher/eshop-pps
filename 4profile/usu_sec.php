@@ -173,6 +173,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 	include "../nav.php";
 	?>
 	<div class="container">
+		<div class="back-button-container">
+			<a href="main_profile.php" class="btn btn-secondary"><i class='fa-solid fa-arrow-left'></i></a>
+		</div>
 		<div class="row mb-5">
 			<div class="col-md-6">
 				<div class="title-container">
