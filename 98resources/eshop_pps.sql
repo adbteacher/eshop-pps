@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: May 29, 2024 at 04:30 PM
+-- Generation Time: May 30, 2024 at 06:32 PM
 -- Server version: 10.6.5-MariaDB
 -- PHP Version: 8.1.0
 
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `pps_logs_login` (
   PRIMARY KEY (`lol_id`),
   UNIQUE KEY `rlo_id` (`lol_id`,`lol_user`),
   KEY `lol_user` (`lol_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_logs_login`
@@ -140,7 +140,12 @@ INSERT INTO `pps_logs_login` (`lol_id`, `lol_user`, `lol_ip`, `lol_was_correct_l
 (31, 10, '192.168.56.1', 1, '2024-05-29 16:30:17'),
 (32, 10, '192.168.56.1', 1, '2024-05-29 16:35:30'),
 (34, 10, '192.168.56.1', 1, '2024-05-29 16:41:48'),
-(35, 10, '192.168.56.1', 1, '2024-05-29 16:58:03');
+(35, 10, '192.168.56.1', 1, '2024-05-29 16:58:03'),
+(36, 13, '192.168.56.1', 1, '2024-05-29 18:31:16'),
+(37, 13, '192.168.56.1', 1, '2024-05-29 19:08:17'),
+(38, 13, '192.168.56.1', 1, '2024-05-29 19:35:31'),
+(39, 13, '192.168.56.1', 1, '2024-05-29 20:07:20'),
+(40, 13, '192.168.56.1', 1, '2024-05-30 20:17:25');
 
 -- --------------------------------------------------------
 
@@ -256,18 +261,10 @@ CREATE TABLE IF NOT EXISTS `pps_payment_methods_per_user` (
   `pmu_cardholder` varchar(50) NOT NULL,
   `pmu_expiration_date` varchar(5) NOT NULL,
   `pmu_online_account` varchar(50) NOT NULL COMMENT 'email',
-  `pmu_online_password` varchar(50) NOT NULL,
   `pmu_is_main` tinyint(1) NOT NULL,
+  `pmu_online_password` varchar(300) NOT NULL,
   PRIMARY KEY (`pmu_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `pps_payment_methods_per_user`
---
-
-INSERT INTO `pps_payment_methods_per_user` (`pmu_id`, `pmu_payment_method`, `pmu_user`, `pmu_account_number`, `pmu_swift`, `pmu_card_number`, `pmu_cve_number`, `pmu_cardholder`, `pmu_expiration_date`, `pmu_online_account`, `pmu_online_password`, `pmu_is_main`) VALUES
-(2, 2, 10, '', '', '0', '0', '', '', 'ivan@emial.com', '$2y$10$TxqbGF.MDnstgxfZPCovLuruYxlc03JtIM3x2WxAihN', 0),
-(3, 1, 10, '', '', '1234567898765444', '123', 'addad', '12/12', '', '', 1);
 
 -- --------------------------------------------------------
 
@@ -468,7 +465,16 @@ CREATE TABLE IF NOT EXISTS `pps_tickets` (
   `tic_resolution_time` int(11) NOT NULL,
   PRIMARY KEY (`tic_id`),
   KEY `tic_user_creator` (`tic_user_creator`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `pps_tickets`
+--
+
+INSERT INTO `pps_tickets` (`tic_id`, `tic_title`, `tic_message`, `tic_user_creator`, `tic_creation_time`, `tic_user_solver`, `tic_priority`, `tic_resolution_time`) VALUES
+(7, 'help', 'help me pls', 13, '2024-05-29 17:23:15', NULL, 'B', 0),
+(8, 'help me', 'I\'m stuck', 13, '2024-05-29 17:24:16', NULL, 'M', 0),
+(10, 'NUCLEAR FUSION', 'ALERT, NUCLEAR EXPLOSION IMMINENT', 13, '2024-05-29 18:08:43', NULL, 'A', 0);
 
 -- --------------------------------------------------------
 
@@ -548,13 +554,6 @@ ALTER TABLE `pps_orders`
 ALTER TABLE `pps_order_details`
   ADD CONSTRAINT `pps_order_details_ibfk_1` FOREIGN KEY (`ord_det_order_id`) REFERENCES `pps_orders` (`ord_id`),
   ADD CONSTRAINT `pps_order_details_ibfk_2` FOREIGN KEY (`ord_det_prod_id`) REFERENCES `pps_products` (`prd_id`);
-
---
--- Constraints for table `pps_payment_methods_per_user`
---
-ALTER TABLE `pps_payment_methods_per_user`
-  ADD CONSTRAINT `pps_payment_methods_per_user_ibfk_1` FOREIGN KEY (`pmu_user`) REFERENCES `pps_users` (`usu_id`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `pps_payment_methods_per_user_ibfk_2` FOREIGN KEY (`pmu_payment_method`) REFERENCES `pps_payment_methods` (`pam_id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `pps_products`
