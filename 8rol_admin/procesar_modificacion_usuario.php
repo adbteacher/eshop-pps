@@ -36,6 +36,13 @@
 			exit; // Detener la ejecución si el número de teléfono es inválido
 		}
 
+		// Validar que el email sea una dirección de correo electrónico válida y sea de Gmail
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match("/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|es)$/", $email))
+		{
+			echo json_encode(['status' => 'error', 'message' => 'El correo electrónico debe ser una dirección válida de email.']);
+			exit; // Detener la ejecución si el correo electrónico es inválido
+		}
+
 		// Preparar la consulta de actualización
 		$query  = "UPDATE pps_users SET usu_name=?, usu_phone=?, usu_rol=?, usu_email=?"; // Query base sin contraseña
 		$params = [$nombre, $telf, $rol, $email];
@@ -51,7 +58,7 @@
 			}
 
 			// Validar que la contraseña tenga al menos 8 caracteres y no contenga caracteres susceptibles a inyección SQL
-			if (strlen($nueva_passwd) < 8 || !preg_match("/^[a-zA-Z0-9!@#$%^&*()_+}{:;?]+$/", $nueva_passwd))
+			if (strlen($nueva_passwd) < 8 || !preg_match("/^[a-zA-Z0-9!@#$%^&*-_+}{:;?]+$/", $nueva_passwd))
 			{
 				echo json_encode(['status' => 'error', 'message' => 'La contraseña debe tener al menos 8 caracteres y no contener caracteres inválidos.']);
 				exit; // Detener la ejecución si la contraseña es inválida

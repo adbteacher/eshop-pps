@@ -215,6 +215,7 @@
             </select>
         </div>
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+        <br>
         <button type="submit" class="btn btn-primary">Mostrar Reseñas</button>
     </form>
 
@@ -241,7 +242,7 @@
 	<?php endif; ?>
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 <?php include "../footer.php"; ?>
 </body>
 </html>
