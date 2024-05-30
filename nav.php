@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                 ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="/0images/default_user.png" alt="User" class="profile-image">
+                            <img src="../0images/default_user.png" alt="User" class="profile-image">
                             <?php echo $NameToDisplay ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -160,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_product_id'])) 
                             </li>
                         <?php endforeach; ?>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-center" href="cart.php">Ver Carrito</a></li>
+                        <li><a class="dropdown-item text-center" href="/9shopping/Cart.php">Ver Carrito</a></li>
                     <?php else: // Muestra cuando no hay productos en el carrito ?>
                         <li class="dropdown-item text-center">No hay productos en el carrito.</li>
                     <?php endif; ?>

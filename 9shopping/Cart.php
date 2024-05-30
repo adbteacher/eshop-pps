@@ -2,6 +2,7 @@
 session_start();
 require_once("../autoload.php");
 
+
 // Conexión a la base de datos
 $conn = database::LoadDatabase();
 
@@ -42,6 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product_id']) &
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+    <?php include "../nav.php"; // Incluye el Navbar
+?>
 <div class="container mt-5">
     <h1>Carrito de Compras</h1>
     <div class="row">
@@ -78,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product_id']) &
                                     <td><?php echo number_format($product['prd_price'], 2); ?>€</td>
                                     <td>
                                         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" class="d-inline-block">
-                                            <input type="number" name="update_quantity" value="<?php echo $_SESSION['cart'][$product['prd_id']]; ?>" min="1" class="form-control form-control-sm">
+                                            <input type="number" name="update_quantity" value="<?php echo $_SESSION['cart'][$product['prd_id']]; ?>" min="1" class="form-control form-control-sm" inputmode="numeric" pattern="[0-9]*">
                                             <input type="hidden" name="update_product_id" value="<?php echo $product['prd_id']; ?>">
                                             <button type="submit" class="btn btn-sm btn-primary mt-1">Actualizar</button>
                                         </form>
@@ -107,6 +110,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product_id']) &
         </div>
     </div>
 </div>
+<?php include "../footer.php"; // Incluye el footer
+?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

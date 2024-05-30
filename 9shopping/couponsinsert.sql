@@ -1,10 +1,10 @@
 INSERT INTO `pps_coupons` (`cou_code`, `cou_discount`, `cou_is_used`) VALUES
-('DISCOUNT10', 10, 'N'),
-('DISCOUNT20', 20, 'N'),
-('DISCOUNT15', 15, 'N'),
-('DISCOUNT25', 25, 'N'),
-('DISCOUNT30', 30, 'N'),
-('DISCOUNT35', 35, 'N'),
-('DISCOUNT40', 40, 'N'),
-('DISCOUNT45', 45, 'N'),
-('DISCOUNT50', 50, 'N');
+('5RH8K7', 10, 'N'),
+('LPRYHV', 20, 'N'),
+('KJBNP1', 15, 'N'),
+('VCZ2G9', 25, 'N'),
+('DDK97X', 30, 'N'),
+('1NTJ2B', 35, 'N'),
+('34YRYP', 40, 'N'),
+('8EAX8C', 45, 'N'),
+('JVZKFW', 50, 'N');
