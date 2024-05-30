@@ -1,6 +1,8 @@
 <?php
 	session_start(); // Iniciar la sesión si aún no se ha iniciado
 
+	require_once '../autoload.php';
+
 	// Verificar si el usuario está autenticado
 	if (!isset($_SESSION['UserEmail']))
 	{
@@ -26,10 +28,8 @@
 
     <body>
 	<?php
-		require_once '../Database.php';
-		include "../nav.php";
 		// Función de limpieza:
-		function cleanInput($input): array|string
+		function cleanInput($input)
 		{
 			$input = trim($input);
 			$input = stripslashes($input);
@@ -39,7 +39,7 @@
 		}
 
 		// Función comprobación de País
-		function isValidCountry($country): bool
+		function isValidCountry($country)
 		{
 			return in_array($country, ['Estados Unidos', 'España', 'Alemania', 'Francia']);
 		}
@@ -47,8 +47,29 @@
 		// Obtener el ID de la dirección a editar
 		$edit_address_id = isset($_SESSION['edit_address_id']) ? $_SESSION['edit_address_id'] : (isset($_POST['edit_address_id']) ? cleanInput($_POST['edit_address_id']) : '');
 
+		// Obtener el ID del usuario
+		$user_id = $_SESSION['UserID'];
+
 		// Guardar el ID de la dirección en la sesión
 		$_SESSION['edit_address_id'] = $edit_address_id;
+
+		// Función para verificar que la dirección pertenece al usuario
+		function verifyUserAddress($address_id, $user_id)
+		{
+			$connection = database::LoadDatabase();
+			$sql        = "SELECT COUNT(*) FROM pps_addresses_per_user WHERE adr_id = ? AND adr_user = ?";
+			$stmt       = $connection->prepare($sql);
+			$stmt->execute([$address_id, $user_id]);
+			return $stmt->fetchColumn() > 0;
+		}
+
+		// Verificar si el ID de la dirección pertenece al usuario
+		if (!verifyUserAddress($edit_address_id, $user_id))
+		{
+			$_SESSION['error_message'] = 'Esta dirección que intentas editar no pertenece a tu cuenta.';
+			header("Location: usu_address.php");
+			exit;
+		}
 
 		if (isset($_SESSION['edit_address_id']))
 		{
@@ -141,6 +162,7 @@
 			header("Location: usu_address.php");
 			exit;
 		}
+		include "../nav.php";
 	?>
 
     <div class="container">
@@ -162,21 +184,29 @@
 
 		<?php if ($edit_adress && !empty($edit_adress['adr_id'])) : ?>
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <input type="hidden" name="edit_address_id" value="<?php echo $edit_address['adr_id']; ?>">
+                <input type="hidden" name="edit_address_id" value="<?php echo $edit_adress['adr_id']; ?>">
                 <div class="mb-3">
                     <label for="adr_country" class="form-label">País:</label>
                     <select id="adr_country" name="adr_country" class="form-control" required>
                         <option value="Estados Unidos" <?php if ($edit_adress['adr_country'] === 'Estados Unidos')
-							echo 'selected'; ?>>Estados Unidos
+						{
+							echo 'selected';
+						} ?>>Estados Unidos
                         </option>
                         <option value="Alemania" <?php if ($edit_adress['adr_country'] === 'Alemania')
-							echo 'selected'; ?>>Alemania
+						{
+							echo 'selected';
+						} ?>>Alemania
                         </option>
                         <option value="España" <?php if ($edit_adress['adr_country'] === 'España')
-							echo 'selected'; ?>>España
+						{
+							echo 'selected';
+						} ?>>España
                         </option>
                         <option value="Francia" <?php if ($edit_adress['adr_country'] === 'Francia')
-							echo 'selected'; ?>>Francia
+						{
+							echo 'selected';
+						} ?>>Francia
                         </option>
                     </select>
                 </div>
@@ -206,7 +236,7 @@
             <p class="text-danger">No se pudo encontrar la dirección para editar.</p>
 		<?php endif; ?>
     </div>
-	<?php include "../footer.php"; // Incluye el footer
+	<?php include "../footer.php"; // Incluye el footer 
 	?>
 
     </body>

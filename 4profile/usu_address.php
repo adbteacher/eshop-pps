@@ -1,6 +1,8 @@
 <?php
 	session_start(); // Iniciar la sesión si aún no se ha iniciado
 
+	require_once '../autoload.php';
+
 	// Verificar si el usuario está autenticado
 	if (!isset($_SESSION['UserEmail']))
 	{
@@ -8,12 +10,10 @@
 		exit;
 	}
 
-	require_once '../Database.php';
-
 	$UserID = $_SESSION['UserID'];
 
 	// Función para generar un token CSRF
-	function generateCSRFToken(): string
+	function generateCSRFToken()
 	{
 		return bin2hex(random_bytes(32));
 	}
@@ -27,7 +27,7 @@
 	$csrf_token = $_SESSION['csrf_token'];
 
 	// Función de limpieza:
-	function cleanInput($input): array|string
+	function cleanInput($input)
 	{
 		$input = trim($input);
 		$input = stripslashes($input);
@@ -37,7 +37,7 @@
 	}
 
 	// Función para obtener las direcciones del usuario
-	function getUserAddresses($user): bool|array
+	function getUserAddresses($user)
 	{
 		$connection = database::LoadDatabase();
 		$sql        = "SELECT * FROM pps_addresses_per_user WHERE adr_user = ?";
@@ -47,7 +47,7 @@
 	}
 
 	// Función para verificar que la dirección pertenece al usuario
-	function verifyUserAddress($address_id, $user_id): bool
+	function verifyUserAddress($address_id, $user_id)
 	{
 		$connection = database::LoadDatabase();
 		$sql        = "SELECT COUNT(*) FROM pps_addresses_per_user WHERE adr_id = ? AND adr_user = ?";
@@ -104,7 +104,7 @@
 		$stmt->execute([$UserID]);
 
 		// Marcar la dirección seleccionada como principal
-		$sql = "UPDATE pps_addresses_per_user SET adr_is_main = 1 WHERE adr_id = ?";
+		$sql  = "UPDATE pps_addresses_per_user SET adr_is_main = 1 WHERE adr_id = ?";
 		$stmt = $connection->prepare($sql);
 		$stmt->execute([$main_address_id]);
 
@@ -180,6 +180,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Direcciones de Usuario</title>
     <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <link href="/vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
     <style>
         /* Estilos adicionales */
         .custom-button {
@@ -215,7 +216,7 @@
     <div class="row">
 		<?php foreach ($addresses as $address) : ?>
             <div class="col-md-4 mb-4">
-                <div class="card h-100 position-relative">
+                <div class="card h-100 position-relative shadow bg-primary-subtle">
                     <div class="card-body">
                         <p class="card-text">
 							<?php echo $address['adr_line1']; ?>
@@ -225,7 +226,7 @@
 							<?php echo $address['adr_country']; ?>
                         </p>
 						<?php if ($address['adr_is_main']) : ?>
-                            <strong class="custom-strong">Principal</strong>
+                            <strong class="custom-strong"><i class="fa-solid fa-house"></i> Principal</strong>
 						<?php endif; ?>
                         <div class="d-flex justify-content-between mt-3">
 							<?php if (!$address['adr_is_main']) : ?>
@@ -233,7 +234,8 @@
                                 <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                                     <input type="hidden" name="main_address_token" value="<?php echo $address_tokens[$address['adr_id']]; ?>">
                                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                    <button type="submit" name="submitMainAddress" class="btn btn-success">Principal
+                                    <button type="submit" name="submitMainAddress" class="btn btn-success">
+                                        <i class="fa-solid fa-house"></i> Principal
                                     </button>
                                 </form>
 							<?php endif; ?>
@@ -241,13 +243,16 @@
                             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="ms-2">
                                 <input type="hidden" name="edit_address_token" value="<?php echo $address_tokens[$address['adr_id']]; ?>">
                                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                <button type="submit" name="submitEditAddress" class="btn btn-primary">Editar</button>
+                                <button type="submit" name="submitEditAddress" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
                             </form>
                             <!-- Botón para eliminar la dirección -->
                             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="ms-2" onsubmit="return confirmDelete();">
                                 <input type="hidden" name="delete_address_token" value="<?php echo $address_tokens[$address['adr_id']]; ?>">
                                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                <button type="submit" name="submitDeleteAddress" class="btn btn-danger">Eliminar
+                                <button type="submit" name="submitDeleteAddress" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt"></i> Eliminar
                                 </button>
                             </form>
                         </div>

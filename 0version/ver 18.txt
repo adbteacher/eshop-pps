@@ -1,0 +1,4 @@
+18 - CETI - Abel Romero - Profile
+
+- Profile fixes.
+- Removed JavaScript from some programs.
