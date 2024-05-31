@@ -3,15 +3,15 @@ require_once 'funciones.php';
 require_once("../autoload.php");
 
 if (session_status() == PHP_SESSION_NONE) {
-    session_start(); // Inicia sesión
+    session_start(); // Start session
 }
 
-// Generar token CSRF si no existe
+// Generate CSRF token if it does not exist
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Redirigir al login si el usuario no está autenticado
+// Redirect to login if the user is not authenticated
 if (!isset($_SESSION['UserID'])) {
     header('Location: login.php');
     exit();
@@ -20,22 +20,22 @@ if (!isset($_SESSION['UserID'])) {
 $UserId = $_SESSION['UserID'];
 $LoginAttempts = [];
 
-// Variables de paginación
+// Pagination variables
 $attemptsPerPage = isset($_POST['attempts_per_page']) ? (int)$_POST['attempts_per_page'] : 15;
 $currentPage = isset($_POST['page']) ? (int)$_POST['page'] : 1;
 $offset = ($currentPage - 1) * $attemptsPerPage;
 
 try {
-    $conn = database::LoadDatabase(); // Conexión a la base de datos
+    $conn = database::LoadDatabase(); // Database connection
 
-    // Contar el total de intentos de inicio de sesión para la paginación
+    // Count the total number of login attempts for pagination
     $countStmt = $conn->prepare("SELECT COUNT(*) FROM pps_logs_login WHERE lol_user = :user_id");
     $countStmt->bindParam(':user_id', $UserId, PDO::PARAM_INT);
     $countStmt->execute();
     $totalAttempts = $countStmt->fetchColumn();
     $totalPages = ceil($totalAttempts / $attemptsPerPage);
 
-    // Consultar intentos de inicio de sesión con límite y offset
+    // Retrieve login attempts with limit and offset
     $stmt = $conn->prepare("
         SELECT lol_ip, lol_was_correct_login, lol_datetime
         FROM pps_logs_login
@@ -56,17 +56,17 @@ try {
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- Meta Etiquetas -->
+    <!-- Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Página web para PPS en CIPFP Mislata, por smontesa">
+    <meta name="description" content="Web page for PPS at CIPFP Mislata, by smontesa">
     <meta name="keywords" content="smontesa, pps, mislata, cipfpmislata">
     <meta name="author" content="Sergio Montesa">
 
-    <!-- Titulo -->
-    <title>Actividad reciente</title>
+    <!-- Title -->
+    <title>Recent Activity</title>
 
-    <!-- CSS / Hoja de estilos Bootstrap -->
+    <!-- CSS / Bootstrap stylesheet -->
     <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Favicon -->
@@ -97,12 +97,12 @@ try {
 </head>
 
 <body>
-<?php include "../nav.php"; // Incluye el Navbar ?>
+<?php include "../nav.php"; // Include the Navbar ?>
 
 <div class="container mt-4 mb-4">
     <div class="jumbotron">
-        <h1 class="display-4">Actividad reciente</h1>
-        <p class="lead">Revisa los últimos intentos de inicio de sesión en tu cuenta.</p>
+        <h1 class="display-4">Recent Activity</h1>
+        <p class="lead">Review the latest login attempts on your account.</p>
         <hr class="my-4">
     </div>
 
@@ -111,9 +111,9 @@ try {
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Hora</th>
-                        <th>Tipo de sesión</th>
-                        <th>Dirección IP</th>
+                        <th>Time</th>
+                        <th>Login Type</th>
+                        <th>IP Address</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -122,7 +122,7 @@ try {
                             <td><?php echo htmlspecialchars($Attempt['lol_datetime']); ?></td>
                             <td>
                                 <span class="status-icon <?php echo $Attempt['lol_was_correct_login'] ? 'status-success' : 'status-failed'; ?>"></span>
-                                <?php echo $Attempt['lol_was_correct_login'] ? 'Exitoso' : 'Fallido'; ?>
+                                <?php echo $Attempt['lol_was_correct_login'] ? 'Successful' : 'Failed'; ?>
                             </td>
                             <td><?php echo htmlspecialchars($Attempt['lol_ip']); ?></td>
                         </tr>
@@ -131,7 +131,7 @@ try {
             </table>
         </div>
         
-        <!-- Paginación -->
+        <!-- Pagination -->
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center mt-4">
                 <?php if ($currentPage > 1): ?>
@@ -159,16 +159,16 @@ try {
         </nav>
         
     <?php else: ?>
-        <div class="no-records">No hay registros de accesos.</div>
+        <div class="no-records">No login records found.</div>
     <?php endif; ?>
     <div class="text-center mt-4">
-        <a href="../4profile/usu_sec.php" class="btn btn-primary">Volver</a>
+        <a href="../4profile/usu_sec.php" class="btn btn-primary">Back</a>
     </div>
 </div>
 
-<?php include "../footer.php"; // Incluye el footer ?>
+<?php include "../footer.php"; // Include the footer ?>
 
-<!-- Script para cambiar de página en la paginación -->
+<!-- Script to change page in pagination -->
 <script>
     function changePage(page) {
         const form = document.createElement('form');
