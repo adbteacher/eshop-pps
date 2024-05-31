@@ -73,13 +73,13 @@
 			}
 			catch (Exception $e)
 			{
-				echo "Error: " . $e->getMessage(); //TODO QUITAR
+				echo "Error: Algo ha salido mal";
 			}
 		}
 	}
 	else
 	{
-		echo "Acceso no autorizado";
+		echo "Por favor, rellena todos los campos";
 	}
 
 	}

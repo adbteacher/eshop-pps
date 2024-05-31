@@ -240,9 +240,8 @@
             </tbody>
         </table>
 	<?php endif; ?>
+    <a href="Report.php" class="btn btn-primary">Ver reporte completo</a>
 </div>
-
-<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 <?php include "../footer.php"; ?>
 </body>
 </html>

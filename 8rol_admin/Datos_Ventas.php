@@ -47,6 +47,7 @@ $conexion = null;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análisis de Ventas</title>
     <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <style>
         .bar-container {
             display: flex;
@@ -95,7 +96,6 @@ $conexion = null;
         </div>
     </div>
 
-    <!-- Botón para redirigir a la página "Report.php" -->
     <form method="post">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         <button type="submit" formaction="Report.php" class="btn btn-primary">Ver Reporte Completo</button>
