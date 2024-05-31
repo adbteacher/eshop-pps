@@ -55,11 +55,28 @@
     require_once '../autoload.php';
     require_once 'biblioteca.php';
 
+    // Generar y almacenar el token CSRF si no existe
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
     $conn = GetDatabaseConnection();
     if (!$conn) {
         ob_end_clean(); // Clean the output buffer
         echo "<p>No se pudo conectar a la base de datos.</p>";
         exit;
+    }
+
+    $message = '';
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Validar el token CSRF
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            $message = "Error, vuelva a intentarlo más tarde.";
+            error_log("Error en la validación CSRF.");
+        } else {
+            // Lógica adicional del formulario
+        }
     }
 
     // Consulta para obtener la lista de todos los clientes con su dirección
@@ -77,6 +94,9 @@
 
 <div id="contenido" class="container mt-4">
     <h1>Lista de Clientes</h1>
+    <?php if (!empty($message)): ?>
+        <div class="error alert alert-danger"><?php echo $message; ?></div>
+    <?php endif; ?>
     <?php if (!empty($clientes)): ?>
         <table class="table table-bordered">
             <thead>
@@ -108,6 +128,7 @@
         <p>No hay clientes registrados.</p>
     <?php endif; ?>
     <form method="post" action="mainpage.php" class="mb-3">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
         <button type="submit" class="btn btn-primary btn-separado">Volver</button>
     </form>
 </div>

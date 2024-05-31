@@ -7,14 +7,21 @@
     <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<?php include "../nav.php"; // Incluye el Navbar ?>
+<?php 
+session_start();
+require_once '../autoload.php';
+require_once 'biblioteca.php';
+
+// Generar y almacenar el token CSRF si no existe
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+include "../nav.php"; // Incluye el Navbar
+?>
 <div class="container mt-5">
     <h1>Estadísticas de Ventas</h1>
     <?php
-    session_start();
-    require_once '../autoload.php';
-    require_once 'biblioteca.php';
-
     $conn = GetDatabaseConnection();
 
     $ventas_totales_sql = "SELECT COUNT(*) AS total_ventas, SUM(subtotal) AS ingresos_totales FROM pps_order_details";
@@ -87,6 +94,7 @@
     </div>
 
     <form action="mainpage.php" method="post" class="my-4">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
         <button type="submit" name="Volver" formaction="mainpage.php" class="btn btn-primary">Volver</button>
     </form>
 </div>
@@ -94,3 +102,19 @@
 <script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validar el token CSRF
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        echo "<div class='alert alert-danger'>Error, vuelva a intentarlo más tarde.</div>";
+        error_log("Error en la validación CSRF.");
+        exit();
+    }
+
+    if (isset($_POST['Volver'])) {
+        header('Location: mainpage.php');
+        exit();
+    }
+}
+?>

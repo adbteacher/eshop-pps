@@ -56,6 +56,11 @@
     require_once '../autoload.php';
     require_once 'biblioteca.php';
 
+    // Generar y almacenar el token CSRF si no existe
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
     $conn = GetDatabaseConnection();
     if (!$conn) {
         ob_end_clean(); // Clean the output buffer
@@ -65,23 +70,31 @@
 
     //AddSecurityHeaders();
 
+    $message = '';
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (isset($_POST['action'])) {
-            $action = $_POST['action'];
-            if ($action === 'Nuevo producto') {
-                if (!headers_sent()) {
-                    header('Location: nuevo_producto.php');
-                    exit;
-                }
-            } elseif ($action === 'Stats de ventas') {
-                if (!headers_sent()) {
-                    header('Location: stats.php');
-                    exit;
-                }
-            } elseif ($action === 'Gestion clientes') {
-                if (!headers_sent()) {
-                    header('Location: gestion_clientes.php');
-                    exit;
+        // Validar el token CSRF
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            $message = "Error, vuelva a intentarlo más tarde.";
+            error_log("Error en la validación CSRF.");
+        } else {
+            if (isset($_POST['action'])) {
+                $action = $_POST['action'];
+                if ($action === 'Nuevo producto') {
+                    if (!headers_sent()) {
+                        header('Location: nuevo_producto.php');
+                        exit;
+                    }
+                } elseif ($action === 'Stats de ventas') {
+                    if (!headers_sent()) {
+                        header('Location: stats.php');
+                        exit;
+                    }
+                } elseif ($action === 'Gestion clientes') {
+                    if (!headers_sent()) {
+                        header('Location: gestion_clientes.php');
+                        exit;
+                    }
                 }
             }
         }
@@ -98,7 +111,11 @@
 ?>
 
 <div id="contenido" class="container mt-4">
+    <?php if (!empty($message)): ?>
+        <div class="error alert alert-danger"><?php echo $message; ?></div>
+    <?php endif; ?>
     <form method="post" action="" id="mainform" class="mb-3">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
         <button type="submit" name="action" value="Nuevo producto" class="btn btn-primary btn-separado">Nuevo producto</button>
         <button type="submit" name="action" value="Stats de ventas" class="btn btn-secondary btn-separado">Stats de ventas</button>
         <button type="submit" name="action" value="Gestion clientes" class="btn btn-info btn-separado">Gestión de Clientes</button>

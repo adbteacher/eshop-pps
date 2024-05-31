@@ -12,12 +12,18 @@ require_once 'biblioteca.php';
 
 //AddSecurityHeaders();
 include "../nav.php"; // Incluye el Navbar
+
+// Generar y almacenar el token CSRF si no existe
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 ?>
 
 <h1 class="my-4">Añadir un nuevo producto</h1>
 
 <div class="container">
   <form action="nuevo_producto.php" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
     <div class="mb-3">
       <label for="prd_name" class="form-label">Nombre:</label>
       <input type="text" class="form-control" name="prd_name" value="<?php if (!empty($_POST['prd_name'])) { echo htmlspecialchars($_POST['prd_name']); } ?>">
@@ -85,6 +91,13 @@ include "../nav.php"; // Incluye el Navbar
 
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // Validar el token CSRF
+  if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+      echo "<div class='alert alert-danger'>Error, vuelva a intentarlo más tarde.</div>";
+      error_log("Error en la validación CSRF.");
+      exit();
+  }
+
   if (isset($_POST['Volver'])) {
     header('Location: mainpage.php');
     exit();
