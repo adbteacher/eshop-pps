@@ -97,6 +97,13 @@
                     </a>
                 </li>
             </ul>
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/5rol_vendor/mainpage.php">
+                        <i class="bi bi-box-seam"></i> Manage
+                    </a>
+                </li>
+            </ul>
 
             <ul class="navbar-nav ms-auto">
 				<?php
