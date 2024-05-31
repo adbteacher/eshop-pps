@@ -54,4 +54,22 @@ class functions
             exit;
         }
     }
+
+	public static function GetUser(string $ID): array|bool
+	{
+		try
+		{
+			$Connection = database::LoadDatabase();
+			$Query      = $Connection->prepare("SELECT * FROM pps_users WHERE usu_id = :id");
+			$Query->bindParam(':id', $ID, PDO::PARAM_STR);
+			$Query->execute();
+			return $Query->fetch(PDO::FETCH_ASSOC) ?: false;
+		}
+		catch (PDOException $e)
+		{
+			error_log($e->getMessage());
+			return false;
+		}
+	}
+
 }

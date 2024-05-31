@@ -75,6 +75,19 @@
 		return $count == 0;
 	}
 
+	// Función para verificar si el usuario tiene cuatro o más direcciones.
+	function isFourthAddress($user_id): bool
+	{
+		$connection = database::LoadDatabase();
+		$sql = "SELECT COUNT(*) FROM pps_addresses_per_user WHERE adr_user = ?";
+		$stmt = $connection->prepare($sql);
+		$stmt->execute([$user_id]);
+		$count = $stmt->fetchColumn();
+
+		return $count >= 4;  // Devuelve true si el usuario tiene cuatro o más direcciones.
+	}
+
+
 	// Función comprobación de País
 	function isValidCountry($country): bool
 	{
@@ -90,6 +103,13 @@
 		{
 			$_SESSION['error_message'] = 'Error: Token CSRF inválido.';
 			header("Location: usu_new_address.php");
+			exit;
+		}
+
+		// Verificar si el usuario tiene cuatro o más direcciones antes de permitir agregar una nueva.
+		if (isFourthAddress($UserID)) {
+			$_SESSION['error_message'] = 'Solo puedes tener un máximo de cuatro direcciones.';
+			header("Location: usu_address.php"); // Redirige a la página de información del usuario u otra página adecuada
 			exit;
 		}
 
@@ -147,6 +167,7 @@
 			header("Location: usu_new_address.php");
 			exit;
 		}
+
 
 		// Añadir la nueva dirección a la base de datos
 		addNewadress($UserID, $line1, $line2, $city, $state, $postal_code, $country);

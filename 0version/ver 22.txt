@@ -1,0 +1,7 @@
+21 - CETI - Iván - Tickets management
+
+- Created a main page for tickets.
+- Added the edition of tickets
+- Added the deletion of tickets
+
+TODO AÑADIR UN BOTON PARA CERRAR EL TICKET QUE META USUARIO SOLVER Y FECHA DE CIERRE
