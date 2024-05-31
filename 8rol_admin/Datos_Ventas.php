@@ -1,6 +1,35 @@
 <?php
-	// Establecer conexión a la base de datos
-	require_once '../Database.php';
+	require_once '../autoload.php';
+
+	session_start();
+	functions::checkAdminAccess();
+
+	/*if (!isset($_SESSION['UserRol'])) {
+		echo "<p class='text-danger'>Acceso denegado. No se encontró el rol de usuario en la sesión.</p>";
+		exit;
+	}
+
+	// Verificar si el usuario es administrador
+	if ($_SESSION["UserRol"] !== 'A') {
+		echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
+		exit;
+	}*/
+
+	// Generar token CSRF si no está definido
+	if (empty($_SESSION['csrf_token']))
+	{
+		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+	}
+
+	if ($_SERVER['REQUEST_METHOD'] === 'POST')
+	{
+		if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']))
+		{
+			echo "<p class='text-danger'>Error en la validación CSRF.</p>";
+			exit;
+		}
+	}
+
 	$conexion = database::LoadDatabase();
 
 	// Consulta para obtener el total de ventas
@@ -23,19 +52,6 @@
 
 	// Cerrar la conexión a la base de datos
 	$conexion = null;
-
-	echo "<h2>Tabla de Ventas</h2>";
-	echo "<table border='1'>";
-	echo "<tr><th>Métrica</th><th>Valor</th></tr>";
-	echo "<tr><td>Total de ventas realizadas</td><td>{$cantidadVentas['cantidad_ventas']}</td></tr>";
-	echo "<tr><td>Total de ingresos</td><td>{$totalIngresos['total_ingresos']}</td></tr>";
-	echo "<tr><td>Producto más vendido (ID)</td><td>{$productoMasVendido['ord_det_prod_id']} ({$productoMasVendido['cantidad']} ventas)</td></tr>";
-	echo "</table>";
-	echo "<br>";
-	// Botón para redirigir a la página "Report.php"
-	echo "<button onclick=\"window.location.href = 'Report.php';\">Ver Reporte Completo</button>";
-
-	// Ahora, añadimos el código JavaScript para crear el gráfico con Chart.js
 ?>
 
 <!DOCTYPE html>
@@ -44,12 +60,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análisis de Ventas</title>
+    <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Incluye la biblioteca Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<h2>Gráfico de Ventas</h2>
-<canvas id="grafico_ventas" width="400" height="200"></canvas>
+<?php include "../nav.php" ?>
+<div class="container mt-5 mb-5">
+    <h2>Gráfico de Ventas</h2>
+    <canvas id="grafico_ventas" width="400" height="200"></canvas>
+
+	<?php
+		echo "<h2>Tabla de Ventas</h2>";
+		echo "<table border='1' class='table table-bordered'>";
+		echo "<tr><th>Métrica</th><th>Valor</th></tr>";
+		echo "<tr><td>Total de ventas realizadas</td><td>{$cantidadVentas['cantidad_ventas']}</td></tr>";
+		echo "<tr><td>Total de ingresos</td><td>{$totalIngresos['total_ingresos']}</td></tr>";
+		echo "<tr><td>Producto más vendido (ID)</td><td>{$productoMasVendido['ord_det_prod_id']} ({$productoMasVendido['cantidad']} ventas)</td></tr>";
+		echo "</table>";
+		echo "<br>";
+	?>
+
+    <!-- Botón para redirigir a la página "Report.php" -->
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+        <button type="submit" formaction="Report.php" class="btn btn-primary">Ver Reporte Completo</button>
+    </form>
+</div>
 
 <script>
 	// Datos para el gráfico
@@ -89,6 +126,9 @@
 		}
 	});
 </script>
+<!--<script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>-->
+
+<?php include "../footer.php"; ?>
 </body>
 </html>
 

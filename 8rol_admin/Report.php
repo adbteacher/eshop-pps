@@ -66,13 +66,13 @@
     <div class="card">
         <h2>Tráfico Web</h2>
         <p>Monitoriza el tráfico de tu sitio web para optimizar la experiencia del usuario.</p>
-        <a href="analisis_trafico.php">Ir a análisis de tráfico web</a>
+        <a href="Trafico_Web.php">Ir a análisis de tráfico web</a>
     </div>
 
     <div class="card">
         <h2>Comportamiento del Usuario</h2>
         <p>Entiende el comportamiento de los usuarios para mejorar la conversión.</p>
-        <a href="analisis_comportamiento.php">Ir a análisis de comportamiento del usuario</a>
+        <a href="Comp_User.php">Ir a análisis de comportamiento del usuario</a>
     </div>
 </div>
 

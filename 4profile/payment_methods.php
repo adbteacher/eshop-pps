@@ -28,8 +28,8 @@
 	// Cifrar contraseña
 	function hashPassword($password)
 	{
-		// Aplicar el cifrado SHA256
-		$hashed_password = hash('sha256', $password);
+		// Aplicar el cifrado con Password_hash (bcrypt)
+		$hashed_password = password_hash($password, PASSWORD_DEFAULT);
 		return $hashed_password;
 	}
 
@@ -90,6 +90,17 @@
 		return $result['count'] == 0;
 	}
 
+	// Función para comprobar si hay más de 4 métodos de pago
+	function isFourthPaymentMethod($user_id): bool
+	{
+		$connection = database::LoadDatabase();
+		$sql        = "SELECT COUNT(*) AS count FROM pps_payment_methods_per_user WHERE pmu_user = ?";
+		$stmt       = $connection->prepare($sql);
+		$stmt->execute([$user_id]);
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		return $result['count'] >= 4;
+	}
+
 	// Manejar el envío del formulario para agregar un método de pago
 	if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitAddPaymentMethod']))
 	{
@@ -98,6 +109,14 @@
 		{
 			$_SESSION['error_message'] = 'Token CSRF inválido.';
 			header("Location: payment_methods.php");
+			exit;
+		}
+
+		// Verificar si el usuario tiene cuatro o más metodos antes de permitir agregar uno nuevo.
+		if (isFourthPaymentMethod($user_id))
+		{
+			$_SESSION['error_message'] = 'Solo puedes tener un máximo de cuatro métodos de pago.';
+			header("Location: payment_methods.php"); // Redirige a la página de información del usuario u otra página adecuada
 			exit;
 		}
 
@@ -395,6 +414,9 @@
 <?php include "../nav.php"; ?>
 
 <div class="container">
+    <div class="back-button-container">
+        <a href="main_profile.php" class="btn btn-secondary"><i class='fa-solid fa-arrow-left'></i></a>
+    </div>
     <h1 class="text-center mb-4">Métodos de Pago</h1>
 
     <!-- Mensajes de éxito y error -->

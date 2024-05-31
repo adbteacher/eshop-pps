@@ -1,7 +1,8 @@
 <?php
 	require_once '../autoload.php';
-
+	require_once '../Functions.php';
 	session_start();
+	functions::checkAdminAccess();
 
 	// Obtener una conexión a la base de datos
 	$conexion = database::LoadDatabase();
@@ -25,7 +26,7 @@
 			echo '<div class="table-responsive">';
 			echo '<h2 class="mt-4">Lista de Productos</h2>';
 			echo '<table class="table table-bordered table-striped">';
-			echo '<thead class="thead-dark"><tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Detalles</th><th>Precio</th><th>Cantidad en Tienda</th><th>Stock</th><th>Imagen</th><th>Descripción</th><th>Acciones</th></tr></thead>';
+			echo '<thead class="thead-dark"><tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Detalles</th><th>Precio</th><th>Stock</th><th>Imagen</th><th>En Oferta</th><th>Precio Oferta</th><th>Acciones</th></tr></thead>';
 			echo '<tbody>';
 			foreach ($result as $row)
 			{
@@ -35,10 +36,10 @@
 				echo '<td>' . htmlspecialchars($row['prd_category']) . '</td>';
 				echo '<td>' . htmlspecialchars($row['prd_details']) . '</td>';
 				echo '<td>' . htmlspecialchars($row['prd_price']) . '</td>';
-				echo '<td>' . htmlspecialchars($row['prd_quantity_shop']) . '</td>';
 				echo '<td>' . htmlspecialchars($row['prd_stock']) . '</td>';
-				echo '<td><img src="../0images/' . htmlspecialchars($row['prd_image']) . '" alt="' . htmlspecialchars($row['prd_name']) . '" width="50" height="50"></td>';
-				echo '<td>' . htmlspecialchars($row['prd_description']) . '</td>';
+				echo '<td><img src="' . htmlspecialchars($row['prd_image']) . '" alt="' . htmlspecialchars($row['prd_name']) . '" width="50" height="50"></td>';
+				echo '<td>' . ($row['prd_on_offer'] ? 'Sí' : 'No') . '</td>';
+				echo '<td>' . htmlspecialchars($row['prd_offer_price']) . '</td>';
 				echo '<td>';
 				echo '<form action="Mod_Prod.php" method="post" style="display:inline;">';
 				echo '<input type="hidden" name="idProducto" value="' . htmlspecialchars($row['prd_id']) . '">';
@@ -87,7 +88,7 @@
 					$archivoTemporal       = $_FILES['archivoCSV']['tmp_name'];
 					$contenidoCSV          = file_get_contents($archivoTemporal);
 					$filas                 = explode(PHP_EOL, $contenidoCSV);
-					$query_insert          = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_quantity_shop, prd_stock, prd_image, prd_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+					$query_insert          = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_stock, prd_image, prd_on_offer, prd_offer_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 					$stmt_insert           = $conexion->prepare($query_insert);
 					$categoria_inexistente = false;
 
@@ -95,15 +96,15 @@
 					{
 						$datos = str_getcsv($fila);
 						if (count($datos) === 8)
-						{
-							$nombre         = $datos[0];
-							$categoria      = $datos[1];
-							$detalles       = $datos[2];
-							$precio         = $datos[3];
-							$cantidadTienda = $datos[4];
-							$stock          = $datos[5];
-							$imagen         = $datos[6];
-							$descripcion    = $datos[7];
+						{ // Actualizado a 8 columnas
+							$nombre      = $datos[0];
+							$categoria   = $datos[1];
+							$detalles    = $datos[2];
+							$precio      = $datos[3];
+							$stock       = $datos[4];
+							$imagen      = $datos[5];
+							$on_offer    = $datos[6];
+							$offer_price = $datos[7];
 
 							$query_categoria = "SELECT cat_id FROM pps_categories WHERE cat_id = ?";
 							$stmt_categoria  = $conexion->prepare($query_categoria);
@@ -112,7 +113,7 @@
 
 							if ($categoria_existente)
 							{
-								$stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $cantidadTienda, $stock, $imagen, $descripcion]);
+								$stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $stock, $imagen, $on_offer, $offer_price]);
 							}
 							else
 							{
@@ -157,25 +158,93 @@
 			// Procesar formulario para agregar un nuevo producto
 			if (isset($_POST['agregarProducto']))
 			{
-				$nombre         = $_POST['nombre'];
-				$categoria      = $_POST['categoria'];
-				$detalles       = $_POST['detalles'];
-				$precio         = $_POST['precio'];
-				$cantidadTienda = $_POST['cantidad_tienda'];
-				$stock          = $_POST['stock'];
-				$descripcion    = $_POST['descripcion'];
+				$msg = array();
 
-                $msg = array();
+				// Validar campos requeridos
+				if (empty($_POST['nombre']))
+				{
+					$msg[] = 'El nombre del producto es obligatorio.';
+				}
+				else
+				{
+					$nombre = $_POST['nombre'];
+				}
 
-                //TODO REVISAR
-                //Para cada validacion que hagas, añade al array de $msg ($msg[] = Mensaje de error; y luego con in foreach
-                //
-                //foreach ($msg as $texto)
-                //{
-				//echo '<div class="alert alert-warning"> $msg</div>';
-                //})
+				if (empty($_POST['categoria']))
+				{
+					$msg[] = 'La categoría del producto es obligatoria.';
+				}
+				else
+				{
+					$categoria = $_POST['categoria'];
+				}
 
-				if (!empty($_FILES['imagen']['name']))
+				if (empty($_POST['detalles']))
+				{
+					$msg[] = 'Los detalles del producto son obligatorios.';
+				}
+				else
+				{
+					$detalles = $_POST['detalles'];
+				}
+
+				if (empty($_POST['precio']) || !is_numeric($_POST['precio']))
+				{
+					$msg[] = 'El precio del producto es obligatorio y debe ser un número.';
+				}
+				else
+				{
+					$precio = $_POST['precio'];
+				}
+
+				if (empty($_POST['stock']) || !is_numeric($_POST['stock']))
+				{
+					$msg[] = 'El stock es obligatorio y debe ser un número.';
+				}
+				else
+				{
+					$stock = $_POST['stock'];
+				}
+
+				if (empty($_POST['descripcion']))
+				{
+					$msg[] = 'La descripción del producto es obligatoria.';
+				}
+				else
+				{
+					$descripcion = $_POST['descripcion'];
+				}
+
+				if (!isset($_POST['on_offer']))
+				{
+					$msg[] = 'Indique si el producto está en oferta.';
+				}
+				else
+				{
+					$on_offer = $_POST['on_offer'];
+				}
+
+				if ($on_offer == 1)
+				{
+					if (empty($_POST['offer_price']) || !is_numeric($_POST['offer_price']))
+					{
+						$msg[] = 'El precio de oferta es obligatorio y debe ser un número si el producto está en oferta.';
+					}
+					else
+					{
+						$offer_price = $_POST['offer_price'];
+					}
+				}
+				else
+				{
+					$offer_price = null; // Establecer el precio de oferta a NULL si no está en oferta
+				}
+
+				if (empty($_FILES['imagen']['name']))
+				{
+					$msg[] = 'Debes seleccionar una imagen para el producto.';
+				}
+				else
 				{
 					$file_info = $_FILES['imagen'];
 					$file_name = $file_info['name'];
@@ -185,32 +254,39 @@
 					if (($file_mime == 'image/jpeg' || $file_mime == 'image/png') && exif_imagetype($file_tmp) != false)
 					{
 						$ruta_imagen = '../0images/' . $file_name;
-						if (move_uploaded_file($file_tmp, $ruta_imagen))
+						if (!move_uploaded_file($file_tmp, $ruta_imagen))
 						{
-							$query_insert = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_quantity_shop, prd_stock, prd_image, prd_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-							$stmt_insert  = $conexion->prepare($query_insert);
-							if ($stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $cantidadTienda, $stock, $file_name, $descripcion]))
-							{
-								echo '<div class="alert alert-success">Producto agregado exitosamente.</div>';
-							}
-							else
-							{
-								echo '<div class="alert alert-danger">Error al agregar el producto.</div>';
-							}
-						}
-						else
-						{
-							echo '<div class="alert alert-danger">Error al subir la imagen.</div>';
+							$msg[] = 'Error al subir la imagen.';
 						}
 					}
 					else
 					{
-						echo '<div class="alert alert-warning">El archivo seleccionado no es una imagen válida.</div>';
+						$msg[] = 'El archivo seleccionado no es una imagen válida.';
+					}
+				}
+
+				// Si no hay errores, proceder con la inserción en la base de datos
+				if (empty($msg))
+				{
+					$ruta_imagen_db = '../0images/' . $file_name; // Ruta a guardar en la base de datos
+					$query_insert   = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_stock, prd_image, prd_on_offer, prd_offer_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+					$stmt_insert    = $conexion->prepare($query_insert);
+					if ($stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $stock, $ruta_imagen_db, $on_offer, $offer_price]))
+					{
+						echo '<div class="alert alert-success">Producto agregado exitosamente.</div>';
+					}
+					else
+					{
+						echo '<div class="alert alert-danger">Error al agregar el producto.</div>';
 					}
 				}
 				else
 				{
-					echo '<div class="alert alert-warning">Debes seleccionar una imagen para el producto.</div>';
+					// Mostrar los mensajes de error
+					foreach ($msg as $texto)
+					{
+						echo '<div class="alert alert-warning">' . htmlspecialchars($texto) . '</div>';
+					}
 				}
 			}
 		}
@@ -221,14 +297,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Gestión de Productos</title>
 </head>
 <body>
 <?php include "../nav.php"; ?>
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
 
     <!-- Formulario para importar CSV -->
     <h2>Importar/Exportar Productos desde CSV</h2>
@@ -272,24 +347,35 @@
             <input type="number" id="precio" name="precio" step="0.01" class="form-control" required>
         </div>
         <div class="form-group">
-            <label for="cantidad_tienda">Cantidad en Tienda:</label>
-            <input type="number" id="cantidad_tienda" name="cantidad_tienda" class="form-control" required>
-        </div>
-        <div class="form-group">
             <label for="stock">Stock:</label>
             <input type="number" id="stock" name="stock" class="form-control" required>
         </div>
         <div class="form-group">
+            <label for="on_offer">En Oferta:</label>
+            <select id="on_offer" name="on_offer" class="form-control" required>
+                <option value="1">Sí</option>
+                <option value="0">No</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="offer_price">Precio de Oferta:</label>
+            <input type="number" id="offer_price" name="offer_price" step="0.01" class="form-control">
+        </div>
+        <br>
+        <div class="form-group">
             <label for="imagen">Imagen:</label>
             <input type="file" id="imagen" name="imagen" accept="image/*" class="form-control-file" required>
         </div>
+        <br>
         <div class="form-group">
             <label for="descripcion">Descripción:</label>
             <textarea id="descripcion" name="descripcion" class="form-control" rows="3" required></textarea>
         </div>
         <button type="submit" name="agregarProducto" class="btn btn-success">Agregar Producto</button>
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+        <br>
     </form>
+    <button class="btn btn-secondary mt-3" onclick="window.location.href='Rol_Admin.php'">Ir a Rol-Admin</button>
 
     <!-- Mostrar lista de productos -->
 	<?php MostrarProductos($conexion); ?>
@@ -298,7 +384,7 @@
 
 <!-- Enlace al archivo JavaScript de Bootstrap -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<?php include "../footer.php"; ?>
 </body>
 </html>
-
 

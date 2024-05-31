@@ -77,8 +77,8 @@
 </style>
 
 <!-- Iconos de Bootstrap para el carrito -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<link href="/vendor/twbs/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link href="/vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
@@ -94,6 +94,13 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/index.php">
                         <i class="bi bi-box-seam"></i> Productos
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/5rol_vendor/mainpage.php">
+                        <i class="bi bi-box-seam"></i> Manage
                     </a>
                 </li>
             </ul>

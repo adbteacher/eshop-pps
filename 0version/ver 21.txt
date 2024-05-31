@@ -1,0 +1,4 @@
+21 - CETI - Christian - Admin panel
+
+- Fixes and changes in db for the admin panel.
+- Statics and tables added.
