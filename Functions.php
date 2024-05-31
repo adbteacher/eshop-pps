@@ -55,6 +55,24 @@ class functions
         }
     }
 
+    public static function checkVendorAccess(): void
+    {
+        if ($_SESSION["UserRol"] !== 'V')
+        {
+            echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
+            exit;
+        }
+    }
+
+    public static function checkSupportAccess(): void
+    {
+        if ($_SESSION["UserRol"] !== 'S')
+        {
+            echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
+            exit;
+        }
+    }
+
 	public static function GetUser(string $ID): array|bool
 	{
 		try
