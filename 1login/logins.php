@@ -64,7 +64,7 @@ try {
     <meta name="author" content="Sergio Montesa">
 
     <!-- Title -->
-    <title>Recent Activity</title>
+    <title>Actividad reciente</title>
 
     <!-- CSS / Bootstrap stylesheet -->
     <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -101,8 +101,8 @@ try {
 
 <div class="container mt-4 mb-4">
     <div class="jumbotron">
-        <h1 class="display-4">Recent Activity</h1>
-        <p class="lead">Review the latest login attempts on your account.</p>
+        <h1 class="display-4">Actividad reciente</h1>
+        <p class="lead">Revisa los últimos intentos de inicio de sesión en tu cuenta.</p>
         <hr class="my-4">
     </div>
 
@@ -111,9 +111,9 @@ try {
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Time</th>
-                        <th>Login Type</th>
-                        <th>IP Address</th>
+                        <th>Hora</th>
+                        <th>Tipo de acceso</th>
+                        <th>Dirección IP</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -122,7 +122,7 @@ try {
                             <td><?php echo htmlspecialchars($Attempt['lol_datetime']); ?></td>
                             <td>
                                 <span class="status-icon <?php echo $Attempt['lol_was_correct_login'] ? 'status-success' : 'status-failed'; ?>"></span>
-                                <?php echo $Attempt['lol_was_correct_login'] ? 'Successful' : 'Failed'; ?>
+                                <?php echo $Attempt['lol_was_correct_login'] ? 'Exitoso' : 'Fallido'; ?>
                             </td>
                             <td><?php echo htmlspecialchars($Attempt['lol_ip']); ?></td>
                         </tr>
@@ -162,7 +162,7 @@ try {
         <div class="no-records">No login records found.</div>
     <?php endif; ?>
     <div class="text-center mt-4">
-        <a href="../4profile/usu_sec.php" class="btn btn-primary">Back</a>
+        <a href="../4profile/usu_sec.php" class="btn btn-primary">Volver</a>
     </div>
 </div>
 
