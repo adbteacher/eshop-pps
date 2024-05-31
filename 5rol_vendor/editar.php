@@ -42,7 +42,6 @@
                 $categoria = filter_var($_POST['categoria'], FILTER_SANITIZE_NUMBER_INT);
                 $detalles = filter_var($_POST['detalles'], FILTER_SANITIZE_STRING);
                 $precio = filter_var($_POST['precio'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-                $cantidad = filter_var($_POST['cantidad'], FILTER_SANITIZE_NUMBER_INT);
                 $stock = filter_var($_POST['stock'], FILTER_SANITIZE_NUMBER_INT);
 
                 $campos_vacios = [];
@@ -50,20 +49,18 @@
                 if (empty($categoria)) $campos_vacios[] = "categoria";
                 if (empty($detalles)) $campos_vacios[] = "detalles";
                 if (empty($precio)) $campos_vacios[] = "precio";
-                if (empty($cantidad)) $campos_vacios[] = "cantidad";
                 if (empty($stock)) $campos_vacios[] = "stock";
 
                 if (!empty($campos_vacios)) {
                     echo "<p class='error'>Por favor, complete los siguientes campos: " . htmlspecialchars(implode(', ', $campos_vacios)) . "</p>";
                 } else {
                     $conn = GetDatabaseConnection();
-                    $consultaSQL = "UPDATE pps_products SET prd_name = :nombre, prd_category = :categoria, prd_details = :detalles, prd_price = :precio, prd_quantity_shop = :cantidad, prd_stock = :stock WHERE prd_id = :id";
+                    $consultaSQL = "UPDATE pps_products SET prd_name = :nombre, prd_category = :categoria, prd_details = :detalles, prd_price = :precio, prd_stock = :stock WHERE prd_id = :id";
                     $stmt = $conn->prepare($consultaSQL);
                     $stmt->bindParam(':nombre', $nombre);
                     $stmt->bindParam(':categoria', $categoria);
                     $stmt->bindParam(':detalles', $detalles);
                     $stmt->bindParam(':precio', $precio);
-                    $stmt->bindParam(':cantidad', $cantidad);
                     $stmt->bindParam(':stock', $stock);
                     $stmt->bindParam(':id', $id);
                     $stmt->execute();
@@ -108,8 +105,6 @@
                 <input type="text" name="detalles" value="<?php echo htmlspecialchars($producto['prd_details']); ?>">
                 <label for="precio">Precio:</label>
                 <input type="text" name="precio" value="<?php echo htmlspecialchars($producto['prd_price']); ?>">
-                <label for="cantidad">Cantidad en Tienda:</label>
-                <input type="text" name="cantidad" value="<?php echo htmlspecialchars($producto['prd_quantity_shop']); ?>">
                 <label for="stock">Stock:</label>
                 <input type="text" name="stock" value="<?php echo htmlspecialchars($producto['prd_stock']); ?>">
                 <input type="submit" value="Actualizar">

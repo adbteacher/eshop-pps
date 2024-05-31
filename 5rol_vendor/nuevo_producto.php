@@ -122,17 +122,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           mkdir($upload_dir, 0777, true);
         }
         if (move_uploaded_file($file_tmp, $upload_path)) {
-          $SQL = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_quantity_shop, prd_stock, prd_image, prd_description) VALUES (?,?,?,?,?,?,?,?)";
+          $SQL = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_stock, prd_image) VALUES (?,?,?,?,?,?)";
           $stmt = $conn->prepare($SQL);
 
           $prd_name = filter_var($_POST['prd_name'], FILTER_SANITIZE_STRING);
           $prd_category = filter_var($_POST['prd_category'], FILTER_SANITIZE_NUMBER_INT);
           $prd_details = filter_var($_POST['prd_details'], FILTER_SANITIZE_STRING);
           $prd_price = filter_var($_POST['prd_price'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-          $prd_quantity_shop = filter_var($_POST['prd_quantity_shop'], FILTER_SANITIZE_NUMBER_INT);
           $prd_stock = filter_var($_POST['prd_stock'], FILTER_SANITIZE_NUMBER_INT);
           $prd_image = $new_file_name;
-          $prd_description = filter_var($_POST['prd_description'], FILTER_SANITIZE_STRING);
 
           try {
             $stmt->execute([$prd_name, $prd_category, $prd_details, $prd_price, $prd_quantity_shop, $prd_stock, $prd_image, $prd_description]);
