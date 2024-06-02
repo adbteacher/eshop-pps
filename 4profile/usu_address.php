@@ -9,6 +9,7 @@ if (!isset($_SESSION['UserEmail'])) {
 	exit;
 }
 
+// Almacenar el ID de la sesión 
 $UserID = $_SESSION['UserID'];
 
 // Función para generar un token CSRF
@@ -22,6 +23,7 @@ if (empty($_SESSION['csrf_token'])) {
 	$_SESSION['csrf_token'] = generateCSRFToken();
 }
 
+// Almacenar el csrf_token en la sesión
 $csrf_token = $_SESSION['csrf_token'];
 
 // Función de limpieza:
@@ -30,28 +32,40 @@ function cleanInput($input)
 	$input = trim($input);
 	$input = stripslashes($input);
 	$input = str_replace(["'", '"', ";", "|", "[", "]", "x00", "<", ">", "~", "´", "/", "\\", "¿"], '', $input);
-	$input = str_replace(['=', '#', '(', ')', '!', '$', '{', '}', '`', '?'], '', $input);
+	$input = str_replace(['=', '#', '(', ')', '!', '$', '{', '}', '`', '?', '%'], '', $input);
 	return $input;
 }
 
 // Función para obtener las direcciones del usuario
 function getUserAddresses($user)
 {
-	$connection = database::LoadDatabase();
-	$sql        = "SELECT * FROM pps_addresses_per_user WHERE adr_user = ?";
-	$stmt       = $connection->prepare($sql);
-	$stmt->execute([$user]);
-	return $stmt->fetchAll(PDO::FETCH_ASSOC);
+	try {
+		$connection = database::LoadDatabase();
+		$sql        = "SELECT * FROM pps_addresses_per_user WHERE adr_user = ?";
+		$stmt       = $connection->prepare($sql);
+		$stmt->execute([$user]);
+		return $stmt->fetchAll(PDO::FETCH_ASSOC);
+	} catch (PDOException $e) {
+		$_SESSION['error_message'] = 'Error al obtener los datos del usuario.';
+		header("Location: usu_address.php");
+		exit;
+	}
 }
 
 // Función para verificar que la dirección pertenece al usuario
 function verifyUserAddress($address_id, $user_id)
 {
-	$connection = database::LoadDatabase();
-	$sql        = "SELECT COUNT(*) FROM pps_addresses_per_user WHERE adr_id = ? AND adr_user = ?";
-	$stmt       = $connection->prepare($sql);
-	$stmt->execute([$address_id, $user_id]);
-	return $stmt->fetchColumn() > 0;
+	try {
+		$connection = database::LoadDatabase();
+		$sql        = "SELECT COUNT(*) FROM pps_addresses_per_user WHERE adr_id = ? AND adr_user = ?";
+		$stmt       = $connection->prepare($sql);
+		$stmt->execute([$address_id, $user_id]);
+		return $stmt->fetchColumn() > 0;
+	} catch (PDOException $e) {
+		$_SESSION['error_message'] = 'Error al verificar usuario y dirección.';
+		header("Location: usu_address.php");
+		exit;
+	}
 }
 
 // Obtener las direcciones del usuario
@@ -89,17 +103,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitMainAddress'])) 
 		exit;
 	}
 
-	// Marcar todas las direcciones del usuario como no principales
-	$connection = database::LoadDatabase();
-	$sql        = "UPDATE pps_addresses_per_user SET adr_is_main = 0 WHERE adr_user = ?";
-	$stmt       = $connection->prepare($sql);
-	$stmt->execute([$UserID]);
+	try {
+		// Marcar todas las direcciones del usuario como no principales
+		$connection = database::LoadDatabase();
+		$sql        = "UPDATE pps_addresses_per_user SET adr_is_main = 0 WHERE adr_user = ?";
+		$stmt       = $connection->prepare($sql);
+		$stmt->execute([$UserID]);
 
-	// Marcar la dirección seleccionada como principal
-	$sql = "UPDATE pps_addresses_per_user SET adr_is_main = 1 WHERE adr_id = ?";
-	$stmt = $connection->prepare($sql);
-	$stmt->execute([$main_address_id]);
-
+		// Marcar la dirección seleccionada como principal
+		$sql = "UPDATE pps_addresses_per_user SET adr_is_main = 1 WHERE adr_id = ?";
+		$stmt = $connection->prepare($sql);
+		$stmt->execute([$main_address_id]);
+	} catch (PDOException $e) {
+		$_SESSION['error_message'] = 'Error al verificar usuario y dirección.';
+		header("Location: usu_address.php");
+		exit;
+	}
 	// Redireccionar a la página para evitar el reenvío del formulario
 	header("Location: usu_address.php");
 	exit;
@@ -122,11 +141,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitDeleteAddress'])
 		exit;
 	}
 
-	// Eliminar la dirección de la base de datos
-	$connection = database::LoadDatabase();
-	$sql        = "DELETE FROM pps_addresses_per_user WHERE adr_id = ?";
-	$stmt       = $connection->prepare($sql);
-	$stmt->execute([$delete_address_id]);
+	try {
+		// Eliminar la dirección de la base de datos
+		$connection = database::LoadDatabase();
+		$sql        = "DELETE FROM pps_addresses_per_user WHERE adr_id = ?";
+		$stmt       = $connection->prepare($sql);
+		$stmt->execute([$delete_address_id]);
+	} catch (PDOException $e) {
+		$_SESSION['error_message'] = 'Error al eliminar dirección.';
+		header("Location: usu_address.php");
+		exit;
+	}
 
 	// Redireccionar a la página para evitar el reenvío del formulario
 	header("Location: usu_address.php");
@@ -165,8 +190,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEditAddress'])) 
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Direcciones de Usuario</title>
-	<link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+	<!-- CSS / Hoja de estilos Bootstrap -->
+	<link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="../vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
+
+	<!-- Favicon -->
+	<link rel="apple-touch-icon" sizes="180x180" href="/0images/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/0images/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/0images/favicon-16x16.png">
+	<link rel="manifest" href="/0images/site.webmanifest">
 	<style>
 		/* Estilos adicionales */
 		.custom-button {
