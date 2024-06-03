@@ -114,18 +114,18 @@ $csrfToken = generateCsrfToken();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
-    .section {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        padding: 20px;
-    }
+        .section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
 
-    .section-title {
-        color: #007bff;
-        margin-bottom: 15px;
-    }
+        .section-title {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 
@@ -136,18 +136,18 @@ $csrfToken = generateCsrfToken();
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <div class="section">
-                    <h1 class="text-center mb-4"> <i class="fas fa-key"></i> Password Reset</h2>
-                        <?php if (isset($message)) : ?>
+                    <h1 class="text-center mb-4"> <i class="fas fa-key"></i> Password Reset</h1>
+                    <?php if (isset($message)) : ?>
                         <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
-                        <?php endif; ?>
-                        <form method="POST" action="">
-                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email address</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Reset Password</button>
-                        </form>
+                    <?php endif; ?>
+                    <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Reset Password</button>
+                    </form>
                 </div>
             </div>
         </div>
