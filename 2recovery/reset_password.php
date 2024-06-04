@@ -22,31 +22,30 @@ if (!isset($_SESSION['UserEmail'])) {
 }
 
 $pdo = database::LoadDatabase();
+$userEmail = $_SESSION['UserEmail'];
 
 function logPasswordResetAttempt(PDO $pdo, ?int $userId, string $ipAddress, bool $isSuccessful): void
 {
     $stmt = $pdo->prepare("INSERT INTO pps_logs_recovery (lor_user, lor_ip, lor_datetime, lor_attempt) VALUES (:userId, :ipAddress, NOW(), :isSuccessful)");
-    $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+    if ($userId === null) {
+        $stmt->bindValue(':userId', null, PDO::PARAM_NULL);
+    } else {
+        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+    }
     $stmt->bindParam(':ipAddress', $ipAddress, PDO::PARAM_STR);
     $stmt->bindParam(':isSuccessful', $isSuccessful, PDO::PARAM_BOOL);
     $stmt->execute();
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email'])) {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $csrfToken = $_POST['csrf_token'];
     if (!validateCsrfToken($csrfToken)) {
-        echo "Invalid CSRF token.";
+        echo "Token CSRF no válido.";
         exit;
     }
 
-    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    $email = $userEmail; // Use the email from the session
     $ipAddress = $_SERVER['REMOTE_ADDR']; // Capture the IP address of the client making the request
-
-    // Validate email format
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "Invalid Email Format.";
-        exit;
-    }
 
     // Prepare and execute SQL statement to fetch user data
     $stmt = $pdo->prepare("SELECT usu_id, lor_attempt, lor_lock_until FROM pps_users LEFT JOIN pps_logs_recovery ON pps_users.usu_id = pps_logs_recovery.lor_user WHERE usu_email = :email LIMIT 1");
@@ -58,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email'])) {
     if ($user) {
         $currentTime = new DateTime();
         if ($user['lor_lock_until'] !== NULL && (new DateTime($user['lor_lock_until']))->getTimestamp() > $currentTime->getTimestamp()) {
-            echo "Your account is temporarily locked. Please try again later.";
+            echo "Su cuenta está bloqueada temporalmente. Por favor, inténtelo de nuevo más tarde.";
             logPasswordResetAttempt($pdo, $user['usu_id'], $ipAddress, false);
             exit;
         }
@@ -84,18 +83,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email'])) {
 
             // Content
             $mail->isHTML(true);           // Set email format to HTML
-            $mail->Subject = 'Password Reset';
-            $mail->Body    = "Hello,<br><br>If you wish to reset your password, please click on the following link:<br><br><a href='" . htmlspecialchars($resetLink) . "'>" . htmlspecialchars($resetLink) . "</a><br><br>This link will expire in 1 hour.<br><br>If you did not request this change, please ignore this email.<br><br>Regards,<br>The " . htmlspecialchars($_SERVER['HTTP_HOST']) . " team";
+            $mail->Subject = 'Restablecimiento de contraseña';
+            $mail->Body    = "Hola,<br><br>Si deseas restablecer tu contraseña, por favor, haga click en el siguiente enlace:<br><br><a href='" . htmlspecialchars($resetLink) . "'>" . htmlspecialchars($resetLink) . "</a><br><br>This link will expire in 1 hour.<br><br>If you did not request this change, please ignore this email.<br><br>Regards,<br>The " . htmlspecialchars($_SERVER['HTTP_HOST']) . " team";
 
             $mail->send();
-            $message = 'If your account exists, a password reset link has been sent to your email.';
+            $message = 'Si su cuenta existe, se enviará un enlace para restablecer la contraseña a su correo electrónico.';
             logPasswordResetAttempt($pdo, $user['usu_id'], $ipAddress, true);
         } catch (Exception $e) {
-            $message = 'Message could not be sent. Mailer Error: ' . htmlspecialchars($mail->ErrorInfo);
+            $message = 'No se pudo enviar el mensaje. Error de envío: ' . htmlspecialchars($mail->ErrorInfo);
             logPasswordResetAttempt($pdo, $user['usu_id'], $ipAddress, false);
         }
     } else {
-        $message = "If your account exists, a password reset link will be sent to your email.";
+        $message = "Si su cuenta existe, se enviará un enlace para restablecer la contraseña a su correo electrónico.";
         logPasswordResetAttempt($pdo, null, $ipAddress, false);
     }
 }
@@ -136,17 +135,17 @@ $csrfToken = generateCsrfToken();
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <div class="section">
-                    <h1 class="text-center mb-4"> <i class="fas fa-key"></i> Password Reset</h1>
+                    <h1 class="text-center mb-4"> <i class="fas fa-key"></i> Recuperar contraseña</h1>
                     <?php if (isset($message)) : ?>
                         <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
                     <?php endif; ?>
                     <form method="POST" action="">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email address</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="email" class="form-label">Dirección de correo electrónico</label>
+                            <input type="email" class="form-control" id="email" value="<?= htmlspecialchars($userEmail) ?>" readonly>
                         </div>
-                        <button type="submit" class="btn btn-primary">Reset Password</button>
+                        <button type="submit" class="btn btn-primary">Restablecer contraseña</button>
                     </form>
                 </div>
             </div>
