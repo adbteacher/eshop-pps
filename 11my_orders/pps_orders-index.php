@@ -25,7 +25,6 @@ if (!isset($_SESSION["UserID"]))
 	exit("No se ha recibido el ID de usuario. Saliendo...");
 }
 
-$_SESSION["UserID"] = "7";
 $UserID = $_SESSION["UserID"];
 $UserRol = $_SESSION["UserRol"];
 

@@ -26,7 +26,7 @@ function cleanInput($input): array|string
 	$input = trim($input);
 	$input = stripslashes($input);
 	$input = str_replace(["'", '"', ";", "|", "[", "]", "x00", "<", ">", "~", "´", "/", "\\", "¿"], '', $input);
-	$input = str_replace(['=', '+', '-', '#', '(', ')', '!', '$', '{', '}', '`', '?'], '', $input);
+	$input = str_replace(['=', '+', '-', '#', '(', ')', '!', '$', '{', '}', '`', '?', '%'], '', $input);
 	return $input;
 }
 
@@ -34,10 +34,16 @@ function cleanInput($input): array|string
 $connection = database::LoadDatabase();
 
 // Retrieve user data
-$sql  = "SELECT * FROM pps_users WHERE usu_id = ?";
-$stmt = $connection->prepare($sql);
-$stmt->execute([$user_id]);
-$UserRow = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+	$sql  = "SELECT * FROM pps_users WHERE usu_id = ?";
+	$stmt = $connection->prepare($sql);
+	$stmt->execute([$user_id]);
+	$UserRow = $stmt->fetch(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+	$_SESSION['error_message'] = 'Error, BBDD al cargar datos de usuario';
+	header("Location: usu_info.php");
+	exit;
+}
 
 if (!$UserRow) {
 	$_SESSION['error_message'] = 'Usuario no encontrado.';
@@ -61,14 +67,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 	$Email    = isset($_POST['email']) ? cleanInput($_POST['email']) : '';
 
 	// Validations
-	if (!preg_match("/^[a-zA-Z\s]{1,50}$/", $Name)) {
-		$_SESSION['error_message'] = 'Nombre inválido.';
+	if (!preg_match("/^[a-zA-Z\s]{1,30}$/", $Name)) {
+		$_SESSION['error_message'] = 'Nombre inválido. (Sin acentos)';
 		header("Location: usu_info.php");
 		exit;
 	}
 
-	if (!preg_match("/^[a-zA-Z\s]{1,50}$/", $Surnames)) {
-		$_SESSION['error_message'] = 'Apellidos inválidos.';
+	if (!preg_match("/^[a-zA-Z\s]{1,30}$/", $Surnames)) {
+		$_SESSION['error_message'] = 'Apellidos inválidos. (Sin acentos)';
 		header("Location: usu_info.php");
 		exit;
 	}
@@ -79,48 +85,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 		exit;
 	}
 
-	if (!filter_var($Email, FILTER_VALIDATE_EMAIL) || strlen($Email) > 50) {
-		$_SESSION['error_message'] = 'Correo electrónico inválido o demasiado largo (máximo 50 caracteres).';
+	if (!preg_match("/^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/", $Email) || strlen($Email) > 30) {
+		$_SESSION['error_message'] = 'Correo electrónico inválido o demasiado largo (máximo 30 caracteres).';
 		header("Location: usu_info.php");
 		exit;
 	}
 
+	// Update user data
+	try {
+		$sql = "UPDATE pps_users SET 
+			usu_name = ?,  
+			usu_surnames = ?,
+			usu_phone = ?,
+			usu_email = ? 
+			WHERE usu_id = ?";
 
+		$stmt = $connection->prepare($sql);
+		$stmt->bindValue(1, $Name);
+		$stmt->bindValue(2, $Surnames);
+		$stmt->bindValue(3, $Phone);
+		$stmt->bindValue(4, $Email);
+		$stmt->bindValue(5, $user_id);
 
-	// Update information in the database
-	$sql = "UPDATE pps_users SET 
-        usu_name = ?,  
-        usu_surnames = ?,
-        usu_phone = ?,
-        usu_email = ? 
-        WHERE usu_id = ?";
+		if ($stmt->execute()) {
+			if ($Email !== $user_email) {
+				$_SESSION['UserEmail'] = $Email;
+			}
+			if ($Name !== $user_name) {
+				$_SESSION['UserName'] = $Name;
+			}
+			$_SESSION['success_message'] = 'Información actualizada correctamente.';
 
-	$stmt = $connection->prepare($sql);
-	$stmt->bindValue(1, $Name);
-	$stmt->bindValue(2, $Surnames);
-	$stmt->bindValue(3, $Phone);
-	$stmt->bindValue(4, $Email);
-	$stmt->bindValue(5, $user_id);
+			// If the user changes email, log out for security.
+			if ($Email !== $user_email) {
+				header("Location: ../logout.php");
+				exit;
+			}
 
-	if ($stmt->execute()) {
-		if ($Email !== $user_email) {
-			$_SESSION['UserEmail'] = $Email;
-		}
-		if ($Name !== $user_name) {
-			$_SESSION['UserName'] = $Name;
-		}
-		$_SESSION['success_message'] = 'Información actualizada correctamente.';
-
-		// Si el usuario cambia de correo electrónico, cierra sesión por seguridad.
-		if ($Email !== $user_email) {
-			header("Location: ../logout.php");
+			header("Location: usu_info.php");
+			exit;
+		} else {
+			$_SESSION['error_message'] = 'Error al actualizar la información: ';
+			header("Location: usu_info.php");
 			exit;
 		}
-
-		header("Location: usu_info.php");
-		exit;
-	} else {
-		$_SESSION['error_message'] = 'Error al actualizar la información: ' . $stmt->errorInfo()[2];
+	} catch (PDOException $e) {
+		$_SESSION['error_message'] = 'Error al actualizar la información: ';
 		header("Location: usu_info.php");
 		exit;
 	}
@@ -134,7 +144,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Gestión de información personal</title>
-	<link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+	<!-- CSS / Hoja de estilos Bootstrap -->
+	<link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="../vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
+
+	<!-- Favicon -->
+	<link rel="apple-touch-icon" sizes="180x180" href="/0images/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/0images/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/0images/favicon-16x16.png">
+	<link rel="manifest" href="/0images/site.webmanifest">
 	<style>
 		.form-container {
 			max-width: 400px;

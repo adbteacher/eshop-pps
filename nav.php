@@ -154,13 +154,13 @@
                                         Pedidos</a>
                                 </li>
                                 <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-
-                                <li>
                                     <a class="dropdown-item" href="/7rol_support/CreateTicket.php"><i class="bi bi-ticket-perforated"></i>
                                         Tickets</a>
                                 </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+
                                 <li>
                                     <a class="dropdown-item" href="/logout.php"><i class="bi bi-box-arrow-right"></i>
                                         Cerrar sesión</a>
