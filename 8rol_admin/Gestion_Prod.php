@@ -1,7 +1,8 @@
 <?php
 	require_once '../autoload.php';
-	require_once '../Functions.php';
+
 	session_start();
+
 	functions::checkAdminAccess();
 
 	// Obtener una conexión a la base de datos
@@ -80,54 +81,104 @@
 		}
 		else
 		{
-			// Procesar importación desde el archivo CSV
 			if (isset($_POST['importarCSV']))
 			{
 				if (isset($_FILES['archivoCSV']) && $_FILES['archivoCSV']['error'] === UPLOAD_ERR_OK)
 				{
-					$archivoTemporal       = $_FILES['archivoCSV']['tmp_name'];
-					$contenidoCSV          = file_get_contents($archivoTemporal);
-					$filas                 = explode(PHP_EOL, $contenidoCSV);
-					$query_insert          = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_stock, prd_image, prd_on_offer, prd_offer_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-					$stmt_insert           = $conexion->prepare($query_insert);
-					$categoria_inexistente = false;
-
-					foreach ($filas as $fila)
+					// Validar el tipo MIME del archivo subido
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					$mime = finfo_file($finfo, $_FILES['archivoCSV']['tmp_name']);
+					finfo_close($finfo);
+			
+					// Tipos MIME aceptados para archivos CSV
+					$mime_types = ['text/csv', 'application/vnd.ms-excel', 'text/plain'];
+			
+					if (in_array($mime, $mime_types))
 					{
-						$datos = str_getcsv($fila);
-						if (count($datos) === 8)
-						{ // Actualizado a 8 columnas
-							$nombre      = $datos[0];
-							$categoria   = $datos[1];
-							$detalles    = $datos[2];
-							$precio      = $datos[3];
-							$stock       = $datos[4];
-							$imagen      = $datos[5];
-							$on_offer    = $datos[6];
-							$offer_price = $datos[7];
-
-							$query_categoria = "SELECT cat_id FROM pps_categories WHERE cat_id = ?";
-							$stmt_categoria  = $conexion->prepare($query_categoria);
-							$stmt_categoria->execute([$categoria]);
-							$categoria_existente = $stmt_categoria->fetchColumn();
-
-							if ($categoria_existente)
+						$archivoTemporal = $_FILES['archivoCSV']['tmp_name'];
+						$contenidoCSV    = file_get_contents($archivoTemporal);
+						$filas           = array_map('str_getcsv', file($archivoTemporal));
+			
+						// Verificar si el archivo CSV tiene el formato correcto (al menos una fila y 8 columnas)
+						$csvValido = true;
+						$errorDetalles = '';
+			
+						// Verificar encabezado
+						$encabezado = $filas[0];
+						if (count($encabezado) !== 8)
+						{
+							$csvValido = false;
+							$errorDetalles .= "Error en el formato de archivo.<br>";
+						}
+			
+						// Verificar filas de datos
+						for ($i = 1; $i < count($filas); $i++)
+						{
+							$fila = $filas[$i];
+							if (count($fila) !== 8)
 							{
-								$stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $stock, $imagen, $on_offer, $offer_price]);
-							}
-							else
-							{
-								$categoria_inexistente = true;
+								$csvValido = false;
+								$errorDetalles .= "La fila " . ($i + 1) . " no tiene el formato adecuado.<br>";
 							}
 						}
+			
+						if ($csvValido)
+						{
+							$query_insert          = "INSERT INTO pps_products (prd_name, prd_category, prd_details, prd_price, prd_stock, prd_image, prd_on_offer, prd_offer_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+							$stmt_insert           = $conexion->prepare($query_insert);
+							$categoria_inexistente = false;
+			
+							for ($i = 1; $i < count($filas); $i++)
+							{
+								$datos = $filas[$i];
+								if (count($datos) === 8)
+								{
+									$nombre      = $datos[0];
+									$categoria   = $datos[1];
+									$detalles    = $datos[2];
+									$precio      = $datos[3];
+									$stock       = $datos[4];
+									$imagen      = $datos[5];
+									$on_offer    = strtolower($datos[6]) === 'sí' ? 1 : 0;
+									$offer_price = $datos[7];
+			
+									$query_categoria = "SELECT cat_id FROM pps_categories WHERE cat_id = ?";
+									$stmt_categoria  = $conexion->prepare($query_categoria);
+									$stmt_categoria->execute([$categoria]);
+									$categoria_existente = $stmt_categoria->fetchColumn();
+			
+									if ($categoria_existente)
+									{
+										$stmt_insert->execute([$nombre, $categoria, $detalles, $precio, $stock, $imagen, $on_offer, $offer_price]);
+									}
+									else
+									{
+										$categoria_inexistente = true;
+									}
+								}
+							}
+			
+							if (!$categoria_inexistente)
+							{
+								echo '<div class="alert alert-success">Todos los productos del archivo CSV fueron importados exitosamente.</div>';
+							}
+						}
+						else
+						{
+							echo '<div class="alert alert-danger">El archivo CSV no tiene el formato adecuado.<br>' . $errorDetalles . '</div>';
+						}
 					}
-
-					if (!$categoria_inexistente)
+					else
 					{
-						echo '<div class="alert alert-success">Todos los productos del archivo CSV fueron importados exitosamente.</div>';
+						echo '<div class="alert alert-danger">El archivo subido no es un archivo CSV válido.</div>';
 					}
 				}
+				else
+				{
+					echo '<div class="alert alert-danger">Error al subir el archivo CSV. Por favor, inténtelo de nuevo.</div>';
+				}
 			}
+
 
 			// Procesar eliminación de producto
 			if (isset($_POST['eliminarProducto']))
@@ -383,8 +434,7 @@
 </div>
 
 <!-- Enlace al archivo JavaScript de Bootstrap -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
 <?php include "../footer.php"; ?>
 </body>
 </html>
-

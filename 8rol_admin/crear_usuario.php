@@ -30,10 +30,15 @@
 		$passwd = $_POST['passwd'];
 		$telf   = $_POST['telf'];
 		$email  = $_POST['email'];
-		if (strlen($passwd) < 8)
-		{
-			echo "La contraseña debe tener al menos 8 caracteres.";
-		}
+		if (!empty($passwd)) {
+			if (strlen($passwd) < 8) {
+				echo  'La contraseña debe tener al menos 8 caracteres.';
+				exit;
+			}
+			if (!preg_match("/^[a-zA-Z0-9@\-_\+]+$/", $passwd) || validarSQL($passwd)) {
+				echo  'La contraseña no cumple los requisitos minimos';
+				exit;
+			}
 		else
 		{
 			try
@@ -68,12 +73,13 @@
 			}
 			catch (Exception $e)
 			{
-				echo "Error: " . $e->getMessage(); //TODO QUITAR
+				echo "Error: Algo ha salido mal";
 			}
 		}
 	}
 	else
 	{
-		echo "Acceso no autorizado";
+		echo "Por favor, rellena todos los campos";
 	}
 
+	}

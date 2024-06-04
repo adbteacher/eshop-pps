@@ -1,36 +1,37 @@
 <?php
-	// Establecer conexión a la base de datos
-	require_once '../autoload.php';
-	$conexion = database::LoadDatabase();
+// Establecer conexión a la base de datos
+require_once '../autoload.php';
 
-	// Consulta para obtener los productos
-	$query = "SELECT * FROM pps_products";
-	$stmt  = $conexion->prepare($query);
-	$stmt->execute();
-	$productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$conexion = database::LoadDatabase();
 
-	// Nombre del archivo CSV a generar
-	$nombreArchivo = 'productos2.csv';
+// Consulta para obtener los productos
+$query = "SELECT * FROM pps_products";
+$stmt  = $conexion->prepare($query);
+$stmt->execute();
+$productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-	// Cabeceras para forzar la descarga del archivo CSV
-	header('Content-Type: text/csv');
-	header('Content-Disposition: attachment; filename="' . $nombreArchivo . '"');
+// Nombre del archivo CSV a generar con la fecha actual
+$fechaActual = date('Y-m-d');
+$nombreArchivo = 'Productos_' . $fechaActual . '.csv';
 
-	// Abrir el archivo CSV para escritura
-	$archivo = fopen('php://output', 'w');
+// Cabeceras para forzar la descarga del archivo CSV
+header('Content-Type: text/csv');
+header('Content-Disposition: attachment; filename="' . $nombreArchivo . '"');
 
-	// Escribir la cabecera del archivo CSV
-	fputcsv($archivo, array('ID', 'Nombre', 'Categoría', 'Detalles', 'Precio', 'Cantidad en Tienda', 'Stock', 'Imagen', 'Descripción'));
+// Abrir el archivo CSV para escritura
+$archivo = fopen('php://output', 'w');
 
-	// Escribir los datos de los productos en el archivo CSV
-	foreach ($productos as $producto)
-	{
-		fputcsv($archivo, $producto);
-	}
+// Escribir la cabecera del archivo CSV
+fputcsv($archivo, array('ID', 'Nombre', 'Categoría', 'Detalles', 'Precio', 'Cantidad en Tienda', 'Stock', 'Imagen', 'Descripción'));
 
-	// Cerrar el archivo CSV
-	fclose($archivo);
+// Escribir los datos de los productos en el archivo CSV
+foreach ($productos as $producto)
+{
+    fputcsv($archivo, $producto);
+}
 
-	// Cerrar la conexión a la base de datos
-	$conexion = null;
+// Cerrar el archivo CSV
+fclose($archivo);
 
+// Cerrar la conexión a la base de datos
+$conexion = null;
