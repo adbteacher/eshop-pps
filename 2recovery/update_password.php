@@ -21,7 +21,7 @@ $pdo = database::LoadDatabase();
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['token']) && isset($_POST['password']) && isset($_POST['confirmPassword'])) {
     $csrfToken = $_POST['csrf_token'];
     if (!validateCsrfToken($csrfToken)) {
-        $message = "Invalid CSRF token.";
+        $message = "Token CSRF no válido.";
     } else {
         $token = $_POST['token'];
         $password = $_POST['password'];
@@ -30,11 +30,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['token']) && isset($_P
         // Verify the JWT token
         $userId = JWTHandler::verifyToken($token);
         if ($userId && $userId['exp'] > time()) {
-            // Check password length
-            if (strlen($password) < 8) {
-                $message = "The password must be at least 8 characters long.";
+            // Check password strength
+            if (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/\d/', $password)) {
+                $message = "La contraseña debe tener al menos 8 caracteres e incluir al menos una letra mayúscula, una letra minúscula y un dígito.";
             } elseif ($password !== $confirmPassword) {
-                $message = "The passwords do not match.";
+                $message = "Las contraseñas no coinciden.";
             } else {
                 // Hash and salt the new password
                 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -45,10 +45,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['token']) && isset($_P
                 $stmt->bindParam(':userId', $userId['sub'], PDO::PARAM_INT);
                 $stmt->execute();
 
-                $message = "Your password has been successfully updated.";
+                $message = "Su contraseña ha sido actualizada satisfactoriamente.";
             }
         } else {
-            $message = "The reset link has expired or is invalid. Please request a new one.";
+            $message = "El enlace de reinicio ha caducado o no es válido. Por favor solicite uno nuevo.";
         }
     }
 } else {
@@ -64,22 +64,22 @@ $csrfToken = generateCsrfToken();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Password</title>
+    <title>Actualizar contraseña</title>
     <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-    .section {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        padding: 20px;
-    }
+        .section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
 
-    .section-title {
-        color: #007bff;
-        margin-bottom: 15px;
-    }
+        .section-title {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 
@@ -90,24 +90,23 @@ $csrfToken = generateCsrfToken();
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <div class="section">
-                    <h1 class="text-center mb-4"> <i class="fas fa-unlock-alt"></i> Update Password</h2>
-                        <?php if (isset($message)) : ?>
+                    <h1 class="text-center mb-4"> <i class="fas fa-unlock-alt"></i> Actualizar contraseña</h1>
+                    <?php if (isset($message)) : ?>
                         <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
-                        <?php endif; ?>
-                        <form method="POST" action="">
-                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                            <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
-                            <div class="mb-3">
-                                <label for="password" class="form-label">New Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
-                                    required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Update Password</button>
-                        </form>
+                    <?php endif; ?>
+                    <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                        <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Nueva contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirmar nueva contraseña</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Confirmar cambios</button>
+                    </form>
                 </div>
             </div>
         </div>

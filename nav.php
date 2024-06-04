@@ -8,24 +8,32 @@
 
 	// Conexión a la base de datos
 	$conn = database::LoadDatabase();
+	$user = "";
 
-	// Consulta para verificar si el usuario tiene el rol "A"
-	$stmt = $conn->prepare("SELECT usu_rol FROM pps_users WHERE usu_id = ?");
-	$stmt->execute([$_SESSION["UserID"]]);
-	$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-	//TODO PENSAR SI SACAR A UNA FUNCION
-	if ($user['usu_rol'] === 'A')
+	if (isset($_SESSION["UserID"]))
 	{
-		$isAdmin = true; // Verificar si el usuario tiene el rol "A"
-	}
-	else
-	{
-		$NameToDisplay = "Invitado";
-		$isAdmin       = false; // Valor predeterminado para los usuarios no autenticados
+		// Consulta para obtener el rol del usuario
+		$stmt = $conn->prepare("SELECT usu_rol FROM pps_users WHERE usu_id = ?");
+		$stmt->execute([$_SESSION["UserID"]]);
+		$user = $stmt->fetch(PDO::FETCH_ASSOC);
 	}
 
-	if ($_SESSION["UserID"])
+	$isAdmin  = false;
+	$isVendor = false;
+
+	if ($user)
+	{
+		if ($user['usu_rol'] === 'A')
+		{
+			$isAdmin = true; // Verificar si el usuario tiene el rol "A"
+		}
+		if ($user['usu_rol'] === 'V')
+		{
+			$isVendor = true; // Verificar si el usuario tiene el rol "V"
+		}
+	}
+
+	if (isset($_SESSION["UserID"]))
 	{
 		$NameToDisplay = $_SESSION["UserName"];
 	}
@@ -58,13 +66,9 @@
     /* Estilo para la imagen del perfil */
     .profile-image {
         width: 30px;
-        /* Tamaño de la imagen */
         height: 30px;
-        /* Altura de la imagen */
         border-radius: 50%;
-        /* Hace que la imagen sea un círculo */
         margin-right: 5px;
-        /* Espacio entre la imagen y el texto */
     }
 
     /* Estilo para la imagen del producto en el carrito */
@@ -96,85 +100,90 @@
                         <i class="bi bi-box-seam"></i> Productos
                     </a>
                 </li>
-            </ul>
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/5rol_vendor/mainpage.php">
-                        <i class="bi bi-box-seam"></i> Manage
-                    </a>
-                </li>
+				<?php //if ($isVendor): ?>
+                <!--    <li class="nav-item">-->
+                <!--        <a class="nav-link" href="/5rol_vendor/mainpage.php">-->
+                <!--            <i class="bi bi-box-seam"></i> Manage-->
+                <!--        </a>-->
+                <!--    </li>-->
+				<?php //endif; ?>
             </ul>
 
             <ul class="navbar-nav ms-auto">
-				<?php
-					if (!empty($_SESSION["UserRol"]))
-					{
-						?>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="/0images/default_user.png" alt="User" class="profile-image">
-								<?php echo $NameToDisplay ?>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="width: 230px;">
-                                <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-                                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-									<?php if ($isAdmin) : ?>
-                                        <li>
-                                            <a class="dropdown-item" href="/8rol_admin/Rol_Admin.php"><i class="bi bi-shield-lock"></i>
-                                                Panel de Administrador</a></li>
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
-									<?php endif; ?>
-									<?php
-										if ($_SESSION["UserRol"] == "S")
-										{
-											?>
-                                            <li>
-                                                <a class="dropdown-item" href="/7rol_support/RolSupport.php"><i class="bi bi-tools"></i>
-                                                    Gestión de tickets</a></li>
-                                            <li>
-                                                <hr class="dropdown-divider">
-                                            </li>
-											<?php
-										}
-									?>
+				<?php if (!empty($_SESSION["UserRol"])): ?>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="/0images/default_user.png" alt="User" class="profile-image">
+							<?php echo $NameToDisplay ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="width: 230px;">
+                            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+								<?php if ($isAdmin): ?>
                                     <li>
-                                        <a class="dropdown-item" href="/4profile/main_profile.php"><i class="bi bi-person-circle"></i>
-                                            Perfil</a></li>
+                                        <a class="dropdown-item" href="/8rol_admin/Rol_Admin.php"><i class="bi bi-shield-lock"></i>
+                                            Panel de Administrador</a>
+                                    </li>
                                     <li>
-                                        <a class="dropdown-item" href="/7rol_support/CreateTicket.php"><i class="bi bi-ticket-perforated"></i>
-                                            Tickets</a></li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+								<?php endif; ?>
+								<?php if ($_SESSION["UserRol"] == "S"): ?>
+                                    <li>
+                                        <a class="dropdown-item" href="/7rol_support/RolSupport.php"><i class="bi bi-tools"></i>
+                                            Gestión de tickets</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+								<?php endif; ?>
+                                <li>
+                                    <a class="dropdown-item" href="/4profile/main_profile.php"><i class="bi bi-person-circle"></i>
+                                        Perfil</a>
+                                </li>
+								<?php if ($isVendor): ?>
+                                    <li>
+                                        <a class="dropdown-item" href="/5rol_vendor/mainpage.php">
+                                            <i class="bi bi-box-seam"></i> Manage
+                                        </a>
+                                    </li>
+								<?php endif; ?>
 
-                                    <li>
-                                        <a class="dropdown-item" href="/logout.php"><i class="bi bi-box-arrow-right"></i>
-                                            Cerrar sesión</a></li>
-                                </form>
-                            </ul>
-                        </li>
-						<?php
-					}
-					else
-					{
-						?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/3register/register.form.php">
-                                <i class="bi bi-person-plus"></i> Registro
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/1login/login.php"><i class="bi bi-box-arrow-in-right"></i> Login
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/4profile/main_profile.php">
-                                <img src="/0images/default_user.png" alt="User" class="profile-image">
-								<?php echo $NameToDisplay ?>
-                            </a>
-                        </li>
-						<?php
-					}
-				?>
+                                <li>
+                                    <a class="dropdown-item" href="/11my_orders/pps_orders-index.php"><i class="bi bi-tools"></i>
+                                        Pedidos</a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="/7rol_support/CreateTicket.php"><i class="bi bi-ticket-perforated"></i>
+                                        Tickets</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/logout.php"><i class="bi bi-box-arrow-right"></i>
+                                        Cerrar sesión</a>
+                                </li>
+                            </form>
+                        </ul>
+                    </li>
+				<?php else: ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/3register/register.form.php">
+                            <i class="bi bi-person-plus"></i> Registro
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/1login/login.php"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/4profile/main_profile.php">
+                            <img src="/0images/default_user.png" alt="User" class="profile-image">
+							<?php echo $NameToDisplay ?>
+                        </a>
+                    </li>
+				<?php endif; ?>
             </ul>
             <!-- Carrito de compra -->
             <div class="dropdown ms-2">
