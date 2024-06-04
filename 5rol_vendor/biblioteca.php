@@ -31,7 +31,7 @@
 	function mostrar_tabla(array $result): void
 	{
 		echo "<table><tr><th colspan=10 id='tablaproductos'>Tabla Productos</th></tr>
-    <tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Detalles</th><th>Precio</th><th>Cantidad en Tienda</th><th>Stock</th><th>Disponibilidad</th><th>Editar</th><th>Eliminar</th></tr>";
+    <tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Detalles</th><th>Precio</th><th>Cantidad en Tienda</th><th>Stock</th><th>Editar</th><th>Eliminar</th></tr>";
 		foreach ($result as $row)
 		{
 			echo "<tr>";
@@ -76,13 +76,19 @@
 	if (isset($_GET['eliminar_id']))
 	{
 		$id = filter_var($_GET['eliminar_id'], FILTER_SANITIZE_NUMBER_INT);
-		if (eliminar_fila($id))
+		if (!eliminar_fila($id))
 		{
 			echo "<script>alert('Error al eliminar el producto');</script>";
+			sleep(1);
+			header("Location: /5rol_vendor/mainpage.php");
+			exit();
 		}
 		else
 		{
 			echo "<script>alert('Producto eliminado correctamente');</script>";
+			sleep(1);
+			header("Location: /5rol_vendor/mainpage.php");
+			exit();
 		}
 	}
-?>
+

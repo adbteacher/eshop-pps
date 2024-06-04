@@ -46,9 +46,9 @@
 					exit();
 				}
 
-				$nombre    = filter_var($_POST['nombre'], FILTER_SANITIZE_STRING);
+				$nombre    = filter_var($_POST['nombre'], FILTER_UNSAFE_RAW);
 				$categoria = filter_var($_POST['categoria'], FILTER_SANITIZE_NUMBER_INT);
-				$detalles  = filter_var($_POST['detalles'], FILTER_SANITIZE_STRING);
+				$detalles  = filter_var($_POST['detalles'], FILTER_UNSAFE_RAW);
 				$precio    = filter_var($_POST['precio'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 				$stock     = filter_var($_POST['stock'], FILTER_SANITIZE_NUMBER_INT);
 
