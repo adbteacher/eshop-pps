@@ -473,7 +473,7 @@ CREATE TABLE IF NOT EXISTS `pps_tickets` (
 
 INSERT INTO `pps_tickets` (`tic_id`, `tic_title`, `tic_message`, `tic_user_creator`, `tic_creation_time`, `tic_user_solver`, `tic_priority`, `tic_resolution_time`) VALUES
 (7, 'help', 'help me pls', 13, '2024-05-29 17:23:15', NULL, 'B', 0),
-(8, 'help me', 'I\'m stuck', 13, '2024-05-29 17:24:16', NULL, 'M', 0),
+(8, 'help me', 'Im stuck', 13, '2024-05-29 17:24:16', NULL, 'M', 0),
 (10, 'NUCLEAR FUSION', 'ALERT, NUCLEAR EXPLOSION IMMINENT', 13, '2024-05-29 18:08:43', NULL, 'A', 0);
 
 -- --------------------------------------------------------
@@ -501,6 +501,7 @@ CREATE TABLE IF NOT EXISTS `pps_users` (
   `usu_web` varchar(50) NOT NULL,
   `usu_documents` varchar(200) NOT NULL,
   `usu_2fa` char(16) DEFAULT NULL,
+  `usu_reset_token` VARCHAR(255),
   PRIMARY KEY (`usu_id`),
   UNIQUE KEY `usu_id` (`usu_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COMMENT='Users' ROW_FORMAT=DYNAMIC;
