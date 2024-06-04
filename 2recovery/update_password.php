@@ -30,9 +30,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['token']) && isset($_P
         // Verify the JWT token
         $userId = JWTHandler::verifyToken($token);
         if ($userId && $userId['exp'] > time()) {
-            // Check password length
-            if (strlen($password) < 8) {
-                $message = "The password must be at least 8 characters long.";
+            // Check password strength
+            if (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/\d/', $password)) {
+                $message = "The password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one digit.";
             } elseif ($password !== $confirmPassword) {
                 $message = "The passwords do not match.";
             } else {
@@ -90,24 +90,24 @@ $csrfToken = generateCsrfToken();
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <div class="section">
-                    <h1 class="text-center mb-4"> <i class="fas fa-unlock-alt"></i> Update Password</h2>
-                        <?php if (isset($message)) : ?>
-                        <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
-                        <?php endif; ?>
-                        <form method="POST" action="">
-                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                            <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
-                            <div class="mb-3">
-                                <label for="password" class="form-label">New Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
-                                    required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Update Password</button>
-                        </form>
+                    <h1 class="text-center mb-4"> <i class="fas fa-unlock-alt"></i> Update Password</h1>
+                    <?php if (isset($message)) : ?>
+                    <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
+                    <?php endif; ?>
+                    <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                        <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+                        <div class="mb-3">
+                            <label for="password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                                required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </form>
                 </div>
             </div>
         </div>

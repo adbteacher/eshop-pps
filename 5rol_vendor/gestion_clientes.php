@@ -1,3 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Clientes</title>
+    <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .btn-separado {
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #ddd;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center; /* Centrar texto en las celdas */
+        }
+
+        th {
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+        }
+    </style>
+    <!-- Iconos de Bootstrap para el carrito -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
 <?php 
     // Start output buffering
     ob_start();
@@ -40,10 +84,6 @@
     SELECT u.usu_name, u.usu_email, a.adr_line1, a.adr_line2, a.adr_city, a.adr_state, a.adr_postal_code, a.adr_country
     FROM pps_users u
     LEFT JOIN pps_addresses_per_user a ON u.usu_id = a.adr_user
-    WHERE u.usu_rol = 'U' 
-    AND EXISTS (
-        SELECT 1 FROM pps_orders o WHERE o.order_user_id = u.usu_id
-    )
     ";
 
     $stmt = $conn->prepare($sql);
@@ -85,7 +125,7 @@
             </tbody>
         </table>
     <?php else: ?>
-        <p>No hay clientes registrados</p>
+        <p>No hay clientes registrados.</p>
     <?php endif; ?>
     <form method="post" action="mainpage.php" class="mb-3">
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
@@ -96,3 +136,5 @@
 <?php include "../footer.php"; // Incluye el footer ?>
 
 <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
