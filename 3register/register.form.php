@@ -145,12 +145,17 @@ include "../nav.php";
 				<?php
 				foreach ($Fields as $Key => $Value)
 				{
-					$Class    = ($Value['data-form'] == 'V') ? 'hidden' : '';
-					$Required = (isset($Value['attr']['data-required'])) ? ' required="required"' : '';
+					if (isset($Value['data-form']))
+					{
+						$Class    = ($Value['data-form'] == 'V') ? 'hidden' : '';
+						$Required = (isset($Value['attr']['data-required'])) ? ' required="required"' : '';
+					}
 				?>
-	                	<li data-form="<?php echo $Value['data-form']; ?>" class="<?php echo $Class; ?> mb-3">
+	                	<li data-form="<?php if (isset($Value['data-form']))
+	                	{
+		                	echo $Value['data-form'];} ?>" class="<?php echo $Class; ?> mb-3">
 					 
-					<?php
+                	<?php
 					$items    = 1;
 					$is_array = '';
 					if(isset($Value['array']) && $Value['array'] > 1 )

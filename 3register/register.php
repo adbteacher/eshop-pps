@@ -103,7 +103,7 @@ if (isset($_POST['register']))
 		$Errors[] = 'Email';
 	}
 
-    $PatternEmail = '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/';
+    $PatternEmail = '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+$/';
 
 	if (!preg_match($PatternEmail, $Email))
 	{
@@ -177,8 +177,9 @@ if (isset($_POST['register']))
 		//
 		$Query = ("INSERT INTO pps_users ( usu_type, usu_rol, usu_status, usu_verification_code, usu_datetime, usu_name, usu_surnames, usu_prefix, usu_phone, usu_email, usu_password, usu_company, usu_cif, usu_web, usu_documents, usu_2fa ) VALUES ( 'V', '$UserType', 'N', '$VerificationCode', '$DateTime','$CustomerName', '$CustomerSurNames', '$Prefix', '$PhoneNumber', '$Email', '$Password', '$CompanyName', '$Cif', '$CompanyWeb', '$CompanyDocuments', '')");
 		$stmt = $Conn->prepare($Query);
-		if ($stmt->execute()) {
-			echo _("Te has registrado correctamente.");
+		if ($stmt->execute())
+		{
+			echo _("Te has registrado correctamente.<br>");
 		}
 	}
 	finally
@@ -191,8 +192,8 @@ if (isset($_POST['register']))
 	{
 		if (SendMail($Email, $VerificationCode))
 		{
-			echo _("Se ha mandado un correo para la verificación de la cuenta.");
-			header('Refresh: 1; URL=/1login/login.php');
+			echo _("Se ha mandado un correo para la verificación de la cuenta.<br>");
+			header("Refresh:1;URL=/1login/login.php");
 		}
 	}
 	catch (Exception $e)
@@ -204,3 +205,4 @@ if (isset($_POST['register']))
 		$stmt->execute();
 	}
 }
+?>
