@@ -7,13 +7,12 @@
 
 jQuery(document).ready(function ($)
 {
-
-	$('input[name="UserType_Cus"]').attr('checked', 'checked');
+	$('input[name="UserType_U"]').attr('checked', 'checked');
 
 	$('li.hidden > input').removeAttr('required');
 	$('input[name="UserType"').change(function () {
-		$('li[data-form="cus"').toggleClass('hidden');
-		$('li[data-form="com"').toggleClass('hidden');
+		$('li[data-form="U"').toggleClass('hidden');
+		$('li[data-form="V"').toggleClass('hidden');
 		$('input[data-required="true"]').attr('required', 'true');
 		$('li.hidden > input').removeAttr('required');
 	});

@@ -1,12 +1,8 @@
 <?php
 
-//if (!defined('SI_NO_EXISTE_PETA'))
-//{
-//	die('No me seas cabrón y sal de aquí');
-//}
-
 require('../Database.php');
-
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 function CifValidation($Cif): bool
 {
@@ -107,7 +103,7 @@ function GetCompanyUserDir($Cif): string
 	return $CompanyUserDir;
 }
 
-function SetCompanyUserDir($Cif): int
+function SetCompanyUserDir($Cif): bool
 {
 	$RootUploadDir  = GetRootUploadDir();
 	$CompanyUserDir = GetCompanyUserDir($Cif);
@@ -139,7 +135,7 @@ function GetCompanyDocuments($CompanyDocuments, $Cif): string
 
 	if (count($CompanyDocuments["name"]) > $MaxDocumentsToUpload)
 	{
-		die('Error: hay mas de ' . $MaxDocumentsToUpload . ' archivos.');
+		$Errors[] = 'CompanyDocuments';
 	}
 
 	for ($i = 0; $i < $MaxDocumentsToUpload; $i++)
@@ -151,7 +147,7 @@ function GetCompanyDocuments($CompanyDocuments, $Cif): string
 
 		if ($CompanyDocumentsType != $AllowedCompanyDocuments)
 		{
-			die('El archivo no es un PDF. Su formato no es válido.');
+			$Errors[] = 'CompanyDocuments';
 		}
 
 		if ($i == ($MaxDocumentsToUpload - 1))
@@ -190,14 +186,64 @@ function GetVerificationCode(): string
 	$VerificationCode = '';
 
 	// Generar el código aleatorio
-	for ($i = 0; $i < $LongChar; $i++) {
+	for ($i = 0; $i < $LongChar; $i++)
+	{
 		$VerificationCode .= $Char[rand(0, $LongChar - 1)];
 	}
 
 	return $VerificationCode;
 }
 
-function SendMail()
+function VerificationCodeValidation($Validating)
 {
+	$Char = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
+	// Si la variable solo contiene caracteres permitidos, se devuelve verdadero
+	if (strspn($Validating, $Char) == strlen($Validating))
+	{
+	return true;
+	}
+
+	return false;
+}
+
+function NameValidation($Validating): bool
+{
+	$Char = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙ .-,'`";
+
+	// Si la variable solo contiene caracteres permitidos, se devuelve verdadero
+	if (strspn($Validating, $Char) == strlen($Validating))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+function SendMail($Email, $VerificationCode): bool
+{
+	require '../mail_config.php';
+	require '../vendor/phpmailer/phpmailer/src/Exception.php';
+	require '../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+	require '../vendor/phpmailer/phpmailer/src/SMTP.php';
+
+	$Mail = getMailer();
+
+	try
+	{
+		$Mail->addAddress($Email);		// Add a recipient
+
+		// Content
+		$Mail->isHTML(true);			// Set email format to HTML
+		$Mail->Subject = 'Verification Code';
+		$Mail->Body    = _("Hola,<br><br>su código de verificación es: ") . $VerificationCode . ".<br><br>Frutería del barrio.";
+
+		echo $Mail->send();
+		echo _('Correo enviado.');
+		return true;
+	}
+	catch (Exception $e)
+	{
+		return false;
+	}
 }

@@ -9,7 +9,6 @@
 if(session_status() != PHP_SESSION_ACTIVE) session_start();
 
 $Errors = isset($_SESSION['Errors']) ? $_SESSION['Errors'] : array();
-
 if (!empty($_SESSION['Errors']))
 {
 	$Errors = $_SESSION['Errors'];
@@ -20,7 +19,7 @@ if (!empty($_SESSION['Errors']))
 $Fields = array(
 	'CustomerName' => array(
 		'label' => _('Nombre usuario'),
-		'data-form' => 'cus',
+		'data-form' => 'U',
 		'attr' => array('class' => 'form-control mb-3', 'placeholder' => 'Nombre usuario',
 			'maxlength' => 100, 'type' => 'text', 'data-required' => 'true',
 			'value' => isset($formValues['CustomerName']) ? $formValues['CustomerName'] : ''),
@@ -28,7 +27,7 @@ $Fields = array(
 	),
 	'CustomerSurNames' => array(
 		'label' => _('Apellidos'),
-		'data-form' => 'cus',
+		'data-form' => 'U',
 		'attr' => array('class' => 'form-control mb-3', 'placeholder' => 'Apellidos',
 			'maxlength' => 200, 'type' => 'text', 'data-required' => 'true',
 			'value' => isset($formValues['CustomerSurNames']) ? $formValues['CustomerSurNames'] : ''),
@@ -36,7 +35,7 @@ $Fields = array(
 	),
 	'CompanyName' => array(
 		'label' => _('Nombre empresa'),
-		'data-form' => 'com',
+		'data-form' => 'V',
 		'attr' => array('class' => 'form-control mb-3', 'placeholder' => 'Nombre empresa',
 			'maxlength' => 100, 'type' => 'text', 'data-required' => 'true',
 			'value' => isset($formValues['CompanyName']) ? $formValues['CompanyName'] : ''),
@@ -44,7 +43,7 @@ $Fields = array(
 	),
 	'Cif' => array(
 		'label' => _('Cif'),
-		'data-form' => 'com',
+		'data-form' => 'V',
 		'attr' => array('class' => 'form-control mb-3', 'placeholder' => 'Cif',
 			'maxlength' => 12, 'type' => 'text', 'data-required' => 'true',
 			'value' => isset($formValues['Cif']) ? $formValues['Cif'] : ''),
@@ -68,7 +67,7 @@ $Fields = array(
 	),
 	'CompanyWeb' => array(
 		'label' => _('Página Web'),
-		'data-form' => 'com',
+		'data-form' => 'V',
 		'attr' => array('class' => 'form-control mb-3', 'placeholder' => 'Página Web',
 			'maxlength' => 50, 'type' => 'text', 'data-required' => 'true',
 			'value' => isset($formValues['CompanyWeb']) ? $formValues['CompanyWeb'] : ''),
@@ -108,27 +107,36 @@ $Fields = array(
 	),
 	'CompanyDocuments' => array(
 		'label' => _('Documento comercial o información fiscal. Máx 2 pdf.'),
-		'data-form' => 'com', 'array' => '2',
+		'data-form' => 'V', 'array' => '2',
 		'attr' => array('class' => 'form-control mb-3', 'placeholder' => 'Documento comercial o i
 				formación fiscal. Máx 2 pdf', 'type' => 'file', 'accept' => 'application/pdf', 'data-required' => 'true',
 				'value' => isset($formValues['CompanyDocuments']) ? $formValues['CompanyDocuments'] : ''),
 		'error' => _('El documento es obligatorio.'),
 	),
+	'UserExist' => array(
+		'error' => _('El usuario ya existe.'),
+	),
+	'SendMail' => array(
+		'error' => _('Error con el código de verificación. Póngase en contacto con un administrador para poder registrarse correctamente o vuelva a intentarlo.'),
+	),
 );
 
+?>
+<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+
+<?php 
 include "../nav.php";
 ?>
 
-<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
 
 <div class="centerSide">
 	<form method="POST" action="register.php" enctype="multipart/form-data" class="needs-validation">
 	    
 		<div id="SelectUserType">
 			<label><h2><?php echo _('Selecciona el tipo de usuario:'); ?></h2></label><br>
-			<input type="radio" name="UserType" value="cus" id="UserType_Cus" checked><label for="UserType_Cus"><?php echo _('Cliente'); ?></label>
-			<input type="radio" name="UserType" value="com" id="UserType_Com"><label for="UserType_Com"><?php echo _('Empresa'); ?></label>
+			<input type="radio" name="UserType" value="U" id="UserType_U" checked><label for="UserType_U"><?php echo _('Cliente'); ?></label>
+			<input type="radio" name="UserType" value="V" id="UserType_V"><label for="UserType_V"><?php echo _('Empresa'); ?></label>
 		</div>
 		<br>
 		<div id="FormFields" class="position-relative">
@@ -137,7 +145,7 @@ include "../nav.php";
 				<?php
 				foreach ($Fields as $Key => $Value)
 				{
-					$Class    = ($Value['data-form'] == 'com') ? 'hidden' : '';
+					$Class    = ($Value['data-form'] == 'V') ? 'hidden' : '';
 					$Required = (isset($Value['attr']['data-required'])) ? ' required="required"' : '';
 				?>
 	                	<li data-form="<?php echo $Value['data-form']; ?>" class="<?php echo $Class; ?> mb-3">
@@ -148,21 +156,26 @@ include "../nav.php";
 					if(isset($Value['array']) && $Value['array'] > 1 )
 					{
 						$items    = $Value['array'];
-						$is_array = '[]'; // Si es un array cargamos sus valores por separado
+						$is_array = '[]'; // Si es un array se carga por separado
 					}
 					$count = 1;
 					do
 					{
-					?>
-					<!-- Se muestran y cargan los formularios y sus atributos -->
-					<input name="<?php echo $Key . $is_array; ?>" id="<?php echo $Key . ((!empty($is_array)) ? $count : ''); ?>" <?php
-					foreach ($Value['attr'] as $vKey => $vValue)
-					{
-						echo $vKey . '="' . $vValue . '" ';
-					}
-					echo $Required;
-					?>/>
+					
+					if (isset($Value['attr'])) {
+						?>
+						<!-- Se muestran y cargan los formularios y sus atributos -->
+						<input name="<?php echo $Key . $is_array; ?>" id="<?php echo $Key . ((!empty($is_array)) ? $count : ''); ?>" <?php
+						foreach ($Value['attr'] as $vKey => $vValue)
+							{
+								echo $vKey . '="' . $vValue . '" ';
+							}
+						echo $Required;
+						?>/>
+					
 					<?php
+						}
+						
 						$count++;
 
 						// Muestra de errores del lado del servidor
