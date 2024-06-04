@@ -150,7 +150,7 @@
 								<?php endif; ?>
 
                                 <li>
-                                    <a class="dropdown-item" href="/11my_orders/pps_order_details-index.php"><i class="bi bi-tools"></i>
+                                    <a class="dropdown-item" href="/11my_orders/pps_orders-index.php"><i class="bi bi-tools"></i>
                                         Pedidos</a>
                                 </li>
                                 <li>
