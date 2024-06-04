@@ -10,12 +10,6 @@ require 'jwt.php'; // JWT handling library
 require 'csrf.php'; // CSRF handling
 session_start();
 
-// Redirect to login page if user is not authenticated
-if (!isset($_SESSION['UserEmail'])) {
-    header("Location: ../1login/login.php");
-    exit;
-}
-
 $pdo = database::LoadDatabase();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['token']) && isset($_POST['password']) && isset($_POST['confirmPassword'])) {
@@ -30,22 +24,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['token']) && isset($_P
         // Verify the JWT token
         $userId = JWTHandler::verifyToken($token);
         if ($userId && $userId['exp'] > time()) {
-            // Check password strength
-            if (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/\d/', $password)) {
-                $message = "La contraseña debe tener al menos 8 caracteres e incluir al menos una letra mayúscula, una letra minúscula y un dígito.";
-            } elseif ($password !== $confirmPassword) {
-                $message = "Las contraseñas no coinciden.";
+            // Check if the token matches the one in the database
+            $stmt = $pdo->prepare("SELECT usu_id FROM pps_users WHERE usu_id = :userId AND usu_reset_token = :token LIMIT 1");
+            $stmt->bindParam(':userId', $userId['sub'], PDO::PARAM_INT);
+            $stmt->bindParam(':token', $token, PDO::PARAM_STR);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user) {
+                // Check password strength
+                if (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/\d/', $password)) {
+                    $message = "La contraseña debe tener al menos 8 caracteres e incluir al menos una letra mayúscula, una letra minúscula y un dígito.";
+                } elseif ($password !== $confirmPassword) {
+                    $message = "Las contraseñas no coinciden.";
+                } else {
+                    // Hash and salt the new password
+                    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+                    // Update the user's password in the database
+                    $stmt = $pdo->prepare("UPDATE pps_users SET usu_password = :password, usu_reset_token = NULL WHERE usu_id = :userId");
+                    $stmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
+                    $stmt->bindParam(':userId', $userId['sub'], PDO::PARAM_INT);
+                    $stmt->execute();
+
+                    $message = "Su contraseña ha sido actualizada satisfactoriamente.";
+                }
             } else {
-                // Hash and salt the new password
-                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-                // Update the user's password in the database
-                $stmt = $pdo->prepare("UPDATE pps_users SET usu_password = :password WHERE usu_id = :userId");
-                $stmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
-                $stmt->bindParam(':userId', $userId['sub'], PDO::PARAM_INT);
-                $stmt->execute();
-
-                $message = "Su contraseña ha sido actualizada satisfactoriamente.";
+                $message = "El enlace de reinicio ha caducado o no es válido. Por favor solicite uno nuevo.";
             }
         } else {
             $message = "El enlace de reinicio ha caducado o no es válido. Por favor solicite uno nuevo.";
@@ -59,7 +64,7 @@ $csrfToken = generateCsrfToken();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -68,18 +73,18 @@ $csrfToken = generateCsrfToken();
     <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        .section {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            padding: 20px;
-        }
+    .section {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        padding: 20px;
+    }
 
-        .section-title {
-            color: #007bff;
-            margin-bottom: 15px;
-        }
+    .section-title {
+        color: #007bff;
+        margin-bottom: 15px;
+    }
     </style>
 </head>
 
@@ -92,7 +97,7 @@ $csrfToken = generateCsrfToken();
                 <div class="section">
                     <h1 class="text-center mb-4"> <i class="fas fa-unlock-alt"></i> Actualizar contraseña</h1>
                     <?php if (isset($message)) : ?>
-                        <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
+                    <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
                     <?php endif; ?>
                     <form method="POST" action="">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
@@ -103,7 +108,8 @@ $csrfToken = generateCsrfToken();
                         </div>
                         <div class="mb-3">
                             <label for="confirmPassword" class="form-label">Confirmar nueva contraseña</label>
-                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                                required>
                         </div>
                         <button type="submit" class="btn btn-primary">Confirmar cambios</button>
                     </form>
