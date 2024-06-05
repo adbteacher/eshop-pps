@@ -101,27 +101,31 @@ $stmt->execute([$user_id]);
 $main_method = $stmt->fetchColumn();
 
 // Convertir el código del método a un texto legible
-if ($main_method)
-{
-    if ($main_method == 1)
-    {
-        $main_method_text = "Tarjeta de Crédito";
+    if ($main_method)
+	{
+        if ($main_method == 1)
+		{
+			$main_method_text = "Tarjeta de Crédito";
+		}
+        elseif ($main_method == 2)
+		{
+			$main_method_text = "PayPal";
+		}
+	}
+    else
+	{
+		$main_method_text = "No hay metodo de pago seleccionado";
     }
-    elseif ($main_method == 2)
-    {
-        $main_address_text = "PayPal";
-    }
-}
 
 // Obtener la dirección principal del usuario
 $stmt = $conn->prepare("SELECT adr_line1, adr_line2, adr_city, adr_state, adr_postal_code, adr_country FROM pps_addresses_per_user WHERE adr_user = ? AND adr_is_main = 1");
 $stmt->execute([$user_id]);
 $main_address = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$main_address_text = $main_address ? 
-    htmlspecialchars("{$main_address['adr_line1']}, " . 
-    ($main_address['adr_line2'] ? "{$main_address['adr_line2']}, " : '') . 
-    "{$main_address['adr_city']}, {$main_address['adr_state']}, {$main_address['adr_postal_code']}, {$main_address['adr_country']}") : 
+$main_address_text = $main_address ?
+    htmlspecialchars("{$main_address['adr_line1']}, " .
+    ($main_address['adr_line2'] ? "{$main_address['adr_line2']}, " : '') .
+    "{$main_address['adr_city']}, {$main_address['adr_state']}, {$main_address['adr_postal_code']}, {$main_address['adr_country']}") :
     "No hay dirección principal asignada";
 
 ?>
@@ -132,33 +136,10 @@ $main_address_text = $main_address ?
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirmar Compra</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
 
-    <script>
-        function validateForm() {
-            const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
-            let paymentMethodSelected = false;
-            paymentMethods.forEach((method) => {
-                if (method.checked) {
-                    paymentMethodSelected = true;
-                }
-            });
-
-            if (!paymentMethodSelected) {
-                alert('Por favor, selecciona un método de pago.');
-                return false;
-            }
-
-            const terms = document.getElementById('terms');
-            if (!terms.checked) {
-                alert('Debes aceptar los términos y condiciones.');
-                return false;
-            }
-
-            return true;
-        }
-    </script>
-
+<!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">-->
     <style>
         .price-original {
             text-decoration: line-through;
@@ -257,8 +238,19 @@ $main_address_text = $main_address ?
         <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
         <label class="form-check-label" for="terms">He leído y acepto los <a href="Terms.php">términos y condiciones</a>.</label>
     </div>
+                    <?php if (($main_method_text != "No hay metodo de pago seleccionado"))
+                     {?>
     <button type="submit" name="confirm_purchase" class="btn btn-success mt-3">Confirmar Compra</button>
     <button type="submit" name="bank_transfer" class="btn btn-secondary mt-3">Transferencia Bancaria</button>
+                    <?php }
+                    else
+					{?>
+						<div class="alert alert-warning">
+					¡Revisa que la información del método de pago o la dirección son correctas!.
+                         </div>
+						<?php
+                    }
+                        ?>
 </form>
 
             </div>
