@@ -137,17 +137,23 @@
                                         <hr class="dropdown-divider">
                                     </li>
 								<?php endif; ?>
-                                <li>
-                                    <a class="dropdown-item" href="/4profile/main_profile.php"><i class="bi bi-person-circle"></i>
-                                        Perfil</a>
-                                </li>
-								<?php if ($isVendor): ?>
+                                
+                                <?php if ($isVendor): ?>
                                     <li>
                                         <a class="dropdown-item" href="/5rol_vendor/mainpage.php">
                                             <i class="bi bi-box-seam"></i> Manage
                                         </a>
                                     </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
 								<?php endif; ?>
+
+                                <li>
+                                    <a class="dropdown-item" href="/4profile/main_profile.php"><i class="bi bi-person-circle"></i>
+                                        Perfil</a>
+                                </li>
+								
 
                                 <li>
                                     <a class="dropdown-item" href="/11my_orders/pps_orders-index.php"><i class="bi bi-tools"></i>
@@ -238,3 +244,5 @@
         </div>
     </div>
 </nav>
+
+<script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
