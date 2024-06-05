@@ -1,6 +1,6 @@
 <?php
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
-
+	functions::checkAdminAccess();
 	// Obtener una conexión a la base de datos
 	$conexion = database::LoadDatabase();
 

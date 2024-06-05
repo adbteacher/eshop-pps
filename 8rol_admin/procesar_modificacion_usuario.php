@@ -1,7 +1,7 @@
 <?php
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
 	session_start();
-
+	functions::checkAdminAccess();
 	// Verificar el token CSRF
 	if ($_SERVER["REQUEST_METHOD"] == "POST")
 	{

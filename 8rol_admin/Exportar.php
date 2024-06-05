@@ -1,7 +1,7 @@
 <?php
 // Establecer conexión a la base de datos
 require_once '../autoload.php';
-
+functions::checkAdminAccess();
 $conexion = database::LoadDatabase();
 
 // Consulta para obtener los productos
