@@ -101,7 +101,17 @@ $stmt->execute([$user_id]);
 $main_method = $stmt->fetchColumn();
 
 // Convertir el código del método a un texto legible
-$main_method_text = ($main_method == 1) ? "Tarjeta de Crédito" : "PayPal";
+if ($main_method)
+{
+    if ($main_method == 1)
+    {
+        $main_method_text = "Tarjeta de Crédito";
+    }
+    elseif ($main_method == 2)
+    {
+        $main_address_text = "PayPal";
+    }
+}
 
 // Obtener la dirección principal del usuario
 $stmt = $conn->prepare("SELECT adr_line1, adr_line2, adr_city, adr_state, adr_postal_code, adr_country FROM pps_addresses_per_user WHERE adr_user = ? AND adr_is_main = 1");
@@ -123,6 +133,32 @@ $main_address_text = $main_address ?
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirmar Compra</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script>
+        function validateForm() {
+            const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+            let paymentMethodSelected = false;
+            paymentMethods.forEach((method) => {
+                if (method.checked) {
+                    paymentMethodSelected = true;
+                }
+            });
+
+            if (!paymentMethodSelected) {
+                alert('Por favor, selecciona un método de pago.');
+                return false;
+            }
+
+            const terms = document.getElementById('terms');
+            if (!terms.checked) {
+                alert('Debes aceptar los términos y condiciones.');
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+
     <style>
         .price-original {
             text-decoration: line-through;

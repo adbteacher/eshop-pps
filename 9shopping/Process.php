@@ -15,7 +15,7 @@ $purchase_success = false;
 $error_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_purchase'])) {
-    if (isset($_POST['terms'])) {
+    if (isset($_POST['terms']) && isset($_POST['payment_method'])) {
         // Inicializar el carrito
         $cart = $_SESSION['cart'] ?? [];
 
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_purchase'])) {
             $error_message = "El carrito está vacío.";
         }
     } else {
-        $error_message = "Debes aceptar los términos y condiciones.";
+        $error_message = "Donde vas Perro del Estado, esto no es comunismo. Debes aceptar los términos y condiciones y seleccionar un método de pago.";
     }
 } else {
     header("Location: Checkout.php");
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_purchase'])) {
             <div class="alert alert-success">
                 ¡Gracias por tu compra! Tu pedido ha sido procesado exitosamente.
             </div>
-            <a href="../10products/products.php" class="btn btn-primary">Volver a Productos</a>
+            <a href="products.php" class="btn btn-primary">Volver a Productos</a>
         <?php else: ?>
             <h1>Error en la Confirmación de la Compra</h1>
             <?php if (isset($error_message)): ?>
