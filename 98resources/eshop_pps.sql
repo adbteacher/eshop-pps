@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 05, 2024 at 07:36 PM
+-- Generation Time: Jun 05, 2024 at 09:40 PM
 -- Server version: 10.6.5-MariaDB
 -- PHP Version: 8.1.0
 
@@ -643,6 +643,7 @@ CREATE TABLE IF NOT EXISTS `pps_users` (
   `usu_web` varchar(50) NOT NULL,
   `usu_documents` varchar(200) NOT NULL,
   `usu_2fa` char(16) DEFAULT NULL,
+  `usu_reset_token` varchar(255) NOT NULL,
   PRIMARY KEY (`usu_id`),
   UNIQUE KEY `usu_id` (`usu_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COMMENT='Users' ROW_FORMAT=DYNAMIC;
@@ -651,14 +652,14 @@ CREATE TABLE IF NOT EXISTS `pps_users` (
 -- Dumping data for table `pps_users`
 --
 
-INSERT INTO `pps_users` (`usu_id`, `usu_type`, `usu_rol`, `usu_status`, `usu_verification_code`, `usu_datetime`, `usu_name`, `usu_surnames`, `usu_prefix`, `usu_phone`, `usu_email`, `usu_password`, `usu_company`, `usu_cif`, `usu_web`, `usu_documents`, `usu_2fa`) VALUES
-(7, 'U', 'U', 'N', '', '2024-05-05 19:18:25', 'ivan', 'martinez', '34', 941782087, 'ivan@email.com', '$2y$10$59FmINGOFYhBNua3mXHNqeuGGCvL43dsahVMgYj4QW.AQoG9EZere', '', '', '', '', ''),
-(8, 'U', 'S', 'N', '', '2024-05-20 18:24:49', 'support', 'support', '+34', 654321987, 'fruteria@support.com', '$2y$10$c4J18Nfrh.uW.7PEJr2m.Oi0v/Knt.6FqkilM8H7adWu.YZ4Hkt6u', '', '', '', '', NULL),
-(9, 'V', 'V', 'N', '', '2024-05-21 17:20:00', 'supplier', '', '', 645712781, 'a@email.com', '$2y$10$A7nNu/Bh31ad/0qrnqmeGeooY7ILcpWKyjl9FnbjNoSRq0yzcJeAa', 'aaaaa', 'A54568245', 'a.com', '/var/www/uploads-eshop/A54568245CiberGAL - Automatización_de_ataques_y_emulación_de_adversarios_con_MITRE_CalderaV2.pdf^_', ''),
-(10, 'U', 'A', 'A', '', '2024-05-21 17:40:45', 'admin', 'admin', '', 696969696, 'admin@admin.com', '$2y$10$jwYGuXH17AmryF.phRISquTikhF5VYtwwBgayHtZbRQtgbzKeVOKi', '', '', '', '', ''),
-(11, 'U', 'U', 'A', '', '2024-05-21 17:43:24', 'user', 'user', '', 333333333, 'user@user.com', '$2y$10$iIZuw5VZ7f1BkITuFPn2VupQvnMAl6Boffs00AKUiocQ5eBgsEH6K', '', '', '', '', ''),
-(12, 'V', 'V', 'A', '', '2024-05-21 17:45:44', 'company', 'company', '', 666666666, 'company@company.com', '$2y$10$Sk7CTffGw6.gyJOXtn0NauNREJFAyb3lkTB82g5sgjf2R4tx4a0Qm', '', '', '', '', ''),
-(13, 'U', 'S', 'A', '', '2024-05-21 17:58:39', 'support', 'support', '', 2147483647, 'support@support.com', '$2y$10$4MzwXMZz/qG/R3.Ys19DFO9hh3rc0Yc0K0bnhCLw3V5VE78KQdTOC', '', '', '', '', '');
+INSERT INTO `pps_users` (`usu_id`, `usu_type`, `usu_rol`, `usu_status`, `usu_verification_code`, `usu_datetime`, `usu_name`, `usu_surnames`, `usu_prefix`, `usu_phone`, `usu_email`, `usu_password`, `usu_company`, `usu_cif`, `usu_web`, `usu_documents`, `usu_2fa`, `usu_reset_token`) VALUES
+(7, 'U', 'U', 'N', '', '2024-05-05 19:18:25', 'ivan', 'martinez', '34', 941782087, 'ivan@email.com', '$2y$10$59FmINGOFYhBNua3mXHNqeuGGCvL43dsahVMgYj4QW.AQoG9EZere', '', '', '', '', '', ''),
+(8, 'U', 'S', 'N', '', '2024-05-20 18:24:49', 'support', 'support', '+34', 654321987, 'fruteria@support.com', '$2y$10$c4J18Nfrh.uW.7PEJr2m.Oi0v/Knt.6FqkilM8H7adWu.YZ4Hkt6u', '', '', '', '', NULL, ''),
+(9, 'V', 'V', 'N', '', '2024-05-21 17:20:00', 'supplier', '', '', 645712781, 'a@email.com', '$2y$10$A7nNu/Bh31ad/0qrnqmeGeooY7ILcpWKyjl9FnbjNoSRq0yzcJeAa', 'aaaaa', 'A54568245', 'a.com', '/var/www/uploads-eshop/A54568245CiberGAL - Automatización_de_ataques_y_emulación_de_adversarios_con_MITRE_CalderaV2.pdf^_', '', ''),
+(10, 'U', 'A', 'A', '', '2024-05-21 17:40:45', 'admin', 'admin', '', 696969696, 'admin@admin.com', '$2y$10$jwYGuXH17AmryF.phRISquTikhF5VYtwwBgayHtZbRQtgbzKeVOKi', '', '', '', '', '', ''),
+(11, 'U', 'U', 'A', '', '2024-05-21 17:43:24', 'user', 'user', '', 333333333, 'user@user.com', '$2y$10$iIZuw5VZ7f1BkITuFPn2VupQvnMAl6Boffs00AKUiocQ5eBgsEH6K', '', '', '', '', '', ''),
+(12, 'V', 'V', 'A', '', '2024-05-21 17:45:44', 'company', 'company', '', 666666666, 'company@company.com', '$2y$10$Sk7CTffGw6.gyJOXtn0NauNREJFAyb3lkTB82g5sgjf2R4tx4a0Qm', '', '', '', '', '', ''),
+(13, 'U', 'S', 'A', '', '2024-05-21 17:58:39', 'support', 'support', '', 2147483647, 'support@support.com', '$2y$10$4MzwXMZz/qG/R3.Ys19DFO9hh3rc0Yc0K0bnhCLw3V5VE78KQdTOC', '', '', '', '', '', '');
 
 --
 -- Constraints for dumped tables
