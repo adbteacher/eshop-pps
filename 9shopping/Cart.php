@@ -149,6 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product_id']) &
         </div>
     </div>
     <?php include "../footer.php"; // Incluye el footer ?>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
