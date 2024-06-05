@@ -8,9 +8,15 @@
 </head>
 <body>
 <?php
-	session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+	
 	require_once '../autoload.php';
 	require_once 'biblioteca.php';
+
+	functions::checkVendorAccess(); // Aseguramos el acceso del vendedor
 
 	// Generar y almacenar el token CSRF si no existe
 	if (empty($_SESSION['csrf_token']))
