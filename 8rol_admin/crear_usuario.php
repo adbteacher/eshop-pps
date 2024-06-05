@@ -1,7 +1,13 @@
 <?php
-	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
+/*
+	 Este archivo procesa el formulario de creacion de usuario.
+	 */
+	require_once '../autoload.php';
+
 	session_start();
+
 	functions::checkAdminAccess();
+
 	// Obtener una conexión a la base de datos
 	$conexion = database::LoadDatabase();
 

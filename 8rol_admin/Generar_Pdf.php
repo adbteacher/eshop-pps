@@ -1,4 +1,8 @@
 <?php
+/*
+	 Este codigo utiliza la libreria TCPDF para geenrar el informe PDF del inventario,
+     aqui se controla la logica del PDF.
+	 */
 	require_once '../autoload.php';
 	require_once '../vendor/autoload.php';
     session_start();

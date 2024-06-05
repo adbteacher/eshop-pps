@@ -1,4 +1,8 @@
 <?php
+/*
+	Esta pagina muestra los logins de los usuarios, y diferentes valores referentes a la web
+    en varias tablas y una gráfica de logins por tiempo.
+	 */
 	require_once '../autoload.php';
 
     session_start();

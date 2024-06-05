@@ -1,4 +1,8 @@
 <?php
+/*
+	 Este codigo realiza la logica para exportar el ficehro CSV de los productos 
+     con el nombre y la fecha.
+	 */
 // Establecer conexión a la base de datos
 require_once '../autoload.php';
 session_start();

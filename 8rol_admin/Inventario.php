@@ -1,4 +1,8 @@
 <?php
+/*
+	 Esta pagina muestra el inventario de productos junto con la capacidad de generar 
+     un informe PDF con la libreria TCPDF
+	 */
 	// Establecer conexión a la base de datos
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
 
