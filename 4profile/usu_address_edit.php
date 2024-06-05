@@ -17,7 +17,15 @@ if (!isset($_SESSION['UserEmail'])) {
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Editar Dirección</title>
-	<link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+	<!-- CSS / Hoja de estilos Bootstrap -->
+	<link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="../vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
+
+	<!-- Favicon -->
+	<link rel="apple-touch-icon" sizes="180x180" href="/0images/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/0images/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/0images/favicon-16x16.png">
+	<link rel="manifest" href="/0images/site.webmanifest">
 	<style>
 		.container {
 			padding: 20px;
@@ -33,7 +41,7 @@ if (!isset($_SESSION['UserEmail'])) {
 		$input = trim($input);
 		$input = stripslashes($input);
 		$input = str_replace(["'", '"', ";", "|", "[", "]", "x00", "<", ">", "~", "´", "/", "\\", "¿"], '', $input);
-		$input = str_replace(['=', '+', '-', '#', '(', ')', '!', '$', '{', '}', '`', '?'], '', $input);
+		$input = str_replace(['=', '+', '-', '#', '(', ')', '!', '$', '{', '}', '`', '?', '%'], '', $input);
 		return $input;
 	}
 
@@ -55,11 +63,17 @@ if (!isset($_SESSION['UserEmail'])) {
 	// Función para verificar que la dirección pertenece al usuario
 	function verifyUserAddress($address_id, $user_id)
 	{
-		$connection = database::LoadDatabase();
-		$sql        = "SELECT COUNT(*) FROM pps_addresses_per_user WHERE adr_id = ? AND adr_user = ?";
-		$stmt       = $connection->prepare($sql);
-		$stmt->execute([$address_id, $user_id]);
-		return $stmt->fetchColumn() > 0;
+		try {
+			$connection = database::LoadDatabase();
+			$sql        = "SELECT COUNT(*) FROM pps_addresses_per_user WHERE adr_id = ? AND adr_user = ?";
+			$stmt       = $connection->prepare($sql);
+			$stmt->execute([$address_id, $user_id]);
+			return $stmt->fetchColumn() > 0;
+		} catch (PDOException $e) {
+			$_SESSION['error_message'] = 'Error al verificar usuario y dirección.';
+			header("Location: usu_address.php");
+			exit;
+		}
 	}
 
 	// Verificar si el ID de la dirección pertenece al usuario
@@ -72,12 +86,18 @@ if (!isset($_SESSION['UserEmail'])) {
 	if (isset($_SESSION['edit_address_id'])) {
 
 		// Obtener los detalles de la dirección a editar
-		if (!empty($edit_address_id)) {
-			$connection = database::LoadDatabase();
-			$sql        = "SELECT * FROM pps_addresses_per_user WHERE adr_id = ?";
-			$stmt       = $connection->prepare($sql);
-			$stmt->execute([$edit_address_id]);
-			$edit_adress = $stmt->fetch(PDO::FETCH_ASSOC);
+		try {
+			if (!empty($edit_address_id)) {
+				$connection = database::LoadDatabase();
+				$sql        = "SELECT * FROM pps_addresses_per_user WHERE adr_id = ?";
+				$stmt       = $connection->prepare($sql);
+				$stmt->execute([$edit_address_id]);
+				$edit_adress = $stmt->fetch(PDO::FETCH_ASSOC);
+			}
+		} catch (PDOException $e) {
+			$_SESSION['error_message'] = 'Error al obtener los detalles de la dirección.';
+			header("Location: usu_address.php");
+			exit;
 		}
 	} else {
 		// Si no se ha almacenado el ID de la dirección en la sesión, muestra un mensaje de error apropiado o redirecciona a otra página
@@ -120,6 +140,7 @@ if (!isset($_SESSION['UserEmail'])) {
 		}
 
 		// Verificar longitud y caracteres permitidos para el Estado
+
 		if (!empty($state) && (strlen($state) > 50 || !preg_match("/^[a-zA-Z\s]+$/", $state))) {
 			$_SESSION['error_message'] = 'Por favor, ingrese un Estado válido (máximo 50 caracteres, solo texto).';
 			header("Location: usu_address_edit.php");
@@ -141,17 +162,22 @@ if (!isset($_SESSION['UserEmail'])) {
 		}
 
 		// Actualizar la dirección en la base de datos
-		$sql  = "UPDATE pps_addresses_per_user SET adr_line1 = ?, adr_line2 = ?, adr_city = ?, adr_state = ?, adr_postal_code = ?, adr_country = ? WHERE adr_id = ?";
-		$stmt = $connection->prepare($sql);
-		$stmt->execute([$line1, $line2, $city, $state, $postal_code, $country, $edit_address_id]);
+		try {
+			$sql  = "UPDATE pps_addresses_per_user SET adr_line1 = ?, adr_line2 = ?, adr_city = ?, adr_state = ?, adr_postal_code = ?, adr_country = ? WHERE adr_id = ?";
+			$stmt = $connection->prepare($sql);
+			$stmt->execute([$line1, $line2, $city, $state, $postal_code, $country, $edit_address_id]);
 
-		// Redireccionar a la página para evitar el reenvío del formulario
-		header("Location: usu_address.php");
-		exit;
+			// Redireccionar a la página para evitar el reenvío del formulario
+			header("Location: usu_address.php");
+			exit;
+		} catch (PDOException $e) {
+			$_SESSION['error_message'] = 'Error al actualizar la dirección.';
+			header("Location: usu_address_edit.php");
+			exit;
+		}
 	}
 	include "../nav.php";
 	?>
-
 
 	<div class="container">
 		<div class="back-button-container">
@@ -201,7 +227,7 @@ if (!isset($_SESSION['UserEmail'])) {
 				</div>
 				<div class="mb-3">
 					<label for="adr_postal_code" class="form-label">Código Postal:</label>
-					<input type="text" name="adr_postal_code" value="<?php echo $edit_adress['adr_postal_code']; ?>" class="form-control" required minlength="5" maxlength="5">
+					<input type="number" name="adr_postal_code" value="<?php echo $edit_adress['adr_postal_code']; ?>" class="form-control" required minlength="5" maxlength="5">
 				</div>
 				<div class="mb-3">
 					<label for="adr_city" class="form-label">Ciudad:</label>

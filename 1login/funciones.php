@@ -89,18 +89,24 @@
 			{
 				return false;
 			}
-			$waitTime = LOGIN_WAIT_TIME;
-			$Query    = $Connection->prepare(
-				"SELECT COUNT(*) AS attempts 
+			$maxAttempts = MAX_LOGIN_ATTEMPTS;
+			$waitTime    = LOGIN_WAIT_TIME;
+			$Query       = $Connection->prepare(
+				"SELECT lol_was_correct_login 
             FROM pps_logs_login 
-            WHERE lol_ip = :ip AND lol_user = :user_id AND lol_was_correct_login = 0 AND lol_datetime > DATE_SUB(NOW(), INTERVAL :wait_time MINUTE)"
+            WHERE lol_ip = :ip AND lol_user = :user_id AND lol_datetime > DATE_SUB(NOW(), INTERVAL :wait_time MINUTE)
+            ORDER BY lol_datetime DESC 
+            LIMIT :max_attempts"
 			);
 			$Query->bindParam(':ip', $Ip, PDO::PARAM_STR);
 			$Query->bindParam(':user_id', $UserId, PDO::PARAM_INT);
 			$Query->bindParam(':wait_time', $waitTime, PDO::PARAM_INT);
+			$Query->bindParam(':max_attempts', $maxAttempts, PDO::PARAM_INT);
 			$Query->execute();
-			$Attempts = $Query->fetchColumn();
-			return $Attempts >= MAX_LOGIN_ATTEMPTS;
+			$Attempts = $Query->fetchAll(PDO::FETCH_COLUMN);
+
+			// Check if all attempts in the result set are failures
+			return count($Attempts) === $maxAttempts && !in_array(1, $Attempts);
 		}
 		catch (PDOException $e)
 		{
@@ -108,6 +114,7 @@
 			return false;
 		}
 	}
+
 
 	// Function to log a login attempt in the database
 	function LogLoginAttempt(int $UserId, string $Ip, bool $WasSuccessful): void

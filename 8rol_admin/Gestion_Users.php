@@ -4,16 +4,6 @@
 	session_start();
 	functions::checkAdminAccess();
 
-	/*if (!isset($_SESSION['UserRol'])) {
-		echo "<p class='text-danger'>Acceso denegado. No se encontró el rol de usuario en la sesión.</p>";
-		exit;
-	}
-
-	// Verificar si el usuario es administrador
-	if ($_SESSION["UserRol"] !== 'A') {
-		echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
-		exit;
-	}*/
 
 	// Generar token CSRF si no está definido
 	if (empty($_SESSION['csrf_token']))
@@ -152,6 +142,7 @@
                 <option value="A">Administrador</option> <!-- ADMIN -->
                 <option value="U">Usuario</option> <!-- USER -->
                 <option value="S">Soporte</option> <!-- SOPORTE -->
+				<option value="V">Vendedor</option> <!-- VENDOR -->
             </select>
         </div>
         <div class="mb-3">

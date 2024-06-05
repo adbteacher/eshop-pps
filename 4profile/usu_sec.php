@@ -22,7 +22,7 @@ function cleanInput($input): array|string
 	$input = trim($input);
 	$input = stripslashes($input);
 	$input = str_replace(["'", '"', ";", "|", "[", "]", "x00", "<", ">", "~", "´", "/", "\\", "¿"], '', $input);
-	$input = str_replace(['=', '#', '(', ')', '!', '$', '{', '}', '`', '?'], '', $input);
+	$input = str_replace(['=', '#', '(', ')', '!', '$', '{', '}', '`', '?', '%'], '', $input);
 	return $input;
 }
 
@@ -48,45 +48,51 @@ function validatePassword($password): bool
 
 function ChangePassword($user_email, $old_password, $new_password, $confirm_new_password): bool
 {
-	$connection = database::LoadDatabase(); // Obtener la conexión a la base de datos
+	try {
+		$connection = database::LoadDatabase(); // Obtener la conexión a la base de datos
 
-	// Verificar la contraseña antigua
-	$sql  = "SELECT usu_password FROM pps_users WHERE usu_email = ?";
-	$stmt = $connection->prepare($sql);
-	$stmt->execute([$user_email]);
-	$user = $stmt->fetch(PDO::FETCH_ASSOC);
+		// Verificar la contraseña antigua
+		$sql  = "SELECT usu_password FROM pps_users WHERE usu_email = ?";
+		$stmt = $connection->prepare($sql);
+		$stmt->execute([$user_email]);
+		$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-	if (!$user || !password_verify($old_password, $user['usu_password'])) {
-		$_SESSION['error_message'] = 'Error: La contraseña antigua es incorrecta.';
-		return false;
-	}
+		if (!$user || !password_verify($old_password, $user['usu_password'])) {
+			$_SESSION['error_message'] = 'Error: La contraseña antigua es incorrecta.';
+			return false;
+		}
 
-	if ($confirm_new_password !== $new_password) {
-		$_SESSION['error_message'] = 'Error: Las contraseñas no coinciden.';
-		return false;
-	}
+		if ($confirm_new_password !== $new_password) {
+			$_SESSION['error_message'] = 'Error: Las contraseñas no coinciden.';
+			return false;
+		}
 
-	if (!validatePassword($new_password)) {
-		$_SESSION['error_message'] = 'Error: La nueva contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, una letra minúscula, un número y un símbolo (.+-*).';
-		return false;
-	}
+		if (!validatePassword($new_password)) {
+			$_SESSION['error_message'] = 'Error: La nueva contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, una letra minúscula, un número y un símbolo (.+-*).';
+			return false;
+		}
 
-	// Generar un hash de la nueva contraseña
-	$hashed_new_password = password_hash($new_password, PASSWORD_DEFAULT);
+		// Generar un hash de la nueva contraseña
+		$hashed_new_password = password_hash($new_password, PASSWORD_DEFAULT);
 
-	// Actualizar la contraseña en la base de datos
-	$sql  = "UPDATE pps_users SET usu_password = ? WHERE usu_email = ?";
-	$stmt = $connection->prepare($sql);
-	$stmt->execute([$hashed_new_password, $user_email]);
+		// Actualizar la contraseña en la base de datos
+		$sql  = "UPDATE pps_users SET usu_password = ? WHERE usu_email = ?";
+		$stmt = $connection->prepare($sql);
+		$stmt->execute([$hashed_new_password, $user_email]);
 
-	if ($stmt->rowCount() > 0) {
-		$_SESSION['success_message'] = 'Contraseña actualizada con éxito.';
-		return true;
-	} else {
-		$_SESSION['error_message'] = 'Error al actualizar la contraseña.';
+		if ($stmt->rowCount() > 0) {
+			$_SESSION['success_message'] = 'Contraseña actualizada con éxito.';
+			return true;
+		} else {
+			$_SESSION['error_message'] = 'Error al actualizar la contraseña.';
+			return false;
+		}
+	} catch (PDOException $e) {
+		$_SESSION['error_message'] = 'Error al cambiar la contraseña:';
 		return false;
 	}
 }
+
 
 // Manejar el envío del formulario para cambiar la contraseña
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
@@ -118,7 +124,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Cambiar Contraseña</title>
-	<link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+	<!-- CSS / Hoja de estilos Bootstrap -->
+	<link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="../vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
+
+	<!-- Favicon -->
+	<link rel="apple-touch-icon" sizes="180x180" href="/0images/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/0images/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/0images/favicon-16x16.png">
+	<link rel="manifest" href="/0images/site.webmanifest">
 	<style>
 		.form-container {
 			max-width: 400px;
@@ -215,9 +229,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 			</div>
 			<div class="col-md-6">
 				<div class="second-factor-container">
-					<h3 class="text-center">Activar segundo factor</h3>
+					<h3 class="text-center">Activar/Desactivar segundo factor</h3>
 					<div class="container mt-3 text-center">
-						<a href="../1login/activate_2fa.php" class="btn btn-primary">Activar segundo factor</a>
+						<a href="../1login/activate_2fa.php" class="btn btn-primary">Activar/Desactivar segundo factor</a>
 					</div>
 				</div>
 				<div class="second-factor-container">

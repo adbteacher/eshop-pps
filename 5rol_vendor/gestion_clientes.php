@@ -113,13 +113,13 @@
             <tbody>
                 <?php foreach ($clientes as $cliente): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($cliente['usu_name']); ?></td>
-                        <td><?php echo htmlspecialchars($cliente['usu_email']); ?></td>
-                        <td><?php echo htmlspecialchars($cliente['adr_line1']); ?><?php echo ($cliente['adr_line2'] != null) ? ', ' . htmlspecialchars($cliente['adr_line2']) : ''; ?></td>
-                        <td><?php echo htmlspecialchars($cliente['adr_city']); ?></td>
-                        <td><?php echo htmlspecialchars($cliente['adr_state']); ?></td>
-                        <td><?php echo htmlspecialchars($cliente['adr_postal_code']); ?></td>
-                        <td><?php echo htmlspecialchars($cliente['adr_country']); ?></td>
+                        <td><?php echo htmlspecialchars($cliente['usu_name'] ?: ""); ?></td>
+                        <td><?php echo htmlspecialchars($cliente['usu_email'] ?: ""); ?></td>
+                        <td><?php echo htmlspecialchars($cliente['adr_line1'] ?: ""); ?><?php echo ($cliente['adr_line2'] != null) ? ', ' . htmlspecialchars($cliente['adr_line2'] ?: "") : ''; ?></td>
+                        <td><?php echo htmlspecialchars($cliente['adr_city'] ?: ""); ?></td>
+                        <td><?php echo htmlspecialchars($cliente['adr_state'] ?: ""); ?></td>
+                        <td><?php echo htmlspecialchars($cliente['adr_postal_code'] ?: ""); ?></td>
+                        <td><?php echo htmlspecialchars($cliente['adr_country'] ?: ""); ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
