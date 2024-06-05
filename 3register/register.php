@@ -6,79 +6,126 @@
 	 *
 	 */
 
-	//if (!defined('SI_NO_EXISTE_PETA'))
-	//{
-	//	die('No me seas cabrón y sal de aquí');
-	//}
+	if (session_status() != PHP_SESSION_ACTIVE)
+	{
+		session_start();
+	}
+
 	require('functions.php');
-	$Conn = database::LoadDatabase();
+	require('../2recovery/jwt.php');            // JWT handling library
+
+	use PHPMailer\PHPMailer\PHPMailer;
+	use PHPMailer\PHPMailer\Exception;
+
+	$Conn   = database::LoadDatabase();
+	$Errors = array();
 
 	$UserType = isset($_POST['UserType']) ? $_POST['UserType'] : '';
 
-	// Declarar variables
-	//$PhoneNumber = $Address = $Email = $ConfirmEmail = $Password = $ConfirmPassword = $CustomerName = $CustomerSurNames = $CompanyName = $Cif = $CompanyWeb = $CompanyDocuments = '';
 	// Verificar si el formulario ha sido enviado
 	if (isset($_POST['register']))
 	{
-		$PhoneNumber      = htmlspecialchars($_POST['PhoneNumber']);
-		$Address          = htmlspecialchars($_POST['Address']);
+		$Prefix           = GetPrefix(htmlspecialchars($_POST['Prefix']));                // functions.php
+		$PhoneNumber      = GetPhoneNumber(htmlspecialchars($_POST['PhoneNumber']));    // functions.php
 		$Email            = htmlspecialchars($_POST['Email']);
 		$ConfirmEmail     = htmlspecialchars($_POST['ConfirmEmail']);
 		$Password         = htmlspecialchars($_POST['Password']);
 		$ConfirmPassword  = htmlspecialchars($_POST['ConfirmPassword']);
-		$VerificationCode = '';
+		$VerificationCode = GetVerificationCode();                                        // functions.php
 
-		if ($UserType == 'cus')
+		if ($UserType == 'U')
 		{
 			$CustomerName     = htmlspecialchars($_POST['CustomerName']);
 			$CustomerSurNames = htmlspecialchars($_POST['CustomerSurNames']);
+			$CompanyName      = '';
+			$Cif              = '';
+			$CompanyWeb       = '';
+			$CompanyDocuments = '';
+
+			if (!NameValidation($CustomerName) or empty($CustomerName))
+			{
+				$Errors[] = 'CustomerName';
+			}
+
+			if (!NameValidation($CustomerSurNames) or empty($CustomerSurNames))
+			{
+				$Errors[] = 'CustomerSurNames';
+			}
 		}
 
-		if ($UserType == 'com')
+
+		if ($UserType == 'V')
 		{
-			$CompanyName = htmlspecialchars($_POST['CompanyName']);
-			$Cif         = htmlspecialchars($_POST['Cif']);
-			$CompanyWeb  = htmlspecialchars($_POST['CompanyWeb']);
-			//$ArrayCompanyDocuments = $_FILES['CompanyDocuments'];
-			//echo var_dump($ArrayCompanyDocuments);
+			$CustomerName     = '';
+			$CustomerSurNames = '';
+			$CompanyName      = htmlspecialchars($_POST['CompanyName']);
+			$Cif              = htmlspecialchars($_POST['Cif']);
+			$CompanyWeb       = htmlspecialchars($_POST['CompanyWeb']);
 			$CompanyDocuments = GetCompanyDocuments($_FILES['CompanyDocuments'], $Cif); // functions.php
+
+			if (!NameValidation($CompanyName) or empty($CompanyName))
+			{
+				$Errors[] = 'CompanyName';
+			}
 
 			// Validación del CIF
 			// Un CIF válido contiene 8 caracteres,
 			// 7 números y 1 letra en mayuscula
-			//if (!CifValidation($Cif)){
-			//	die("Validación del Cif incorrecta. La letra debe ser correcta y como máximo 7 números y 1 letra.");
-			//}
+			if (!CifValidation($Cif) or empty($Cif))
+			{
+				$Errors[] = 'Cif';
+			}
 
+			if (!NameValidation($CompanyWeb) or empty($CompanyWeb))
+			{
+				$Errors[] = 'CompanyWeb';
+			}
 		}
 
-		// Se admiten guiones, signos de suma, espacios y números.
-		$PatternPhoneNumber = '/^[\d+\s-]{1,16}$/';
-		$PhoneNumber        = str_replace(' ', '', strval($PhoneNumber));
-		if (!preg_match($PatternPhoneNumber, $PhoneNumber))
+		// Validación del prefijo del número de teléfono
+		if (!is_numeric($Prefix) or strlen($Prefix) > 5 or empty($Prefix))
 		{
-			// Validación del teléfono
-			die('El número de teléfono es inválido.');
+			$Errors[] = 'Prefix';
+		}
+		else
+		{
+			$Prefix = '+' . $Prefix;
+		}
+
+		// Validación del teléfono
+		if (!is_numeric($PhoneNumber) or strlen($PhoneNumber) > 11 or empty($PhoneNumber))
+		{
+			$Errors[] = 'PhoneNumber';
 		}
 
 		// Validación del correo electrónico
-		// Validar que los correos electrónicos coincidan
-		if ($Email !== $ConfirmEmail)
+		// Validar formato de correo electrónico
+		if (!filter_var($Email, FILTER_VALIDATE_EMAIL) or empty($Email))
 		{
-			die("Los correos electrónicos no coinciden.");
+			$Errors[] = 'Email';
 		}
 
-		// Validar formato de correo electrónico
-		if (!filter_var($Email, FILTER_VALIDATE_EMAIL))
+		$PatternEmail = '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/';
+
+		if (!preg_match($PatternEmail, $Email))
 		{
-			die('El correo electrónico no es válido.');
+			if (!in_array('Email', $Errors))
+			{
+				$Errors[] = 'Email';
+			}
+		}
+
+		// Validar que los correos electrónicos coincidan
+		if ($Email !== $ConfirmEmail or empty($ConfirmEmail))
+		{
+			$Errors[] = 'ConfirmEmail';
 		}
 
 		// Validación de las contraseñas
 		// Validar que las contraseñas coincidan
-		if ($Password !== $ConfirmPassword)
+		if ($Password !== $ConfirmPassword or empty($ConfirmPassword))
 		{
-			die("Las contraseñas no coinciden.");
+			$Errors[] = 'ConfirmPassword';
 		}
 
 		// Validar que las contraseñas cumplen los requisitos mínimos
@@ -87,77 +134,54 @@
 		// Al menos 1 caracter mayuscula
 		// Al menos un número
 		$PatternPassword = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/';
-		if (!preg_match($PatternPassword, $Password))
+		if (!preg_match($PatternPassword, $Password) or empty($PatternPassword))
 		{
-			die("La contraseña no cumple los requisitos mínimos.");
+			$Errors[] = 'Password';
 		}
 
 		// Hash de la contraseña
 		$Password = password_hash($Password, PASSWORD_DEFAULT);
 
-		// Generar codigo de verificacion enviado al correo
-		$VerificationCode = '1234';
+		// Comprobación de usuario existente
+		$Query       = ("SELECT usu_email FROM pps_users WHERE usu_email = '$Email';");
+		$ResultQuery = $Conn->query($Query);
+
+		// Muestra de errores de los formularios
+		if (!empty($Errors))
+		{
+			// Guardar los errores en la sesión
+			$_SESSION['Errors'] = $Errors;
+			// Redirigir a la página de registro
+			header('Location: register.form.php');
+			exit;
+		}
+		// Muestra de error de que el usuario ya existe
+		elseif ($ResultQuery->rowCount() > 0)
+		{
+			$Errors[] = 'UserExist';
+			// Guardar los errores en la sesión
+			$_SESSION['Errors'] = $Errors;
+			// Redirigir a la página de registro
+			header('Location: register.form.php');
+			exit;
+		}
 
 		// Variable con fecha y hora
 		$DateTime = date('Y-m-d H:i:s');
 
-		//Variables temporales
-		$Address = 'C/ La amargura';
 
-
-		// Insertar en base de datos al usuario/cliente
-		if ($UserType == 'cus')
-		{
-			// Comprobar si el usuario ya existe en la DB
-			$Query       = ("SELECT usu_email FROM pps_users WHERE usu_type = 'U' AND usu_email = '$Email';"); // 'U' Cliente
-			$ResultQuery = $Conn->query($Query);
-			if ($ResultQuery->rowCount() > 0)
-			{
-				die("El usuario con email: '" . $Email . ",' ya existe.");
-			}
-
-			// Preparación de datos a la Base de datos
-			//
-			// v1
-			$Query = ("INSERT INTO pps_users ( usu_type, usu_rol, usu_status, usu_verification_code, usu_2fa, usu_datetime, usu_phone, usu_name, usu_surnames, usu_email, usu_password, usu_company, usu_cif, usu_web, usu_documents ) 
-				VALUES ( 'U', 'U', 'N', '$VerificationCode', '', '$DateTime', '$PhoneNumber', '$CustomerName', '$CustomerSurNames', '$Email', '$Password', '', '', '', '' )");
-		}
-
-		// Insertar en base de datos al usuario/empresa
-		elseif ($UserType == 'com')
-		{
-			// Comprobar si el usuario ya existe en la DB
-			$Query       = ("SELECT usu_email FROM pps_users WHERE usu_type = 'V' AND usu_email = '$Email';"); // 'V' Empresa
-			$ResultQuery = $Conn->query($Query);
-			if ($ResultQuery->rowCount() > 0)
-			{
-				die("La empresa con email: '" . $Email . ",' ya existe.");
-			}
-
-			// Preparación de datos a la Base de datos
-			//
-			$Query = ("INSERT INTO pps_users ( usu_type, usu_rol, usu_status, usu_verification_code, usu_2fa, usu_datetime, usu_phone, usu_name, usu_surnames, usu_email, usu_password, usu_company, usu_cif, usu_web, usu_documents ) VALUES ( 'V', 'V', 'N', '$VerificationCode', '', '$DateTime', '$PhoneNumber', '', '', '$Email', '$Password', '$CompanyName', '$Cif', '$CompanyWeb', '$CompanyDocuments' )");
-		}
-
+		// Subida de datos a la base de datos
+		//
 		try
 		{
-			// Query a la base de datos
-			$stmt = $Conn->prepare($Query);
+			// Preparación de datos a la base de datos
+			//
+			$Query = ("INSERT INTO pps_users ( usu_type, usu_rol, usu_status, usu_verification_code, usu_datetime, usu_name, usu_surnames, usu_prefix, usu_phone, usu_email, usu_password, usu_company, usu_cif, usu_web, usu_documents, usu_2fa ) VALUES ( 'V', '$UserType', 'N', '$VerificationCode', '$DateTime','$CustomerName', '$CustomerSurNames', '$Prefix', '$PhoneNumber', '$Email', '$Password', '$CompanyName', '$Cif', '$CompanyWeb', '$CompanyDocuments', '')");
+			$stmt  = $Conn->prepare($Query);
 			if ($stmt->execute())
 			{
-				echo _("Te has registrado correctamente");
-				header('Refresh: 1; URL=/1login/login.php');
+				echo _("Te has registrado correctamente.");
 			}
-			else
-			{
-				// Si no hay filas afectadas, asumimos un error
-				throw new Exception("Error en la ejecución de la consulta: " . $Query);
-			}
-		}
-		catch (Exception $e)
-		{
-			// Manejo de errores
-			echo _("Error: " . $Query . "<br>" . $e->getMessage());
 		}
 		finally
 		{
@@ -165,14 +189,20 @@
 			$Conn = null;
 		}
 
-	}
-	else
-	{
-		echo 'POST del Registro:<br>';
-		echo('REQUEST: <br>');
-		print_r($_REQUEST);
-		echo('POST: <br>');
-		print_r($_POST);
-		echo('FILES: <br>');
-		print_r($_FILES);
+		try
+		{
+			if (SendMail($Email, $VerificationCode))
+			{
+				echo _("Se ha mandado un correo para la verificación de la cuenta.");
+				header('Refresh: 1; URL=/1login/login.php');
+			}
+		}
+		catch (Exception $e)
+		{
+			$Errors[] = 'SendMail';
+
+			$Query = ("DELETE FROM pps_users WHERE usu_email = '$Email'");
+			$stmt  = $Conn->prepare($Query);
+			$stmt->execute();
+		}
 	}
