@@ -158,6 +158,10 @@
                                         Tickets</a>
                                 </li>
                                 <li>
+                                    <a class="dropdown-item" href="/7rol_support/ViewMessage.php"><i class="bi bi-ticket-perforated"></i>
+                                        Mensajes</a>
+                                </li>
+                                <li>
                                     <hr class="dropdown-divider">
                                 </li>
 
