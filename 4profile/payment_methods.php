@@ -21,7 +21,7 @@
 		$input = trim($input);
 		$input = stripslashes($input);
 		$input = str_replace(["'", '"', ";", "|", "[", "]", "x00", "<", ">", "~", "´", "\\", "¿"], '', $input);
-		$input = str_replace(['=', '#', '(', ')', '!', '$', '{', '}', '`', '?'], '', $input);
+		$input = str_replace(['=', '#', '(', ')', '!', '$', '{', '}', '`', '?', '%'], '', $input);
 		return $input;
 	}
 
@@ -71,23 +71,61 @@
 	// Función para verificar si el ID del método de pago pertenece al usuario
 	function validatePaymentMethodOwnership($pmu_id, $user_id): bool
 	{
-		$connection = database::LoadDatabase();
-		$sql        = "SELECT COUNT(*) AS count FROM pps_payment_methods_per_user WHERE pmu_id = ? AND pmu_user = ?";
-		$stmt       = $connection->prepare($sql);
-		$stmt->execute([$pmu_id, $user_id]);
-		$result = $stmt->fetch(PDO::FETCH_ASSOC);
-		return $result['count'] > 0;
+		try
+		{
+			$connection = database::LoadDatabase();
+			$sql        = "SELECT COUNT(*) AS count FROM pps_payment_methods_per_user WHERE pmu_id = ? AND pmu_user = ?";
+			$stmt       = $connection->prepare($sql);
+			$stmt->execute([$pmu_id, $user_id]);
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
+			return $result['count'] > 0;
+		}
+		catch (PDOException $e)
+		{
+			$_SESSION['error_message'] = 'Error, no se pudo lozalizar el usuario o el método de pago';
+			header("Location: payment_methods.php");
+			exit;
+		}
 	}
 
 	// Función para comprobar si es el primer método de pago del usuario
 	function isFirstPaymentMethod($user_id): bool
 	{
-		$connection = database::LoadDatabase();
-		$sql        = "SELECT COUNT(*) AS count FROM pps_payment_methods_per_user WHERE pmu_user = ?";
-		$stmt       = $connection->prepare($sql);
-		$stmt->execute([$user_id]);
-		$result = $stmt->fetch(PDO::FETCH_ASSOC);
-		return $result['count'] == 0;
+		try
+		{
+			$connection = database::LoadDatabase();
+			$sql        = "SELECT COUNT(*) AS count FROM pps_payment_methods_per_user WHERE pmu_user = ?";
+			$stmt       = $connection->prepare($sql);
+			$stmt->execute([$user_id]);
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
+			return $result['count'] == 0;
+		}
+		catch (PDOException $e)
+		{
+			$_SESSION['error_message'] = 'Error, no se pudo lozalizar el usuario';
+			header("Location: payment_methods.php");
+			exit;
+		}
+	}
+
+	// Función para comprobar si hay más de 4 métodos de pago
+	function isFourthPaymentMethod($user_id): bool
+	{
+		try
+		{
+			$connection = database::LoadDatabase();
+			$sql        = "SELECT COUNT(*) AS count FROM pps_payment_methods_per_user WHERE pmu_user = ?";
+			$stmt       = $connection->prepare($sql);
+			$stmt->execute([$user_id]);
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
+			return $result['count'] >= 4;
+		}
+		catch (PDOException $e)
+		{
+			$_SESSION['error_message'] = 'Error, no se pudo lozalizar el usuario';
+			header("Location: payment_methods.php");
+			exit;
+		}
 	}
 
 	// Manejar el envío del formulario para agregar un método de pago
@@ -98,6 +136,14 @@
 		{
 			$_SESSION['error_message'] = 'Token CSRF inválido.';
 			header("Location: payment_methods.php");
+			exit;
+		}
+
+		// Verificar si el usuario tiene cuatro o más metodos antes de permitir agregar uno nuevo.
+		if (isFourthPaymentMethod($user_id))
+		{
+			$_SESSION['error_message'] = 'Solo puedes tener un máximo de cuatro métodos de pago.';
+			header("Location: payment_methods.php"); // Redirige a la página de información del usuario u otra página adecuada
 			exit;
 		}
 
@@ -112,115 +158,135 @@
 		{
 			$pmu_is_main = 0;
 		}
-
-		$payment_method  = cleanInput($_POST['pmu_payment_method']);
-		$card_number     = isset($_POST['pmu_card_number']) ? cleanInput($_POST['pmu_card_number']) : '';
-		$cve_number      = isset($_POST['pmu_cve_number']) ? cleanInput($_POST['pmu_cve_number']) : '';
-		$cardholder      = isset($_POST['pmu_cardholder']) ? cleanInput($_POST['pmu_cardholder']) : '';
-		$expiration_date = isset($_POST['pmu_expiration_date']) ? cleanInput($_POST['pmu_expiration_date']) : '';
-		$online_account  = isset($_POST['pmu_online_account']) ? cleanInput($_POST['pmu_online_account']) : '';
-		$online_password = isset($_POST['pmu_online_password']) ? cleanInput($_POST['pmu_online_password']) : '';
-		$online_password = password_hash($online_password, PASSWORD_DEFAULT);
-
-		// Validar los campos según el método de pago
-		if ($payment_method == "1")
+		try
 		{
-			// Validar campos de tarjeta de crédito
-			if (empty($card_number) || empty($cve_number) || empty($cardholder) || empty($expiration_date))
+			$payment_method  = cleanInput($_POST['pmu_payment_method']);
+			$card_number     = isset($_POST['pmu_card_number']) ? cleanInput($_POST['pmu_card_number']) : '';
+			$cve_number      = isset($_POST['pmu_cve_number']) ? cleanInput($_POST['pmu_cve_number']) : '';
+			$cardholder      = isset($_POST['pmu_cardholder']) ? cleanInput($_POST['pmu_cardholder']) : '';
+			$expiration_date = isset($_POST['pmu_expiration_date']) ? cleanInput($_POST['pmu_expiration_date']) : '';
+			$online_account  = isset($_POST['pmu_online_account']) ? cleanInput($_POST['pmu_online_account']) : '';
+			$online_password = isset($_POST['pmu_online_password']) ? cleanInput($_POST['pmu_online_password']) : '';
+
+			// Validar los campos según el método de pago
+			if ($payment_method == "1")
 			{
-				$_SESSION['error_message'] = 'Por favor, complete todos los campos de la tarjeta de crédito.';
-				header("Location: payment_methods.php");
-				exit;
+				// Validar campos de tarjeta de crédito
+				if (empty($card_number) || empty($cve_number) || empty($cardholder) || empty($expiration_date))
+				{
+					$_SESSION['error_message'] = 'Por favor, complete todos los campos de la tarjeta de crédito.';
+					header("Location: payment_methods.php");
+					exit;
+				}
+
+				// Validar formato de tarjeta de crédito
+				if (!preg_match('/^[0-9]{16}$/', $card_number))
+				{
+					$_SESSION['error_message'] = 'Número de tarjeta inválido.';
+					header("Location: payment_methods.php");
+					exit;
+				}
+
+				// Validar formato de CVV
+				if (!preg_match('/^[0-9]{3}$/', $cve_number))
+				{
+					$_SESSION['error_message'] = 'Número CVV inválido.';
+					header("Location: payment_methods.php");
+					exit;
+				}
+
+				// Validar formato de fecha de expiración
+				if (!preg_match('/^(0[1-9]|1[0-2])\/\d{2}$/', $expiration_date))
+				{
+					$_SESSION['error_message'] = 'Fecha de expiración inválida.';
+					header("Location: payment_methods.php");
+					exit;
+				}
+
+				// Valores vacíos (conflicto con la BBDD de producción)
+				$online_account  = 'A';
+				$online_password = 'A';
+				$account_number  = 0;
+				$swift           = 'A';
+
+				// Insertar método de pago de tarjeta de crédito
+				try
+				{
+					$sql  = "INSERT INTO pps_payment_methods_per_user (pmu_payment_method, pmu_user, pmu_account_number, pmu_swift, pmu_card_number, pmu_cve_number, pmu_cardholder, pmu_expiration_date, pmu_online_account, pmu_online_password, pmu_is_main) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					$stmt = $connection->prepare($sql);
+					if ($stmt->execute([$payment_method, $user_id, $account_number, $swift, $card_number, $cve_number, $cardholder, $expiration_date, $online_account, $online_password, $pmu_is_main]))
+					{
+						$_SESSION['success_message'] = 'Método de pago agregado exitosamente.';
+					}
+					else
+					{
+						$_SESSION['error_message'] = 'Hubo un error al agregar el método de pago.';
+					}
+				}
+				catch (PDOException $e)
+				{
+					$_SESSION['error_message'] = 'Error en la base de datos: ';
+				}
 			}
-
-			// Validar formato de tarjeta de crédito
-			if (!preg_match('/^[0-9]{16}$/', $card_number))
+            elseif ($payment_method == "2")
 			{
-				$_SESSION['error_message'] = 'Número de tarjeta inválido.';
-				header("Location: payment_methods.php");
-				exit;
-			}
+				// Validar campos de PayPal
+				if (empty($online_account) || empty($online_password) || strlen($online_password) > 30 || strlen($online_account) > 30)
+				{
+					$_SESSION['error_message'] = 'Por favor, complete todos los campos de PayPal, o excedes el límete de 30 carácteres.';
+					header("Location: payment_methods.php");
+					exit;
+				}
 
-			// Validar formato de CVV
-			if (!preg_match('/^[0-9]{3}$/', $cve_number))
-			{
-				$_SESSION['error_message'] = 'Número CVV inválido.';
-				header("Location: payment_methods.php");
-				exit;
-			}
+				// Validar formato de correo electrónico
+				if (!preg_match("/^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/", $online_account))
+				{
+					$_SESSION['error_message'] = 'Correo electrónico de PayPal inválido o demasiado largo.';
+					header("Location: payment_methods.php");
+					exit;
+				}
 
-			// Validar formato de fecha de expiración
-			if (!preg_match('/^(0[1-9]|1[0-2])\/\d{2}$/', $expiration_date))
-			{
-				$_SESSION['error_message'] = 'Fecha de expiración inválida.';
-				header("Location: payment_methods.php");
-				exit;
-			}
+				// Valores vacíos (conflicto con la BBDD de producción)
+				$online_password = password_hash($online_password, PASSWORD_DEFAULT);
+				$account_number  = 'A';
+				$swift           = 'A';
+				$card_number     = 0;
+				$cve_number      = 0;
+				$cardholder      = 'A';
+				$expiration_date = 'A';
 
-			// Valores vacíos (conflicto con la BBDD de producción)
-			$online_account  = 'A';
-			$online_password = 'A';
-			$account_number  = 0;
-			$swift           = 'A';
-
-
-			// Insertar método de pago de tarjeta de crédito
-			$sql  = "INSERT INTO pps_payment_methods_per_user (pmu_payment_method, pmu_user, pmu_account_number, pmu_swift, pmu_card_number, pmu_cve_number, pmu_cardholder, pmu_expiration_date, pmu_online_account, pmu_online_password, pmu_is_main) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-			$stmt = $connection->prepare($sql);
-			if ($stmt->execute([$payment_method, $user_id, $account_number, $swift, $card_number, $cve_number, $cardholder, $expiration_date, $online_account, $online_password, $pmu_is_main]))
-			{
-				$_SESSION['success_message'] = 'Método de pago agregado exitosamente.';
+				// Insertar método de pago PayPal
+				try
+				{
+					$sql  = "INSERT INTO pps_payment_methods_per_user (pmu_payment_method, pmu_user, pmu_account_number, pmu_swift, pmu_card_number, pmu_cve_number, pmu_cardholder, pmu_expiration_date, pmu_online_account, pmu_online_password, pmu_is_main) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					$stmt = $connection->prepare($sql);
+					if ($stmt->execute([$payment_method, $user_id, $account_number, $swift, $card_number, $cve_number, $cardholder, $expiration_date, $online_account, $online_password, $pmu_is_main]))
+					{
+						$_SESSION['success_message'] = "Método de pago agregado exitosamente.";
+					}
+					else
+					{
+						$_SESSION['error_message'] = 'Hubo un error al agregar el método de pago.';
+					}
+				}
+				catch (PDOException $e)
+				{
+					$_SESSION['error_message'] = 'Error en la base de datos:';
+				}
 			}
 			else
 			{
-				$_SESSION['error_message'] = 'Hubo un error al agregar el método de pago.';
+				$_SESSION['error_message'] = 'Método de pago inválido.';
 			}
+			header("Location: payment_methods.php");
+			exit;
 		}
-        elseif ($payment_method == "2")
+		catch (PDOException $e)
 		{
-			// Validar campos de PayPal
-			if (empty($online_account) || empty($online_password))
-			{
-				$_SESSION['error_message'] = 'Por favor, complete todos los campos de PayPal.';
-				header("Location: payment_methods.php");
-				exit;
-			}
-
-			// Validar formato de correo electrónico
-			if (!filter_var($online_account, FILTER_VALIDATE_EMAIL))
-			{
-				$_SESSION['error_message'] = 'Correo electrónico de PayPal inválido.';
-				header("Location: payment_methods.php");
-				exit;
-			}
-
-			// Valores vacíos (conflicto con la BBDD de producción)
-			$account_number  = 'A';
-			$swift           = 'A';
-			$card_number     = 0;
-			$cve_number      = 0;
-			$cardholder      = 'A';
-			$expiration_date = 'A';
-
-			// Insertar método de pago PayPal
-			$sql  = "INSERT INTO pps_payment_methods_per_user (pmu_payment_method, pmu_user, pmu_account_number, pmu_swift, pmu_card_number, pmu_cve_number, pmu_cardholder, pmu_expiration_date, pmu_online_account, pmu_online_password, pmu_is_main) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-			$stmt = $connection->prepare($sql);
-			if ($stmt->execute([$payment_method, $user_id, $account_number, $swift, $card_number, $cve_number, $cardholder, $expiration_date, $online_account, $online_password, $pmu_is_main]))
-			{
-				$_SESSION['success_message'] = "Método de pago agregado exitosamente.";
-			}
-			else
-			{
-				$_SESSION['error_message'] = 'Hubo un error al agregar el método de pago.';
-			}
+			$_SESSION['error_message'] = 'Hubo un error al procesar la solicitud.';
+			header("Location: payment_methods.php");
+			exit;
 		}
-		else
-		{
-			$_SESSION['error_message'] = 'Método de pago inválido.';
-		}
-
-		header("Location: payment_methods.php");
-		exit;
 	}
 
 	// Manejar el envío del formulario para eliminar un método de pago
@@ -246,16 +312,26 @@
 		}
 
 
-		$sql  = "DELETE FROM pps_payment_methods_per_user WHERE pmu_id = ? AND pmu_user = ?";
-		$stmt = $connection->prepare($sql);
-		if ($stmt->execute([$pmu_id, $user_id]))
+		// Eliminar método de pago
+		try
 		{
-			$_SESSION['success_message'] = 'Método de pago eliminado exitosamente.';
+			$sql  = "DELETE FROM pps_payment_methods_per_user WHERE pmu_id = ? AND pmu_user = ?";
+			$stmt = $connection->prepare($sql);
+			if ($stmt->execute([$pmu_id, $user_id]))
+			{
+				$_SESSION['success_message'] = 'Método de pago eliminado exitosamente.';
+			}
+			else
+			{
+				$_SESSION['error_message'] = 'Hubo un error al eliminar el método de pago.';
+			}
 		}
-		else
+		catch (PDOException $e)
 		{
-			$_SESSION['error_message'] = 'Hubo un error al eliminar el método de pago.';
+			$_SESSION['error_message'] = 'Error en la base de datos';
 		}
+
+		// Eliminar método de pago
 		header("Location: payment_methods.php");
 		exit;
 	}
@@ -310,30 +386,48 @@
 		}
 
 		// Marcar el método de pago como principal
-		$sqlUpdate  = "UPDATE pps_payment_methods_per_user SET pmu_is_main = 0 WHERE pmu_user = ?";
-		$stmtUpdate = $connection->prepare($sqlUpdate);
-		$stmtUpdate->execute([$user_id]);
-
-		$sqlSetPrimary  = "UPDATE pps_payment_methods_per_user SET pmu_is_main = 1 WHERE pmu_id = ?";
-		$stmtSetPrimary = $connection->prepare($sqlSetPrimary);
-		if ($stmtSetPrimary->execute([$pmu_id]))
+		try
 		{
-			$_SESSION['success_message'] = 'Método de pago establecido como principal exitosamente.';
+			$sqlUpdate  = "UPDATE pps_payment_methods_per_user SET pmu_is_main = 0 WHERE pmu_user = ?";
+			$stmtUpdate = $connection->prepare($sqlUpdate);
+			$stmtUpdate->execute([$user_id]);
+
+			$sqlSetPrimary  = "UPDATE pps_payment_methods_per_user SET pmu_is_main = 1 WHERE pmu_id = ?";
+			$stmtSetPrimary = $connection->prepare($sqlSetPrimary);
+			if ($stmtSetPrimary->execute([$pmu_id]))
+			{
+				$_SESSION['success_message'] = 'Método de pago establecido como principal exitosamente.';
+			}
+			else
+			{
+				$_SESSION['error_message'] = 'Hubo un error al establecer el método de pago como principal.';
+			}
 		}
-		else
+		catch (PDOException $e)
 		{
-			$_SESSION['error_message'] = 'Hubo un error al establecer el método de pago como principal.';
+			$_SESSION['error_message'] = 'Error en la base de datos.';
 		}
 
+		// Recargar página
 		header("Location: payment_methods.php");
 		exit;
 	}
 
 	// Obtener todos los métodos de pago del usuario
-	$sql  = "SELECT * FROM pps_payment_methods_per_user WHERE pmu_user = ?";
-	$stmt = $connection->prepare($sql);
-	$stmt->execute([$user_id]);
-	$payment_methods = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	try
+	{
+		// Obtener todos los métodos de pago del usuario
+		$sql  = "SELECT * FROM pps_payment_methods_per_user WHERE pmu_user = ?";
+		$stmt = $connection->prepare($sql);
+		$stmt->execute([$user_id]);
+		$payment_methods = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	}
+	catch (PDOException $e)
+	{
+		// Manejar el error en caso de excepción
+		echo "Error al obtener métodos de pago: ";
+		// Puedes definir un comportamiento alternativo o lanzar una excepción más arriba si es necesario
+	}
 ?>
 
 <!DOCTYPE html>
@@ -343,7 +437,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Métodos de Pago</title>
-    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <!-- CSS / Hoja de estilos Bootstrap -->
+    <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/0images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/0images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/0images/favicon-16x16.png">
+    <link rel="manifest" href="/0images/site.webmanifest">
     <style>
         .container {
             padding: 20px;
@@ -388,6 +490,30 @@
 		window.onload = function () {
 			toggleFields(); // Inicializar la visibilidad de los campos al cargar la página
 		};
+
+		// Autocompletar formato MM/AA
+		document.addEventListener('DOMContentLoaded', function () {
+			const expirationDateInput = document.getElementById('pmu_expiration_date');
+
+			// Autocomplete '/' when month is entered
+			expirationDateInput.addEventListener('input', function (event) {
+				const value = this.value;
+				if (value.length === 2 && value.indexOf('/') === -1) {
+					this.value = value + '/';
+				}
+			});
+
+			// Allow deletion of characters
+			expirationDateInput.addEventListener('keydown', function (event) {
+				if (event.key === 'Backspace' || event.key === 'Delete') {
+					const value = this.value;
+					if (value.length === 4 && value.charAt(2) === '/') {
+						this.value = value.substring(0, 2);
+						event.preventDefault();
+					}
+				}
+			});
+		});
     </script>
 </head>
 
@@ -395,6 +521,9 @@
 <?php include "../nav.php"; ?>
 
 <div class="container">
+    <div class="back-button-container">
+        <a href="main_profile.php" class="btn btn-secondary"><i class='fa-solid fa-arrow-left'></i></a>
+    </div>
     <h1 class="text-center mb-4">Métodos de Pago</h1>
 
     <!-- Mensajes de éxito y error -->
@@ -432,11 +561,11 @@
         <div id="credit-card-fields" style="display:none;">
             <div class="mb-3">
                 <label for="pmu_card_number" class="form-label">Número de Tarjeta:</label>
-                <input type="text" id="pmu_card_number" name="pmu_card_number" class="form-control payment-field" maxlength="16" placeholder="1234 5678 9012 3456">
+                <input type="number" id="pmu_card_number" name="pmu_card_number" class="form-control payment-field" maxlength="16" placeholder="1234 5678 9012 3456">
             </div>
             <div class="mb-3">
                 <label for="pmu_cve_number" class="form-label">CVV:</label>
-                <input type="text" id="pmu_cve_number" name="pmu_cve_number" class="form-control payment-field" maxlength="3" placeholder="123">
+                <input type="number" id="pmu_cve_number" name="pmu_cve_number" class="form-control payment-field" maxlength="3" placeholder="123">
             </div>
             <div class="mb-3">
                 <label for="pmu_cardholder" class="form-label">Nombre del Titular:</label>

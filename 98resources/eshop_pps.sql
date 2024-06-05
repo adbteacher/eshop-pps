@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: May 29, 2024 at 04:30 PM
--- Server version: 10.6.5-MariaDB
--- PHP Version: 8.1.0
+-- Host: 127.0.0.1:3306
+-- Generation Time: Jun 04, 2024 at 09:16 PM
+-- Server version: 11.2.2-MariaDB
+-- PHP Version: 8.2.13
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `pps_addresses_per_user` (
   `adr_is_main` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`adr_id`),
   KEY `adr_user` (`adr_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='Addresses per User' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Addresses per User' ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_addresses_per_user`
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `pps_categories` (
   `cat_description` varchar(100) NOT NULL,
   PRIMARY KEY (`cat_id`),
   UNIQUE KEY `cat_id` (`cat_id`,`cat_description`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_categories`
@@ -89,7 +89,24 @@ CREATE TABLE IF NOT EXISTS `pps_coupons` (
   `cou_discount` int(11) NOT NULL,
   `cou_is_used` varchar(1) NOT NULL,
   PRIMARY KEY (`cou_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pps_logs_2fa`
+--
+
+DROP TABLE IF EXISTS `pps_logs_2fa`;
+CREATE TABLE IF NOT EXISTS `pps_logs_2fa` (
+  `lfa_id` int(11) NOT NULL AUTO_INCREMENT,
+  `lfa_user` int(6) NOT NULL,
+  `lfa_ip` varchar(40) NOT NULL,
+  `lfa_was_successful` tinyint(1) NOT NULL COMMENT 'True si la verificación fue exitosa, False si fue fallida',
+  `lfa_datetime` datetime NOT NULL,
+  PRIMARY KEY (`lfa_id`),
+  KEY `lfa_user` (`lfa_user`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -107,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `pps_logs_login` (
   PRIMARY KEY (`lol_id`),
   UNIQUE KEY `rlo_id` (`lol_id`,`lol_user`),
   KEY `lol_user` (`lol_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_logs_login`
@@ -140,7 +157,21 @@ INSERT INTO `pps_logs_login` (`lol_id`, `lol_user`, `lol_ip`, `lol_was_correct_l
 (31, 10, '192.168.56.1', 1, '2024-05-29 16:30:17'),
 (32, 10, '192.168.56.1', 1, '2024-05-29 16:35:30'),
 (34, 10, '192.168.56.1', 1, '2024-05-29 16:41:48'),
-(35, 10, '192.168.56.1', 1, '2024-05-29 16:58:03');
+(35, 10, '192.168.56.1', 1, '2024-05-29 16:58:03'),
+(36, 13, '192.168.56.1', 1, '2024-05-29 18:31:16'),
+(37, 13, '192.168.56.1', 1, '2024-05-29 19:08:17'),
+(38, 13, '192.168.56.1', 1, '2024-05-29 19:35:31'),
+(39, 13, '192.168.56.1', 1, '2024-05-29 20:07:20'),
+(40, 13, '192.168.56.1', 1, '2024-05-30 20:17:25'),
+(41, 10, '::1', 0, '2024-05-31 20:15:34'),
+(42, 10, '::1', 1, '2024-05-31 20:15:45'),
+(43, 12, '::1', 1, '2024-05-31 20:16:06'),
+(44, 12, '::1', 1, '2024-06-04 19:17:03'),
+(45, 12, '::1', 1, '2024-06-04 20:06:38'),
+(46, 12, '::1', 1, '2024-06-04 20:32:36'),
+(47, 10, '::1', 1, '2024-06-04 20:35:42'),
+(48, 10, '::1', 1, '2024-06-04 22:39:58'),
+(49, 10, '::1', 1, '2024-06-04 22:55:01');
 
 -- --------------------------------------------------------
 
@@ -159,7 +190,7 @@ CREATE TABLE IF NOT EXISTS `pps_logs_recovery` (
   PRIMARY KEY (`lor_id`),
   UNIQUE KEY `lor_id` (`lor_id`,`lor_user`),
   KEY `lor_user` (`lor_user`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
 
@@ -177,7 +208,7 @@ CREATE TABLE IF NOT EXISTS `pps_messages` (
   KEY `msg_user_sender` (`msg_user_sender`),
   KEY `msg_user_receiver` (`msg_user_receiver`),
   KEY `msg_message` (`msg_message`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
 
@@ -188,14 +219,75 @@ CREATE TABLE IF NOT EXISTS `pps_messages` (
 DROP TABLE IF EXISTS `pps_orders`;
 CREATE TABLE IF NOT EXISTS `pps_orders` (
   `ord_id` int(11) NOT NULL AUTO_INCREMENT,
-  `ord_user_id` int(6) NOT NULL,
+  `ord_user_id` int(11) DEFAULT NULL,
   `ord_purchase_date` date DEFAULT NULL,
   `ord_shipping_date` date DEFAULT NULL,
-  `ord_order_status` enum('In Process','Shipped','Delivered') NOT NULL,
+  `ord_order_status` enum('Creado','PendienteEnvio','Enviado','Pendiente Devolución','Reembolsado') NOT NULL,
   `ord_shipping_address` varchar(255) NOT NULL,
   PRIMARY KEY (`ord_id`),
   KEY `ord_user_id` (`ord_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `pps_orders`
+--
+
+INSERT INTO `pps_orders` (`ord_id`, `ord_user_id`, `ord_purchase_date`, `ord_shipping_date`, `ord_order_status`, `ord_shipping_address`) VALUES
+(4, 1, NULL, NULL, 'Reembolsado', 'sdfds'),
+(6, 1, '2024-05-16', '2024-05-15', 'Creado', 'sfsfsdf'),
+(7, 1, '2024-05-16', '2024-05-15', 'Enviado', 'sfsfsdf23231'),
+(10, 2, '2024-06-14', '2024-06-05', 'PendienteEnvio', 'sdfdsf');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pps_orders_history`
+--
+
+DROP TABLE IF EXISTS `pps_orders_history`;
+CREATE TABLE IF NOT EXISTS `pps_orders_history` (
+  `ord_hist_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ord_hist_order_id` int(11) DEFAULT NULL,
+  `ord_hist_transaction_type` enum('Creado','PendienteEnvio','Enviado','Pendiente Devolución','Reembolsado') NOT NULL,
+  `ord_hist_transaction_date` datetime DEFAULT NULL,
+  `ord_hist_amount` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`ord_hist_id`),
+  KEY `ord_hist_order_id` (`ord_hist_order_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `pps_orders_history`
+--
+
+INSERT INTO `pps_orders_history` (`ord_hist_id`, `ord_hist_order_id`, `ord_hist_transaction_type`, `ord_hist_transaction_date`, `ord_hist_amount`) VALUES
+(1, 1, 'Creado', NULL, NULL),
+(2, 1, 'Creado', '2024-05-10 20:33:45', NULL),
+(3, 1, '', '2024-05-10 20:41:14', NULL),
+(4, 1, 'Enviado', '2024-05-17 19:57:01', NULL),
+(5, 1, '', '2024-05-17 20:02:53', NULL),
+(6, 1, '', '2024-05-17 20:03:01', NULL),
+(7, 1, '', '2024-05-17 20:05:26', NULL),
+(8, 1, '', '2024-05-17 20:06:56', NULL),
+(9, 1, 'Creado', '2024-05-17 20:15:28', NULL),
+(10, NULL, 'PendienteEnvio', '2024-05-17 20:15:53', NULL),
+(11, 1, 'Pendiente Devolución', '2024-05-17 20:17:36', NULL),
+(12, 1, 'Creado', '2024-05-17 20:18:21', NULL),
+(13, 4, 'Reembolsado', '2024-05-17 20:19:15', NULL),
+(14, 1, 'Enviado', '2024-05-24 19:21:55', NULL),
+(15, 4, 'Creado', '2024-05-24 19:40:09', NULL),
+(16, 4, 'Enviado', '2024-05-31 21:39:39', NULL),
+(17, 4, 'Enviado', '2024-05-31 21:40:01', NULL),
+(18, 2, 'Creado', '2024-05-31 21:40:41', NULL),
+(19, 2, 'Enviado', '2024-05-31 21:40:59', NULL),
+(20, 2, 'Enviado', '2024-05-31 21:41:45', NULL),
+(21, 2, 'PendienteEnvio', '2024-05-31 21:49:30', NULL),
+(22, 2, 'Creado', '2024-05-31 21:53:47', NULL),
+(23, 2, 'Creado', '2024-05-31 21:54:09', NULL),
+(24, 6, 'Creado', '2024-05-31 21:58:23', NULL),
+(25, 2, 'Creado', '2024-05-31 21:58:53', NULL),
+(26, 1, 'Enviado', '2024-05-31 23:40:42', NULL),
+(27, 1, 'PendienteEnvio', '2024-06-03 06:17:42', NULL),
+(28, 7, 'Enviado', '2024-06-03 06:18:13', NULL);
 
 -- --------------------------------------------------------
 
@@ -214,7 +306,19 @@ CREATE TABLE IF NOT EXISTS `pps_order_details` (
   PRIMARY KEY (`ord_det_id`),
   KEY `ord_det_order_id` (`ord_det_order_id`),
   KEY `ord_det_prod_id` (`ord_det_prod_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `pps_order_details`
+--
+
+INSERT INTO `pps_order_details` (`ord_det_id`, `ord_det_order_id`, `ord_det_prod_id`, `qty`, `unit_price`, `subtotal`) VALUES
+(1, 1, 1, 1, 5.00, 12.00),
+(3, 1, 1, 4, 4.00, 4.00),
+(4, 1, 2, 3, 3.00, 3.00),
+(5, 1, 2, 4, 5.00, 6.00),
+(6, 7, 1, 44, 4.00, 33.00),
+(7, 2, 1, 4, 4.00, 4.00);
 
 -- --------------------------------------------------------
 
@@ -228,7 +332,7 @@ CREATE TABLE IF NOT EXISTS `pps_payment_methods` (
   `pam_description` varchar(30) NOT NULL,
   PRIMARY KEY (`pam_id`),
   UNIQUE KEY `pam_description` (`pam_description`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_payment_methods`
@@ -256,18 +360,17 @@ CREATE TABLE IF NOT EXISTS `pps_payment_methods_per_user` (
   `pmu_cardholder` varchar(50) NOT NULL,
   `pmu_expiration_date` varchar(5) NOT NULL,
   `pmu_online_account` varchar(50) NOT NULL COMMENT 'email',
-  `pmu_online_password` varchar(50) NOT NULL,
   `pmu_is_main` tinyint(1) NOT NULL,
+  `pmu_online_password` varchar(300) NOT NULL,
   PRIMARY KEY (`pmu_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_payment_methods_per_user`
 --
 
-INSERT INTO `pps_payment_methods_per_user` (`pmu_id`, `pmu_payment_method`, `pmu_user`, `pmu_account_number`, `pmu_swift`, `pmu_card_number`, `pmu_cve_number`, `pmu_cardholder`, `pmu_expiration_date`, `pmu_online_account`, `pmu_online_password`, `pmu_is_main`) VALUES
-(2, 2, 10, '', '', '0', '0', '', '', 'ivan@emial.com', '$2y$10$TxqbGF.MDnstgxfZPCovLuruYxlc03JtIM3x2WxAihN', 0),
-(3, 1, 10, '', '', '1234567898765444', '123', 'addad', '12/12', '', '', 1);
+INSERT INTO `pps_payment_methods_per_user` (`pmu_id`, `pmu_payment_method`, `pmu_user`, `pmu_account_number`, `pmu_swift`, `pmu_card_number`, `pmu_cve_number`, `pmu_cardholder`, `pmu_expiration_date`, `pmu_online_account`, `pmu_is_main`, `pmu_online_password`) VALUES
+(4, 1, 10, '0', 'A', 1111333344445555, 123, '1234', '12/21', 'A', 1, 'A');
 
 -- --------------------------------------------------------
 
@@ -282,7 +385,7 @@ CREATE TABLE IF NOT EXISTS `pps_permission_per_rol` (
   `ppr_program` varchar(100) NOT NULL,
   `ppr_allowed` varchar(1) NOT NULL,
   PRIMARY KEY (`ppr_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_permission_per_rol`
@@ -312,39 +415,40 @@ CREATE TABLE IF NOT EXISTS `pps_products` (
   UNIQUE KEY `prd_name` (`prd_name`,`prd_category`),
   UNIQUE KEY `prd_id` (`prd_id`),
   KEY `prd_category` (`prd_category`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COMMENT='Products' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Products' ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_products`
 --
 
 INSERT INTO `pps_products` (`prd_id`, `prd_name`, `prd_category`, `prd_details`, `prd_price`, `prd_stock`, `prd_image`, `prd_on_offer`, `prd_offer_price`) VALUES
-(1, 'Endivias Espada', 3, 'Endivias Espada, frescas y crujientes, perfectas para ensaladas y platos gourmet.aaaa', '1.50', 20, '/0images/endivias-espada.png', 0, NULL),
-(2, 'Uvas de Villena', 2, 'Uvas de Villena, frescas y dulces, perfectas para postres y meriendas.', '2.00', 25, '/0images/uvas_villena.png', 1, '1.80'),
-(3, 'Almendras de Ibiza', 7, 'Almendras de Ibiza, crujientes y sabrosas, ideales como snack o para cocinar.', '3.50', 30, '/0images/almendra-ibiza.png', 0, NULL),
-(4, 'Kaki Persimon de La Ribera Alta', 2, 'Kaki Persimon de La Ribera Alta, dulce y jugoso, perfecto para postres.', '2.50', 20, '/0images/Kaki-Persimon.png', 1, '2.20'),
-(5, 'Tomate El Perello', 3, 'Tomate El Perello, jugoso y con mucho sabor, ideal para ensaladas y salsas.', '1.20', 40, '/0images/tomate-perello.png', 1, '1.00'),
-(6, 'Chufa de Valencia', 7, 'Chufa de Valencia, perfecta para hacer horchata y como snack saludable.', '4.00', 35, '/0images/chufa.png', 1, '3.50'),
-(7, 'Manzana Fuji', 2, 'Manzana Fuji, una variedad crujiente y dulce, ideal para comer fresca.', '0.50', 23, '/0images/manzana-fuji.png', 0, NULL),
-(8, 'Manzana Granny', 2, 'Manzana Granny Smith, conocida por su sabor ácido y textura crujiente.', '0.45', 15, '/0images/manzana-granny.png', 1, '0.40'),
-(9, 'Manzanas Pink Lady', 2, 'Manzana Pink Lady, dulce y crujiente, perfecta para postres y ensaladas.', '0.60', 13, '/0images/manzana-pinklady.png', 0, NULL),
-(10, 'Naranja', 1, 'Naranjas Valencia, conocidas por su jugosidad y sabor dulce, perfectas para zumos.', '0.30', 50, '/0images/naranja-valencia.png', 0, NULL),
-(11, 'Limón', 1, 'Limones Eureka, ideales para aderezos y bebidas refrescantes con su sabor ácido.', '0.25', 40, '/0images/limon-eureka.png', 1, '0.20'),
-(12, 'Mandarina', 1, 'Mandarinas Clementinas, fáciles de pelar y perfectas para un snack saludable.', '0.35', 60, '/0images/mandarina-clementina.png', 0, NULL),
-(13, 'Manzana Roja', 2, 'Manzanas Red Delicious, crujientes y dulces, ideales para postres y meriendas.', '0.50', 30, '/0images/manzana-red-delicious.png', 0, NULL),
-(14, 'Plátano', 2, 'Plátanos de Canarias, ricos en potasio, perfectos para un snack rápido y saludable.', '0.40', 45, '/0images/platano-canarias.png', 1, '0.35'),
-(15, 'Pera', 2, 'Peras Conference, jugosas y dulces, ideales para comer frescas o en ensaladas.', '0.55', 35, '/0images/pera-conference.png', 1, '0.50'),
-(16, 'Zanahoria', 3, 'Zanahorias Nantesas, frescas y crujientes, perfectas para ensaladas y guisos.', '0.20', 70, '/0images/zanahoria-nantesa.png', 0, NULL),
-(17, 'Brócoli', 3, 'Brócoli verde fresco, rico en vitaminas y minerales, ideal para una dieta saludable.', '1.20', 25, '/0images/brocoli-verde.png', 0, NULL),
-(18, 'Lechuga', 3, 'Lechuga Romana, fresca y crujiente, perfecta para ensaladas y sándwiches.', '0.90', 40, '/0images/lechuga-romana.png', 0, NULL),
-(19, 'Fresa', 4, 'Fresas de Huelva, dulces y jugosas, ideales para postres y batidos.', '1.80', 30, '/0images/fresa-huelva.png', 1, '1.60'),
-(20, 'Frambuesa', 4, 'Frambuesas rojas frescas, perfectas para postres y como snack saludable.', '2.50', 20, '/0images/frambuesa-roja.png', 0, NULL),
-(21, 'Melón', 5, 'Melones Cantalupo, dulces y jugosos, perfectos para el verano.', '3.00', 15, '/0images/melon-cantalupo.png', 0, NULL),
-(22, 'Sandía', 5, 'Sandías sin semillas, ideales para un refrescante snack veraniego.', '2.80', 20, '/0images/sandia-sin-semillas.png', 0, NULL),
-(23, 'Piña', 6, 'Piñas tropicales frescas, dulces y jugosas, ideales para postres y ensaladas.', '3.50', 25, '/0images/pina-tropical.png', 0, NULL),
-(24, 'Mango', 6, 'Mangos Ataulfo frescos, dulces y jugosos, perfectos para batidos y postres.', '2.00', 30, '/0images/mango-ataulfo.png', 1, '1.80'),
-(25, 'Pepino Holandés', 3, 'Pepino Holandés, ideal para ensaladas, fresco y con un sabor suave.', '0.80', 50, '/0images/pepino-holandes.png', 0, NULL),
-(26, 'Tomate Cherry', 3, 'Tomate Cherry, pequeños y dulces, perfectos para ensaladas y snacks.', '2.00', 30, '/0images/tomate-cherry.png', 0, NULL);
+(1, 'Endivias Espada', 3, 'Endivias Espada, frescas y crujientes, perfectas para ensaladas y platos gourmet.', 1.60, 20, '/0images/endivias-espada.png', 0, NULL),
+(2, 'Uvas de Villena', 2, 'Uvas de Villena, frescas y dulces, perfectas para postres y meriendas.', 2.00, 25, '/0images/uvas_villena.png', 1, 1.80),
+(3, 'Almendras de Ibiza', 7, 'Almendras de Ibiza, crujientes y sabrosas, ideales como snack o para cocinar.', 3.50, 30, '/0images/almendra-ibiza.png', 0, NULL),
+(4, 'Kaki Persimon de La Ribera Alta', 2, 'Kaki Persimon de La Ribera Alta, dulce y jugoso, perfecto para postres.', 2.50, 20, '/0images/Kaki-Persimon.png', 1, 2.20),
+(5, 'Tomate El Perello', 3, 'Tomate El Perello, jugoso y con mucho sabor, ideal para ensaladas y salsas.', 1.20, 40, '/0images/tomate-perello.png', 1, 1.00),
+(6, 'Chufa de Valencia', 7, 'Chufa de Valencia, perfecta para hacer horchata y como snack saludable.', 4.00, 35, '/0images/chufa.png', 1, 3.50),
+(7, 'Manzana Fuji', 2, 'Manzana Fuji, una variedad crujiente y dulce, ideal para comer fresca.', 0.50, 23, '/0images/manzana-fuji.png', 0, NULL),
+(8, 'Manzana Granny', 2, 'Manzana Granny Smith, conocida por su sabor ácido y textura crujiente.', 0.45, 15, '/0images/manzana-granny.png', 1, 0.40),
+(9, 'Manzanas Pink Lady', 2, 'Manzana Pink Lady, dulce y crujiente, perfecta para postres y ensaladas.', 0.60, 13, '/0images/manzana-pinklady.png', 0, NULL),
+(10, 'Naranja', 1, 'Naranjas Valencia, conocidas por su jugosidad y sabor dulce, perfectas para zumos.', 0.30, 50, '/0images/naranja-valencia.png', 0, NULL),
+(11, 'Limón', 1, 'Limones Eureka, ideales para aderezos y bebidas refrescantes con su sabor ácido.', 0.25, 40, '/0images/limon-eureka.png', 1, 0.20),
+(12, 'Mandarina', 1, 'Mandarinas Clementinas, fáciles de pelar y perfectas para un snack saludable.', 0.35, 60, '/0images/mandarina-clementina.png', 0, NULL),
+(13, 'Manzana Roja', 2, 'Manzanas Red Delicious, crujientes y dulces, ideales para postres y meriendas.', 0.50, 30, '/0images/manzana-red-delicious.png', 0, NULL),
+(14, 'Plátano', 2, 'Plátanos de Canarias, ricos en potasio, perfectos para un snack rápido y saludable.', 0.40, 45, '/0images/platano-canarias.png', 1, 0.35),
+(15, 'Pera', 2, 'Peras Conference, jugosas y dulces, ideales para comer frescas o en ensaladas.', 0.55, 35, '/0images/pera-conference.png', 1, 0.50),
+(16, 'Zanahoria', 3, 'Zanahorias Nantesas, frescas y crujientes, perfectas para ensaladas y guisos.', 0.20, 70, '/0images/zanahoria-nantesa.png', 0, NULL),
+(17, 'Brócoli', 3, 'Brócoli verde fresco, rico en vitaminas y minerales, ideal para una dieta saludable.', 1.20, 25, '/0images/brocoli-verde.png', 0, NULL),
+(18, 'Lechuga', 3, 'Lechuga Romana, fresca y crujiente, perfecta para ensaladas y sándwiches.', 0.90, 40, '/0images/lechuga-romana.png', 0, NULL),
+(19, 'Fresa', 4, 'Fresas de Huelva, dulces y jugosas, ideales para postres y batidos.', 1.80, 30, '/0images/fresa-huelva.png', 1, 1.60),
+(20, 'Frambuesa', 4, 'Frambuesas rojas frescas, perfectas para postres y como snack saludable.', 2.50, 20, '/0images/frambuesa-roja.png', 0, NULL),
+(21, 'Melón', 5, 'Melones Cantalupo, dulces y jugosos, perfectos para el verano.', 3.00, 15, '/0images/melon-cantalupo.png', 0, NULL),
+(22, 'Sandía', 5, 'Sandías sin semillas, ideales para un refrescante snack veraniego.', 2.80, 20, '/0images/sandia-sin-semillas.png', 0, NULL),
+(23, 'Piña', 6, 'Piñas tropicales frescas, dulces y jugosas, ideales para postres y ensaladas.', 3.50, 25, '/0images/pina-tropical.png', 0, NULL),
+(24, 'Mango', 6, 'Mangos Ataulfo frescos, dulces y jugosos, perfectos para batidos y postres.', 2.00, 30, '/0images/mango-ataulfo.png', 1, 1.80),
+(25, 'Pepino Holandés', 3, 'Pepino Holandés, ideal para ensaladas, fresco y con un sabor suave.', 0.80, 50, '/0images/pepino-holandes.png', 0, NULL),
+(26, 'Tomate Cherry', 3, 'Tomate Cherry, pequeños y dulces, perfectos para ensaladas y snacks.', 2.00, 30, '/0images/tomate-cherry.png', 0, NULL),
+(27, 'la fruta de Iván', 6, 'La jefa de todas las frutas', 33.00, 69, 'img_665a17f8f38b86.71616740.jpg', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -364,7 +468,7 @@ CREATE TABLE IF NOT EXISTS `pps_reviews` (
   UNIQUE KEY `rev_id` (`rev_id`,`rev_product`),
   KEY `rev_product` (`rev_product`),
   KEY `pps_reviews_ibfk_2` (`rev_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_reviews`
@@ -467,8 +571,18 @@ CREATE TABLE IF NOT EXISTS `pps_tickets` (
   `tic_priority` varchar(1) NOT NULL,
   `tic_resolution_time` int(11) NOT NULL,
   PRIMARY KEY (`tic_id`),
-  KEY `tic_user_creator` (`tic_user_creator`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+  KEY `tic_user_creator` (`tic_user_creator`),
+  KEY `pps_tickets_ibfk_2` (`tic_user_solver`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `pps_tickets`
+--
+
+INSERT INTO `pps_tickets` (`tic_id`, `tic_title`, `tic_message`, `tic_user_creator`, `tic_creation_time`, `tic_user_solver`, `tic_priority`, `tic_resolution_time`) VALUES
+(7, 'help', 'help me pls', 13, '2024-05-29 17:23:15', NULL, 'B', 0),
+(8, 'help me', 'I\'m stuck', 13, '2024-05-29 17:24:16', NULL, 'M', 0),
+(10, 'NUCLEAR FUSION', 'ALERT, NUCLEAR EXPLOSION IMMINENT', 13, '2024-05-29 18:08:43', NULL, 'A', 0);
 
 -- --------------------------------------------------------
 
@@ -497,7 +611,7 @@ CREATE TABLE IF NOT EXISTS `pps_users` (
   `usu_2fa` char(16) DEFAULT NULL,
   PRIMARY KEY (`usu_id`),
   UNIQUE KEY `usu_id` (`usu_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COMMENT='Users' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Users' ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_users`
@@ -535,26 +649,6 @@ ALTER TABLE `pps_logs_login`
 ALTER TABLE `pps_messages`
   ADD CONSTRAINT `pps_messages_ibfk_1` FOREIGN KEY (`msg_user_sender`) REFERENCES `pps_users` (`usu_id`),
   ADD CONSTRAINT `pps_messages_ibfk_2` FOREIGN KEY (`msg_user_receiver`) REFERENCES `pps_users` (`usu_id`);
-
---
--- Constraints for table `pps_orders`
---
-ALTER TABLE `pps_orders`
-  ADD CONSTRAINT `pps_orders` FOREIGN KEY (`ord_user_id`) REFERENCES `pps_users` (`usu_id`);
-
---
--- Constraints for table `pps_order_details`
---
-ALTER TABLE `pps_order_details`
-  ADD CONSTRAINT `pps_order_details_ibfk_1` FOREIGN KEY (`ord_det_order_id`) REFERENCES `pps_orders` (`ord_id`),
-  ADD CONSTRAINT `pps_order_details_ibfk_2` FOREIGN KEY (`ord_det_prod_id`) REFERENCES `pps_products` (`prd_id`);
-
---
--- Constraints for table `pps_payment_methods_per_user`
---
-ALTER TABLE `pps_payment_methods_per_user`
-  ADD CONSTRAINT `pps_payment_methods_per_user_ibfk_1` FOREIGN KEY (`pmu_user`) REFERENCES `pps_users` (`usu_id`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `pps_payment_methods_per_user_ibfk_2` FOREIGN KEY (`pmu_payment_method`) REFERENCES `pps_payment_methods` (`pam_id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `pps_products`

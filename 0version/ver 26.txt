@@ -1,0 +1,5 @@
+26 - CETI - Sergio - Login fixes 1.5.2
+
+General fixes
+New db table pps_logs_2fa.
+

@@ -8,11 +8,11 @@ if (!isset($_SESSION['UserID'])) {
     exit();
 }
 
-// Conexión a la base de datos
-$conn = database::LoadDatabase();
+	// Conexión a la base de datos
+	$conn = database::LoadDatabase();
 
-// Calcular los costos de envío
-$shippingCost = 1.10; // Costo fijo de envío
+	// Calcular los costos de envío
+	$shippingCost = 1.10; // Costo fijo de envío
 
 // Calcular total del carrito
 $total = 0;
@@ -33,8 +33,8 @@ if (!empty($_SESSION['cart'])) {
     }
 }
 
-// Inicializar descuento del cupón
-$couponDiscount = 0;
+	// Inicializar descuento del cupón
+	$couponDiscount = 0;
 
 // Manejar la aplicación del cupón
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['apply_coupon'])) {
@@ -59,8 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['apply_coupon'])) {
     }
 }
 
-// Calcular el total final incluyendo costos de envío y descuento del cupón
-$grandTotal = $total + $shippingCost - $couponDiscount;
+	// Calcular el total final incluyendo costos de envío y descuento del cupón
+	$grandTotal = $total + $shippingCost - $couponDiscount;
 
 // Manejar la confirmación de la compra
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['confirm_purchase']) || isset($_POST['bank_transfer']))) {
@@ -68,8 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['confirm_purchase']) |
         // Aquí puedes añadir la lógica para guardar la orden en la base de datos y procesar el pago
         // ...
 
-        // Limpiar el carrito
-        unset($_SESSION['cart']);
+			// Limpiar el carrito
+			unset($_SESSION['cart']);
 
         // Redirigir a la página de métodos de pago o transferencia bancaria
         if (isset($_POST['bank_transfer'])) {

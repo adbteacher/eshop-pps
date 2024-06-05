@@ -151,7 +151,7 @@
 </div>
 
 <!-- Incluye Bootstrap JS y dependencias -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
 <?php include "../footer.php"; ?>
 </body>
 </html>

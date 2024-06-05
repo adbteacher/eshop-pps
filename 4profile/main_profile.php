@@ -15,8 +15,15 @@ if (!isset($_SESSION['UserEmail'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil Personal</title>
-    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- CSS / Hoja de estilos Bootstrap -->
+    <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/0images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/0images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/0images/favicon-16x16.png">
+    <link rel="manifest" href="/0images/site.webmanifest">
     <style>
         .list-group-item {
             border: none;

@@ -54,4 +54,40 @@ class functions
             exit;
         }
     }
+
+    public static function checkVendorAccess(): void
+    {
+        if ($_SESSION["UserRol"] !== 'V')
+        {
+            echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
+            exit;
+        }
+    }
+
+    public static function checkSupportAccess(): void
+    {
+        if ($_SESSION["UserRol"] !== 'S')
+        {
+            echo "<p class='text-danger'>Acceso denegado. No tienes permisos para acceder a esta página.</p>";
+            exit;
+        }
+    }
+
+	public static function GetUser(string $ID): array|bool
+	{
+		try
+		{
+			$Connection = database::LoadDatabase();
+			$Query      = $Connection->prepare("SELECT * FROM pps_users WHERE usu_id = :id");
+			$Query->bindParam(':id', $ID, PDO::PARAM_STR);
+			$Query->execute();
+			return $Query->fetch(PDO::FETCH_ASSOC) ?: false;
+		}
+		catch (PDOException $e)
+		{
+			error_log($e->getMessage());
+			return false;
+		}
+	}
+
 }
