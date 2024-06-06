@@ -61,6 +61,8 @@
 	//Comprobar permisos al programa
 	functions::HasPermissions(basename(__FILE__));
 
+    functions::checkVendorAccess(); // Aseguramos el acceso del vendedor
+
     // Generar y almacenar el token CSRF si no existe
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

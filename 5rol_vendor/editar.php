@@ -8,7 +8,11 @@
 <?php include "../nav.php"; // Incluye el Navbar ?>
 <h1>Editar Producto</h1>
 <?php
-	//session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+
 	require_once '../autoload.php';
 	require_once 'biblioteca.php';
 
@@ -17,7 +21,6 @@
 
 	//Comprobar permisos al programa
 	functions::HasPermissions(basename(__FILE__));
-
 
 	// Generar y almacenar el token CSRF si no existe
 	if (empty($_SESSION['csrf_token']))

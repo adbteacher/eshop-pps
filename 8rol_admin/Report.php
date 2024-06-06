@@ -1,4 +1,6 @@
 <?php
+	require_once '../autoload.php';
+
 	// Verificar si el usuario está autenticado
 	functions::ActiveSession();
 
