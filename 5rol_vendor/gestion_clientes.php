@@ -43,8 +43,15 @@
 <body>
 
 <?php 
-    // Start output buffering
-    ob_start();
+
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+
+	// Start output buffering
+	ob_start();
+
 	require_once '../autoload.php';
 	require_once 'biblioteca.php';
     include "../nav.php"; // Incluye el Navbar

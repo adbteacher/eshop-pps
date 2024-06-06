@@ -3,8 +3,10 @@ require_once '../autoload.php';
 require_once('config.php');
 require_once('helpers.php');
 
-session_start();
-
+if (session_status() == PHP_SESSION_NONE)
+{
+	session_start();
+}
 // Verificar si el usuario está autenticado
 functions::ActiveSession();
 

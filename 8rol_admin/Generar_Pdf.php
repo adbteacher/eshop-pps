@@ -15,8 +15,6 @@
 
 	functions::checkAdminAccess();
 
-	use TCPDF;
-
 	$conexion = database::LoadDatabase();
 
 	// Consulta para obtener el inventario de productos con campos relevantes
@@ -100,12 +98,12 @@
 	foreach ($productos as $producto)
 	{
 		$html .= '<tr>
-        <td>' . htmlspecialchars($producto['prd_name']) . '</td>
-        <td>' . htmlspecialchars($producto['prd_category']) . '</td>
-        <td>' . htmlspecialchars($producto['prd_price']) . '</td>
-        <td>' . htmlspecialchars($producto['prd_stock']) . '</td>
+        <td>' . htmlspecialchars($producto['prd_name']?: "") . '</td>
+        <td>' . htmlspecialchars($producto['prd_category']?: "") . '</td>
+        <td>' . htmlspecialchars($producto['prd_price']?: "") . '</td>
+        <td>' . htmlspecialchars($producto['prd_stock']?: "") . '</td>
         <td>' . ($producto['prd_on_offer'] ? 'Sí' : 'No') . '</td>
-        <td>' . htmlspecialchars($producto['prd_offer_price']) . '</td>
+        <td>' . htmlspecialchars($producto['prd_offer_price']?: "") . '</td>
     </tr>';
 	}
 	$html .= '</tbody></table>';

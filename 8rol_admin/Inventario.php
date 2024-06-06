@@ -6,7 +6,10 @@
 	// Establecer conexión a la base de datos
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
 
-	session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
 
 	// Verificar si el usuario está autenticado
 	functions::ActiveSession();
@@ -98,12 +101,12 @@
         <tbody>
 		<?php foreach ($productos as $producto): ?>
             <tr>
-                <td><?= htmlspecialchars($producto['prd_name']); ?></td>
-                <td><?= htmlspecialchars($producto['prd_category']); ?></td>
-                <td><?= htmlspecialchars($producto['prd_price']); ?></td>
-                <td><?= htmlspecialchars($producto['prd_stock']); ?></td>
+                <td><?= htmlspecialchars($producto['prd_name']?: ""); ?></td>
+                <td><?= htmlspecialchars($producto['prd_category']?: ""); ?></td>
+                <td><?= htmlspecialchars($producto['prd_price']?: ""); ?></td>
+                <td><?= htmlspecialchars($producto['prd_stock']?: ""); ?></td>
                 <td><?= $producto['prd_on_offer'] ? 'Sí' : 'No'; ?></td>
-                <td><?= htmlspecialchars($producto['prd_offer_price']); ?></td>
+                <td><?= htmlspecialchars($producto['prd_offer_price'] ?: ""); ?></td>
             </tr>
 		<?php endforeach; ?>
         </tbody>

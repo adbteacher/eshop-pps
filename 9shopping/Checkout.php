@@ -241,7 +241,7 @@ $main_address_text = $main_address ?
                     <?php if (($main_method_text != "No hay metodo de pago seleccionado"))
                      {?>
     <button type="submit" name="confirm_purchase" class="btn btn-success mt-3">Confirmar Compra</button>
-    <button type="submit" name="bank_transfer" class="btn btn-secondary mt-3">Transferencia Bancaria</button>
+  
                     <?php }
                     else
 					{?>
