@@ -1,17 +1,18 @@
 <?php
-session_start();
-require_once("../autoload.php");
-require_once("../Mail_config.php");
+	require_once("../autoload.php");
+	require_once("../Mail_config.php");
+
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
 
 // Añadir las líneas necesarias para PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
-// Verificar si el usuario está autenticado
-if (!isset($_SESSION['UserID'])) {
-    header("Location: ../1login/login.php");
-    exit();
-}
 
 // Conexión a la base de datos
 $conn = database::LoadDatabase();

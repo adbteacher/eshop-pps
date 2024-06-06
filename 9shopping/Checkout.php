@@ -1,12 +1,13 @@
 <?php
-session_start();
-require_once("../autoload.php");
+	require_once("../autoload.php");
 
-// Verificar si el usuario está autenticado
-if (!isset($_SESSION['UserID'])) {
-    header("Location: ../1login/login.php");
-    exit();
-}
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
 
 	// Conexión a la base de datos
 	$conn = database::LoadDatabase();
