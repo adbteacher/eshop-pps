@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 06, 2024 at 04:32 PM
+-- Generation Time: Jun 06, 2024 at 06:34 PM
 -- Server version: 11.2.2-MariaDB
 -- PHP Version: 8.2.13
 
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `pps_addresses_per_user` (
   `adr_is_main` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`adr_id`),
   KEY `adr_user` (`adr_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Addresses per User' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Addresses per User' ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_addresses_per_user`
@@ -48,7 +48,8 @@ CREATE TABLE IF NOT EXISTS `pps_addresses_per_user` (
 
 INSERT INTO `pps_addresses_per_user` (`adr_id`, `adr_user`, `adr_line1`, `adr_line2`, `adr_city`, `adr_state`, `adr_postal_code`, `adr_country`, `adr_is_main`) VALUES
 (3, 10, 'calle 1111', 'calle 2', 'vlc', 'vlc', '46035', 'España', 1),
-(4, 13, 'calle 1', 'calle 2', 'VLC', 'VLC', '46035', 'España', 1);
+(4, 13, 'calle 1', 'calle 2', 'VLC', 'VLC', '46035', 'España', 1),
+(5, 11, 'calle cita', 'calle zota', 'vlc', 'vlc', '45215', 'España', 1);
 
 -- --------------------------------------------------------
 
@@ -90,7 +91,22 @@ CREATE TABLE IF NOT EXISTS `pps_coupons` (
   `cou_discount` int(11) NOT NULL,
   `cou_is_used` varchar(1) NOT NULL,
   PRIMARY KEY (`cou_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `pps_coupons`
+--
+
+INSERT INTO `pps_coupons` (`cou_id`, `cou_code`, `cou_discount`, `cou_is_used`) VALUES
+(1, '5RH8K7', 10, 'N'),
+(2, 'LPRYHV', 20, 'N'),
+(3, 'KJBNP1', 15, 'N'),
+(4, 'VCZ2G9', 25, 'N'),
+(5, 'DDK97X', 30, 'N'),
+(6, '1NTJ2B', 35, 'N'),
+(7, '34YRYP', 40, 'N'),
+(8, '8EAX8C', 45, 'N'),
+(9, 'JVZKFW', 50, 'N');
 
 -- --------------------------------------------------------
 
@@ -125,7 +141,7 @@ CREATE TABLE IF NOT EXISTS `pps_logs_login` (
   PRIMARY KEY (`lol_id`),
   UNIQUE KEY `rlo_id` (`lol_id`,`lol_user`),
   KEY `lol_user` (`lol_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_logs_login`
@@ -184,7 +200,10 @@ INSERT INTO `pps_logs_login` (`lol_id`, `lol_user`, `lol_ip`, `lol_was_correct_l
 (58, 13, '::1', 1, '2024-06-06 17:14:12'),
 (59, 13, '::1', 1, '2024-06-06 17:14:34'),
 (60, 11, '::1', 1, '2024-06-06 17:23:17'),
-(61, 11, '::1', 1, '2024-06-06 17:26:00');
+(61, 11, '::1', 1, '2024-06-06 17:26:00'),
+(62, 10, '::1', 1, '2024-06-06 18:47:37'),
+(63, 12, '::1', 1, '2024-06-06 18:53:10'),
+(64, 13, '::1', 1, '2024-06-06 19:23:31');
 
 -- --------------------------------------------------------
 
@@ -224,7 +243,7 @@ CREATE TABLE IF NOT EXISTS `pps_messages` (
   PRIMARY KEY (`msg_id`),
   KEY `msg_user_sender` (`msg_user_sender`),
   KEY `msg_message` (`msg_message`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_messages`
@@ -248,7 +267,8 @@ INSERT INTO `pps_messages` (`msg_id`, `msg_user_sender`, `msg_user_receiver`, `m
 (37, 11, 13, 'adada', '2024-06-05 21:18:37', 'U', 'S', 'N'),
 (38, 11, 13, 'ffff', '2024-06-05 21:18:41', 'U', 'S', 'Y'),
 (39, 13, 11, 'ggg', '2024-06-05 21:18:56', 'S', 'U', 'Y'),
-(40, 11, 13, 'bbbb', '2024-06-05 21:25:40', 'U', 'S', 'N');
+(40, 11, 13, 'bbbb', '2024-06-05 21:25:40', 'U', 'S', 'Y'),
+(41, 13, 11, 'aaaaa', '2024-06-06 20:21:19', 'S', 'U', 'N');
 
 -- --------------------------------------------------------
 
@@ -266,7 +286,7 @@ CREATE TABLE IF NOT EXISTS `pps_orders` (
   `ord_shipping_address` varchar(255) NOT NULL,
   PRIMARY KEY (`ord_id`),
   KEY `ord_user_id` (`ord_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `pps_orders`
@@ -276,7 +296,8 @@ INSERT INTO `pps_orders` (`ord_id`, `ord_user_id`, `ord_purchase_date`, `ord_shi
 (4, 1, NULL, NULL, 'Reembolsado', 'sdfds'),
 (6, 1, '2024-05-16', '2024-05-15', 'Creado', 'sfsfsdf'),
 (7, 1, '2024-05-16', '2024-05-15', 'Enviado', 'sfsfsdf23231'),
-(10, 2, '2024-06-14', '2024-06-05', 'PendienteEnvio', 'sdfdsf');
+(10, 2, '2024-06-14', '2024-06-05', 'PendienteEnvio', 'sdfdsf'),
+(12, 11, '2024-06-06', NULL, 'Creado', 'calle cita, calle zota, vlc, vlc, 45215, España');
 
 -- --------------------------------------------------------
 
@@ -346,7 +367,7 @@ CREATE TABLE IF NOT EXISTS `pps_order_details` (
   PRIMARY KEY (`ord_det_id`),
   KEY `ord_det_order_id` (`ord_det_order_id`),
   KEY `ord_det_prod_id` (`ord_det_prod_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_order_details`
@@ -358,7 +379,10 @@ INSERT INTO `pps_order_details` (`ord_det_id`, `ord_det_order_id`, `ord_det_prod
 (4, 1, 2, 3, 3.00, 3.00),
 (5, 1, 2, 4, 5.00, 6.00),
 (6, 7, 1, 44, 4.00, 33.00),
-(7, 2, 1, 4, 4.00, 4.00);
+(7, 2, 1, 4, 4.00, 4.00),
+(8, 12, 1, 15, 1.60, 24.00),
+(9, 12, 3, 5, 3.50, 17.50),
+(10, 12, 2, 1, 1.80, 1.80);
 
 -- --------------------------------------------------------
 
@@ -403,14 +427,15 @@ CREATE TABLE IF NOT EXISTS `pps_payment_methods_per_user` (
   `pmu_is_main` tinyint(1) NOT NULL,
   `pmu_online_password` varchar(300) NOT NULL,
   PRIMARY KEY (`pmu_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_payment_methods_per_user`
 --
 
 INSERT INTO `pps_payment_methods_per_user` (`pmu_id`, `pmu_payment_method`, `pmu_user`, `pmu_account_number`, `pmu_swift`, `pmu_card_number`, `pmu_cve_number`, `pmu_cardholder`, `pmu_expiration_date`, `pmu_online_account`, `pmu_is_main`, `pmu_online_password`) VALUES
-(5, 2, 13, 'A', 'A', 0, 0, 'A', 'A', 'a@a.com', 1, '$2y$10$8Jv5K.mz08ouvtSIl7Nt4e1aWsvXGSIP3uKlGccmXHuiF1S28izIi');
+(5, 2, 13, 'A', 'A', 0, 0, 'A', 'A', 'a@a.com', 1, '$2y$10$8Jv5K.mz08ouvtSIl7Nt4e1aWsvXGSIP3uKlGccmXHuiF1S28izIi'),
+(6, 2, 11, 'A', 'A', 0, 0, 'A', 'A', 'mi@cuenta.com', 1, '$2y$10$E9pgdJHeYUco.srLUc/b5OSySd7C8KglprjVvbca8Z.rrUUSxYJMq');
 
 -- --------------------------------------------------------
 
@@ -703,9 +728,9 @@ CREATE TABLE IF NOT EXISTS `pps_products` (
 --
 
 INSERT INTO `pps_products` (`prd_id`, `prd_name`, `prd_category`, `prd_details`, `prd_price`, `prd_stock`, `prd_image`, `prd_on_offer`, `prd_offer_price`) VALUES
-(1, 'Endivias Espada', 3, 'Endivias Espada, frescas y crujientes, perfectas para ensaladas y platos gourmet.', 1.60, 20, '/0images/endivias-espada.png', 0, NULL),
-(2, 'Uvas de Villena', 2, 'Uvas de Villena, frescas y dulces, perfectas para postres y meriendas.', 2.00, 24, '/0images/uvas_villena.png', 1, 1.80),
-(3, 'Almendras de Ibiza', 7, 'Almendras de Ibiza, crujientes y sabrosas, ideales como snack o para cocinar.', 3.50, 28, '/0images/almendra-ibiza.png', 0, NULL),
+(1, 'Endivias Espada', 3, 'Endivias Espada, frescas y crujientes, perfectas para ensaladas y platos gourmet.', 1.60, 5, '/0images/endivias-espada.png', 0, NULL),
+(2, 'Uvas de Villena', 2, 'Uvas de Villena, frescas y dulces, perfectas para postres y meriendas.', 2.00, 23, '/0images/uvas_villena.png', 1, 1.80),
+(3, 'Almendras de Ibiza', 7, 'Almendras de Ibiza, crujientes y sabrosas, ideales como snack o para cocinar.', 3.50, 23, '/0images/almendra-ibiza.png', 0, NULL),
 (4, 'Kaki Persimon de La Ribera Alta', 2, 'Kaki Persimon de La Ribera Alta, dulce y jugoso, perfecto para postres.', 2.50, 17, '/0images/Kaki-Persimon.png', 1, 2.20),
 (5, 'Tomate El Perello', 3, 'Tomate El Perello, jugoso y con mucho sabor, ideal para ensaladas y salsas.', 1.20, 40, '/0images/tomate-perello.png', 1, 1.00),
 (6, 'Chufa de Valencia', 7, 'Chufa de Valencia, perfecta para hacer horchata y como snack saludable.', 4.00, 35, '/0images/chufa.png', 1, 3.50),
@@ -850,7 +875,7 @@ CREATE TABLE IF NOT EXISTS `pps_tickets` (
   `tic_creation_time` datetime NOT NULL,
   `tic_user_solver` int(11) DEFAULT NULL,
   `tic_priority` varchar(1) NOT NULL,
-  `tic_resolution_time` int(11) NOT NULL,
+  `tic_resolution_time` datetime NOT NULL,
   PRIMARY KEY (`tic_id`),
   KEY `tic_user_creator` (`tic_user_creator`),
   KEY `pps_tickets_ibfk_2` (`tic_user_solver`)
@@ -861,9 +886,9 @@ CREATE TABLE IF NOT EXISTS `pps_tickets` (
 --
 
 INSERT INTO `pps_tickets` (`tic_id`, `tic_title`, `tic_message`, `tic_user_creator`, `tic_creation_time`, `tic_user_solver`, `tic_priority`, `tic_resolution_time`) VALUES
-(7, 'help', 'help me pls', 13, '2024-05-29 17:23:15', NULL, 'B', 0),
-(8, 'help me', 'I\'m stuck', 13, '2024-05-29 17:24:16', NULL, 'M', 0),
-(10, 'NUCLEAR FUSION', 'ALERT, NUCLEAR EXPLOSION IMMINENT', 13, '2024-05-29 18:08:43', NULL, 'A', 0);
+(7, 'help', 'help me pls', 13, '2024-05-29 17:23:15', 13, 'B', '2024-06-06 19:48:25'),
+(8, 'help me', 'I\'m stuck', 13, '2024-05-29 17:24:16', NULL, 'M', '0000-00-00 00:00:00'),
+(10, 'NUCLEAR FUSION', 'ALERT, NUCLEAR EXPLOSION IMMINENT', 13, '2024-05-29 18:08:43', NULL, 'A', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -891,6 +916,7 @@ CREATE TABLE IF NOT EXISTS `pps_users` (
   `usu_documents` varchar(200) NOT NULL,
   `usu_2fa` char(16) DEFAULT NULL,
   `usu_reset_token` varchar(255) NOT NULL,
+  `usu_image` varchar(255) NOT NULL,
   PRIMARY KEY (`usu_id`),
   UNIQUE KEY `usu_id` (`usu_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Users' ROW_FORMAT=DYNAMIC;
@@ -899,14 +925,14 @@ CREATE TABLE IF NOT EXISTS `pps_users` (
 -- Dumping data for table `pps_users`
 --
 
-INSERT INTO `pps_users` (`usu_id`, `usu_type`, `usu_rol`, `usu_status`, `usu_verification_code`, `usu_datetime`, `usu_name`, `usu_surnames`, `usu_prefix`, `usu_phone`, `usu_email`, `usu_password`, `usu_company`, `usu_cif`, `usu_web`, `usu_documents`, `usu_2fa`, `usu_reset_token`) VALUES
-(7, 'U', 'U', 'N', '', '2024-05-05 19:18:25', 'ivan', 'martinez', '34', 941782087, 'ivan@email.com', '$2y$10$59FmINGOFYhBNua3mXHNqeuGGCvL43dsahVMgYj4QW.AQoG9EZere', '', '', '', '', '', ''),
-(8, 'U', 'S', 'N', '', '2024-05-20 18:24:49', 'support', 'support', '+34', 654321987, 'fruteria@support.com', '$2y$10$c4J18Nfrh.uW.7PEJr2m.Oi0v/Knt.6FqkilM8H7adWu.YZ4Hkt6u', '', '', '', '', NULL, ''),
-(9, 'V', 'V', 'N', '', '2024-05-21 17:20:00', 'supplier', '', '', 645712781, 'a@email.com', '$2y$10$A7nNu/Bh31ad/0qrnqmeGeooY7ILcpWKyjl9FnbjNoSRq0yzcJeAa', 'aaaaa', 'A54568245', 'a.com', '/var/www/uploads-eshop/A54568245CiberGAL - Automatización_de_ataques_y_emulación_de_adversarios_con_MITRE_CalderaV2.pdf^_', '', ''),
-(10, 'U', 'A', 'A', '', '2024-05-21 17:40:45', 'admin', 'admin', '', 696969696, 'admin@admin.com', '$2y$10$jwYGuXH17AmryF.phRISquTikhF5VYtwwBgayHtZbRQtgbzKeVOKi', '', '', '', '', '', ''),
-(11, 'U', 'U', 'A', '', '2024-05-21 17:43:24', 'user', 'user', '', 333333333, 'user@user.com', '$2y$10$iIZuw5VZ7f1BkITuFPn2VupQvnMAl6Boffs00AKUiocQ5eBgsEH6K', '', '', '', '', '', ''),
-(12, 'V', 'V', 'A', '', '2024-05-21 17:45:44', 'company', 'company', '', 666666666, 'company@company.com', '$2y$10$Sk7CTffGw6.gyJOXtn0NauNREJFAyb3lkTB82g5sgjf2R4tx4a0Qm', '', '', '', '', '', ''),
-(13, 'U', 'S', 'A', '', '2024-05-21 17:58:39', 'support', 'support', '', 2147483647, 'support@support.com', '$2y$10$4MzwXMZz/qG/R3.Ys19DFO9hh3rc0Yc0K0bnhCLw3V5VE78KQdTOC', '', '', '', '', '', '');
+INSERT INTO `pps_users` (`usu_id`, `usu_type`, `usu_rol`, `usu_status`, `usu_verification_code`, `usu_datetime`, `usu_name`, `usu_surnames`, `usu_prefix`, `usu_phone`, `usu_email`, `usu_password`, `usu_company`, `usu_cif`, `usu_web`, `usu_documents`, `usu_2fa`, `usu_reset_token`, `usu_image`) VALUES
+(7, 'U', 'U', 'N', '', '2024-05-05 19:18:25', 'ivan', 'martinez', '34', 941782087, 'ivan@email.com', '$2y$10$59FmINGOFYhBNua3mXHNqeuGGCvL43dsahVMgYj4QW.AQoG9EZere', '', '', '', '', '', '', ''),
+(8, 'U', 'S', 'N', '', '2024-05-20 18:24:49', 'support', 'support', '+34', 654321987, 'fruteria@support.com', '$2y$10$c4J18Nfrh.uW.7PEJr2m.Oi0v/Knt.6FqkilM8H7adWu.YZ4Hkt6u', '', '', '', '', NULL, '', ''),
+(9, 'V', 'V', 'N', '', '2024-05-21 17:20:00', 'supplier', '', '', 645712781, 'a@email.com', '$2y$10$A7nNu/Bh31ad/0qrnqmeGeooY7ILcpWKyjl9FnbjNoSRq0yzcJeAa', 'aaaaa', 'A54568245', 'a.com', '/var/www/uploads-eshop/A54568245CiberGAL - Automatización_de_ataques_y_emulación_de_adversarios_con_MITRE_CalderaV2.pdf^_', '', '', ''),
+(10, 'U', 'A', 'A', '', '2024-05-21 17:40:45', 'admin', 'admin', '', 696969696, 'admin@admin.com', '$2y$10$jwYGuXH17AmryF.phRISquTikhF5VYtwwBgayHtZbRQtgbzKeVOKi', '', '', '', '', '', '', 'soy_admin.jpg'),
+(11, 'U', 'U', 'A', '', '2024-05-21 17:43:24', 'user', 'user', '', 333333333, 'user@user.com', '$2y$10$iIZuw5VZ7f1BkITuFPn2VupQvnMAl6Boffs00AKUiocQ5eBgsEH6K', '', '', '', '', '', '', 'user.jpg'),
+(12, 'V', 'V', 'A', '', '2024-05-21 17:45:44', 'company', 'company', '', 666666666, 'company@company.com', '$2y$10$Sk7CTffGw6.gyJOXtn0NauNREJFAyb3lkTB82g5sgjf2R4tx4a0Qm', '', '', '', '', '', '', 'vendor.jpeg'),
+(13, 'U', 'S', 'A', '', '2024-05-21 17:58:39', 'support', 'support', '', 2147483647, 'support@support.com', '$2y$10$4MzwXMZz/qG/R3.Ys19DFO9hh3rc0Yc0K0bnhCLw3V5VE78KQdTOC', '', '', '', '', '', '', 'support.jpg');
 
 --
 -- Constraints for dumped tables
