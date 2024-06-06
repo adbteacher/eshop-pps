@@ -6,6 +6,12 @@
 session_start();
 require_once '../autoload.php';
 
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
 // Verificar si el rol del usuario está en la sesión
 functions::checkAdminAccess();
 

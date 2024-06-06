@@ -2,11 +2,12 @@
 session_start();
 
 require_once '../autoload.php';
-// Verificar si el usuario está autenticado
-if (!isset($_SESSION['UserEmail'])) {
-	header("Location: ../1login/login.php");
-	exit;
-}
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
 
 // Función para verificar si el ID del método de pago pertenece al usuario
 function validatePaymentMethodOwnership($pmu_id, $user_id): bool

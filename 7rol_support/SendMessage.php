@@ -1,6 +1,12 @@
 <?php
 	session_start();
-	require '../autoload.php'; // Archivo donde configuras la conexión a la base de datos
+	require_once '../autoload.php'; // Archivo donde configuras la conexión a la base de datos
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
 
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$sender_id = $_SESSION['UserID'];

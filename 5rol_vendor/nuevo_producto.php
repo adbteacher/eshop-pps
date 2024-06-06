@@ -10,7 +10,12 @@
 	require_once '../autoload.php';
 	require_once 'biblioteca.php';
 
-	//AddSecurityHeaders();
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
 	include "../nav.php"; // Incluye el Navbar
 
 	// Generar y almacenar el token CSRF si no existe

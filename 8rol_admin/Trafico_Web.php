@@ -6,6 +6,13 @@
 	require_once '../autoload.php';
 
     session_start();
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
 	functions::checkAdminAccess();
 
 	// Establecer conexión a la base de datos

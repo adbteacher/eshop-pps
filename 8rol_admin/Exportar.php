@@ -7,6 +7,13 @@
 require_once '../autoload.php';
 session_start();
 functions::checkAdminAccess();
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
 $conexion = database::LoadDatabase();
 
 // Consulta para obtener los productos

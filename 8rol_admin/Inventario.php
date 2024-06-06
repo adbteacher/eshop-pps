@@ -7,6 +7,13 @@
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
 
 	session_start();
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
 	functions::checkAdminAccess();
 
 	// Generar token CSRF si no está definido

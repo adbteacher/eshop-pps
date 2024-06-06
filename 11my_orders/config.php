@@ -1,5 +1,14 @@
 <?php
 
+	require_once '../autoload.php';
+	session_start();
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
 	$db_server              = getenv('DB_HOST');
 	$db_name                = getenv('DB_NAME');
 	$db_user                = getenv('DB_USER');

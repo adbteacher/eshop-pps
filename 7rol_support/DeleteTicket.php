@@ -1,6 +1,12 @@
 <?php
 	require_once "../autoload.php";
 
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
 	// Conexión a la base de datos
 	$conn = database::LoadDatabase();
 

@@ -9,31 +9,55 @@ require_once(__DIR__ . "/Database.php");
  */
 class functions
 {
-    public static function HasPermissions(string $UserRol, string $ProgramName): bool
+    public static function HasPermissions(string $ProgramName): void
     {
-        //$_SESSION['Rol']
+		$Allowed = false;
+		$Result = "";
 
-        $DataBase = database::LoadDatabase();
+		if (empty($_SESSION['UserRol']))
+		{
+			$Allowed = false;
+		}
+		else
+		{
+			$DataBase = database::LoadDatabase();
 
-        $Query = "SELECT ppr_allowed FROM pps_permission_per_rol WHERE ppr_rol = '$UserRol' AND ppr_program = '$ProgramName'";
+			$Query = "SELECT ppr_allowed FROM pps_permission_per_rol WHERE ppr_rol = :UserRol AND ppr_program = :ProgramName";
 
-        $Result = $DataBase->query($Query)->fetch(PDO::FETCH_ASSOC);
+			// Preparar el statement
+			$stmt = $DataBase->prepare($Query);
 
-        if (!$Result || $Result['ppr_allowed'] == "N")
+			// Enlazar los parámetros
+			$stmt->bindParam(':UserRol', $_SESSION['UserRol'], PDO::PARAM_STR);
+			$stmt->bindParam(':ProgramName', $ProgramName, PDO::PARAM_STR);
+
+			// Ejecutar la consulta
+			$stmt->execute();
+
+			// Obtener el resultado
+			$Result = $stmt->fetch(PDO::FETCH_ASSOC);
+		}
+
+        if (empty($Result) || !$Result || $Result['ppr_allowed'] == "N")
         {
-            //TODO AÑADIR BORRADO DE SESION, LIMPIEZA DE DATOS, CIERRE DE SESION
-            // Y REDIRECCIÓN A LA LANDING PAGE
-            return false;
+			$Allowed = false;
         }
         else
         {
-            return true;
-        }
+			$Allowed = true;
+		}
+
+		if (!$Allowed)
+		{
+			echo "No tienes permisos para ver a este programa";
+			session_destroy();
+			die();
+		}
     }
 
     public static function ActiveSession(): void
     {
-        if (!$_SESSION["UserID"])
+        if (!isset($_SESSION["UserID"]))
         {
             header("Location:/1login/login.php");
         }

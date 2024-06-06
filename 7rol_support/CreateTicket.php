@@ -1,22 +1,13 @@
 <?php
-	/**
-	 * Gestión de tickets de soporte: Permitir al usuario de soporte técnico recibir, gestionar
-	 * y responder a tickets de soporte generados por los clientes. Habilitar la clasificación
-	 * y priorización de los tickets según la gravedad del problema y el tiempo de respuesta requerido.
-	 *
-	 * Comunicación con clientes: Facilitar la comunicación bidireccional entre el equipo de soporte técnico
-	 * y los clientes, permitiendo responder a consultas, proporcionar actualizaciones sobre el estado de los
-	 * problemas y ofrecer soluciones o asistencia técnica.
-	 *
-	 * Registro de actividades: Registrar todas las interacciones y acciones realizadas
-	 * por el equipo de soporte técnico en relación con los tickets de soporte,
-	 * incluyendo notas, cambios de estado y resolución de problemas
-	 *
-	 */
-
 	require_once("../autoload.php");
 
     session_start();
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
 
 	// Procesar el formulario al enviarlo
 	if ($_SERVER['REQUEST_METHOD'] === 'POST')

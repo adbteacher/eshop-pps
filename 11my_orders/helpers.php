@@ -1,6 +1,14 @@
 <?php
-// retrieves and enhances postdata table keys and values on CREATE and UPDATE events
-function parse_columns($table_name, $postdata)
+	require_once '../autoload.php';
+	session_start();
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
+	function parse_columns($table_name, $postdata)
 {
     global $link;
     $vars = array();

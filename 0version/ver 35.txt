@@ -1,0 +1,3 @@
+35 - CETI - Iván - Permission management for programs
+
+- Added validations to all programs and the roles that are allowed to access them.

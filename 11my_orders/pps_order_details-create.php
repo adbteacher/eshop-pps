@@ -1,6 +1,15 @@
 <?php
-require_once('config.php');
-require_once('helpers.php');
+	require_once '../autoload.php';
+	require_once('config.php');
+    require_once('helpers.php');
+
+	session_start();
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
 
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){

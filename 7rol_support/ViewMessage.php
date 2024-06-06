@@ -2,6 +2,12 @@
 	session_start();
 	require '../autoload.php'; // Archivo donde configuras la conexión a la base de datos
 
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
 	$user_id   = $_SESSION['UserID'];
 	$user_role = $_SESSION['UserRol'];
 

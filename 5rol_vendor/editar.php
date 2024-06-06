@@ -12,6 +12,13 @@
 	require_once '../autoload.php';
 	require_once 'biblioteca.php';
 
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
+
 	// Generar y almacenar el token CSRF si no existe
 	if (empty($_SESSION['csrf_token']))
 	{

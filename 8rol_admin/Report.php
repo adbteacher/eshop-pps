@@ -1,3 +1,11 @@
+<?php
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

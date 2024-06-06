@@ -6,7 +6,15 @@
 	require_once '../autoload.php';
 	require_once '../vendor/autoload.php';
     session_start();
-    functions::checkAdminAccess();
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
+	functions::checkAdminAccess();
+
 	use TCPDF;
 
 	$conexion = database::LoadDatabase();

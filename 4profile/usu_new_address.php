@@ -26,15 +26,16 @@
 	<?php
 	session_start(); // Iniciar la sesión si aún no se ha iniciado
 
-	// Verificar si el usuario está autenticado
-	if (!isset($_SESSION['UserEmail']) || !isset($_SESSION['UserID'])) {
-		header("Location: ../1login/login.php"); // Redirigir a la página de inicio de sesión si el usuario no está autenticado
-		exit;
-	}
+		require_once '../autoload.php'; // Conexión a la PDO.
 
-	require_once '../autoload.php'; // Conexión a la PDO.
+		// Verificar si el usuario está autenticado
+		functions::ActiveSession();
 
-	$UserID = $_SESSION['UserID']; // ID de usuario
+		//Comprobar permisos al programa
+		functions::HasPermissions(basename(__FILE__));
+
+
+		$UserID = $_SESSION['UserID']; // ID de usuario
 
 	// Generar un token CSRF y almacenarlo en la sesión
 	if (empty($_SESSION['csrf_token'])) {

@@ -1,6 +1,14 @@
 <?php
+	require_once '../autoload.php';
+	session_start();
 
-$tables_and_columns_names = array (
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
+	$tables_and_columns_names = array (
   'pps_order_details' => 
   array (
     'name' => '',

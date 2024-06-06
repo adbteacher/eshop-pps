@@ -1,11 +1,19 @@
 <?php
-require_once('config.php');
-require_once('helpers.php');
-require_once('config-tables-columns.php');
+	require_once '../autoload.php';
+
+	require_once('config.php');
+    require_once('helpers.php');
+    require_once('config-tables-columns.php');
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
 
 //echo "tokden recibido " . $_SESSION['csrf_token'] ;
 //$_SESSION["UserRol"] ='U';

@@ -1,11 +1,15 @@
 <?php
-session_start();
 
-// Redirigir a la página de inicio de sesión si el usuario no está autenticado
-if (!isset($_SESSION['UserEmail'])) {
-    header("Location: ../1login/login.php");
-    exit;
-}
+	require_once '../autoload.php';
+
+    session_start();
+
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
 ?>
 
 <!DOCTYPE html>

@@ -1,4 +1,5 @@
 <?php
+require_once '../autoload.php';
 
 require_once('config.php');
 require_once('config-tables-columns.php');
@@ -6,13 +7,18 @@ require_once('helpers.php');
 
 session_start();
 
+// Verificar si el usuario está autenticado
+functions::ActiveSession();
+
+//Comprobar permisos al programa
+functions::HasPermissions(basename(__FILE__));
+
 // Verificar si existe el token CSRF en la sesión
 if (!isset($_SESSION['csrf_token']))
 {
 	// Redirigir al usuario fuera de la página si no hay token CSRF
 	//header("Location: ../1login/login.php"); // Cambia 'login.php' por la página que desees
 	exit("No se ha recibido token. Saliendo...");
-	exit();
 }
 
 if (!isset($_SESSION["UserID"]))

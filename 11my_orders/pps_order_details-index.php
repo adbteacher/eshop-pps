@@ -1,7 +1,15 @@
 <?php
-
+require_once '../autoload.php';
 require_once('config.php');
 require_once('helpers.php');
+
+session_start();
+
+// Verificar si el usuario está autenticado
+functions::ActiveSession();
+
+//Comprobar permisos al programa
+functions::HasPermissions(basename(__FILE__));
 
 if (session_status() == PHP_SESSION_NONE)
 {

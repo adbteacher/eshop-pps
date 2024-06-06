@@ -8,6 +8,12 @@
 
 	functions::checkAdminAccess();
 
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
 	// Obtener una conexión a la base de datos
 	$conexion = database::LoadDatabase();
 

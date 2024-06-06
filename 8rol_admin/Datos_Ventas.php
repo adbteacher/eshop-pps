@@ -8,6 +8,12 @@ require_once '../autoload.php';
 session_start();
 functions::checkAdminAccess();
 
+	// Verificar si el usuario está autenticado
+	functions::ActiveSession();
+
+	//Comprobar permisos al programa
+	functions::HasPermissions(basename(__FILE__));
+
 // Generar token CSRF si no está definido
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
