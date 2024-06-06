@@ -1,5 +1,8 @@
 <?php
-	session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
 	require '../autoload.php'; // Archivo donde configuras la conexión a la base de datos
 
 	// Verificar si el usuario está autenticado
@@ -11,6 +14,9 @@
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$sender_id = $_SESSION['UserID'];
 		$message = $_POST['message'];
+		$SanitizedMessage = strip_tags($message);
+		$SanitizedMessage = htmlspecialchars($SanitizedMessage, ENT_QUOTES, 'UTF-8');
+
 		$rol_from = $_SESSION['UserRol'];
 		$rol_to = $rol_from == 'U' ? 'S' : 'U';
 		$replied_to = $_POST['replied_to']; // ID del mensaje al que se está respondiendo
@@ -24,10 +30,9 @@
 
 		$MessageReceived = $stmt2->fetch(PDO::FETCH_ASSOC);
 
-
 		// Insertar el nuevo mensaje
 		$stmt = $pdo->prepare("INSERT INTO pps_messages (msg_user_sender, msg_user_receiver, msg_message, msg_rol_from, msg_rol_to, msg_is_replied ,msg_datetime) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-		if ($stmt->execute([$sender_id, $MessageReceived['msg_user_sender'], $message, $rol_from, $rol_to, $IsReplied])) {
+		if ($stmt->execute([$sender_id, $MessageReceived['msg_user_sender'], $SanitizedMessage, $rol_from, $rol_to, $IsReplied])) {
 			// Obtener el ID del último mensaje insertado
 			$last_message_id = $pdo->lastInsertId();
 

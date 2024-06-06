@@ -1,5 +1,10 @@
 <?php
 
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+
 	require_once "../autoload.php";
 
 	// Verificar si el usuario está autenticado
@@ -82,18 +87,27 @@
 			<?php foreach ($Tickets as $ticket):
 				$User = functions::GetUser($_SESSION["UserID"]);
 				$priority = $ticket['tic_priority'];
-				$borderClass = isset($BorderColors[$priority]) ? $BorderColors[$priority] : '';
-				?>
+				$borderClass = $BorderColors[$priority] ?? '';
+
+				$UserNameSolver = "";
+                if (!empty($ticket["tic_user_solver"]))
+				{
+                    $Query2 = $conn->prepare("SELECT usu_name FROM pps_users WHERE usu_id = " . $ticket["tic_user_solver"]);
+                    $Query2->execute();
+                    $UserNameSolver = $Query2->fetchColumn();
+				}
+
+                ?>
                 <div class="col-md-4">
                     <div class="card mb-4 <?php echo $borderClass; ?>" style="border-width: 2px;">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo htmlspecialchars($ticket['tic_title']); ?></h5>
-                            <p class="card-text"><strong>Creado por:</strong> <?php echo htmlspecialchars($User["usu_email"]); ?></p>
-                            <p class="card-text"><strong>Mensaje:</strong> <?php echo htmlspecialchars($ticket['tic_message']); ?></p>
-                            <p class="card-text"><strong>Hora de creación:</strong> <?php echo htmlspecialchars($ticket['tic_creation_time']); ?></p>
-                            <p class="card-text"><strong>Cerrado por:</strong> <?php echo htmlspecialchars($ticket['tic_user_solver']) ?: ""; ?></p>
-                            <p class="card-text"><strong>Hora de resolución:</strong> <?php echo htmlspecialchars($ticket['tic_resolution_time']) ?: ""; ?></p>
-                            <p class="card-text"><strong>Prioridad:</strong> <span class="<?php echo $borderClass; ?>"><?php echo htmlspecialchars($Priorities[$priority]); ?></span></p>
+                            <p class="card-text"><strong>Creado por:</strong> <?php echo htmlspecialchars($User["usu_email"]?: ""); ?></p>
+                            <p class="card-text"><strong>Mensaje:</strong> <?php echo htmlspecialchars($ticket['tic_message']?: ""); ?></p>
+                            <p class="card-text"><strong>Hora de creación:</strong> <?php echo htmlspecialchars($ticket['tic_creation_time']?: ""); ?></p>
+                            <p class="card-text"><strong>Cerrado por:</strong> <?php echo htmlspecialchars($UserNameSolver ?: ""); ?></p>
+                            <p class="card-text"><strong>Hora de resolución:</strong> <?php echo htmlspecialchars($ticket['tic_resolution_time']?: "") ?: ""; ?></p>
+                            <p class="card-text"><strong>Prioridad:</strong> <span class="<?php echo $borderClass; ?>"><?php echo htmlspecialchars($Priorities[$priority]?: ""); ?></span></p>
                             <div class="d-flex justify-content-between">
                                 <form action="EditTicket.php" method="post">
                                     <input type="hidden" name="ticket_id" value="<?php echo htmlspecialchars($ticket['tic_id']); ?>">

@@ -1,7 +1,10 @@
 <?php
 	require_once("../autoload.php");
 
-    session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
 
 	// Verificar si el usuario está autenticado
 	functions::ActiveSession();
@@ -17,8 +20,14 @@
 
 		// Valores a insertar
 		$tic_title         = $_POST['tic_title'];
+		$SanitizedTitle = strip_tags($tic_title);
+		$SanitizedTitle = htmlspecialchars($SanitizedTitle, ENT_QUOTES, 'UTF-8');
+
 		$tic_user_creator  = $_SESSION['UserID'];
 		$tic_message       = $_POST['tic_message'];
+		$SanitizedMessage = strip_tags($tic_message);
+		$SanitizedMessage = htmlspecialchars($SanitizedMessage, ENT_QUOTES, 'UTF-8');
+
 		$tic_creation_time = date('Y-m-d H:i:s'); // Hora actual
 		$tic_priority = "B";
 
@@ -26,9 +35,9 @@
 		$stmt = $conn->prepare("INSERT INTO pps_tickets (tic_title, tic_user_creator, tic_message, tic_creation_time, tic_priority) 
                                         VALUES (:tic_title, :tic_user_creator, :tic_message, :tic_creation_time, :tic_priority)");
 
-		$stmt->bindParam(':tic_title', $tic_title);
+		$stmt->bindParam(':tic_title', $SanitizedTitle);
 		$stmt->bindParam(':tic_user_creator', $tic_user_creator);
-		$stmt->bindParam(':tic_message', $tic_message);
+		$stmt->bindParam(':tic_message', $SanitizedMessage);
 		$stmt->bindParam(':tic_creation_time', $tic_creation_time);
 		$stmt->bindParam(':tic_priority', $tic_priority);
 

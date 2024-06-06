@@ -1,5 +1,8 @@
 <?php
-	session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
 	require_once '../autoload.php'; // Archivo donde configuras la conexión a la base de datos
 
 	// Verificar si el usuario está autenticado
@@ -12,13 +15,16 @@
 		$sender_id = $_SESSION['UserID'];
 		$sender_role = $_SESSION['UserRol'];
 		$message = $_POST['message'];
+		$SanitizedMessage = strip_tags($message);
+		$SanitizedMessage = htmlspecialchars($SanitizedMessage, ENT_QUOTES, 'UTF-8');
+
 		$receiver_role = $sender_role == 'U' ? 'S' : 'U';
         $is_replied = "N";
 
 		$pdo = database::LoadDatabase();
 
 		$stmt = $pdo->prepare("INSERT INTO pps_messages (msg_user_sender, msg_message, msg_rol_from, msg_rol_to, msg_is_replied, msg_datetime) VALUES (?, ?, ?, ?, ?, NOW())");
-		if ($stmt->execute([$sender_id, $message, $sender_role, $receiver_role, $is_replied])) {
+		if ($stmt->execute([$sender_id, $SanitizedMessage, $sender_role, $receiver_role, $is_replied])) {
 			$success_message = "Mensaje enviado con éxito.";
 		} else {
 			$error_message = "Error al enviar el mensaje.";

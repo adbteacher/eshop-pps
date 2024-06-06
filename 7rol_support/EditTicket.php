@@ -1,6 +1,11 @@
 <?php
 	require_once "../autoload.php";
 
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+
 	// Verificar si el usuario está autenticado
 	functions::ActiveSession();
 
@@ -11,7 +16,7 @@
 	$conn = database::LoadDatabase();
 
 	// Obtener el ID del ticket desde el POST
-	$ticket_id = isset($_POST['ticket_id']) ? $_POST['ticket_id'] : null;
+	$ticket_id = $_POST['ticket_id'] ?? null;
 
 	if ($ticket_id)
 	{
@@ -42,30 +47,53 @@
 	];
 
 	// Procesar el formulario al enviarlo
-	if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update']))
+	if ($_SERVER['REQUEST_METHOD'] === 'POST')
 	{
-		$tic_title    = $_POST['tic_title'];
-		$tic_message  = $_POST['tic_message'];
-		$tic_priority = $_POST['tic_priority'];
-
-		// Actualizar los datos del ticket en la base de datos
-		$update_stmt = $conn->prepare("UPDATE pps_tickets SET tic_title = :tic_title, tic_message = :tic_message, tic_priority = :tic_priority WHERE tic_id = :ticket_id");
-		$update_stmt->bindParam(':tic_title', $tic_title);
-		$update_stmt->bindParam(':tic_message', $tic_message);
-		$update_stmt->bindParam(':tic_priority', $tic_priority);
-		$update_stmt->bindParam(':ticket_id', $ticket_id);
-
-		if ($update_stmt->execute())
+		if (isset($_POST['update']))
 		{
-			echo "<div class='alert alert-success' role='alert'>Ticket actualizado exitosamente.</div>";
-            //sleep(2);
-			header("Location: RolSupport.php");
-            exit;
+			$tic_priority = $_POST['tic_priority'];
+
+			if (!in_array($tic_priority, $prioridades))
+			{
+				$error = "<div class='alert alert-danger' role='alert'>Error al actualizar el ticket.</div>";
+			}
+			if (!$error)
+			{
+				// Actualizar los datos del ticket en la base de datos
+				$update_stmt = $conn->prepare("UPDATE pps_tickets SET tic_priority = :tic_priority WHERE tic_id = :ticket_id");
+				$update_stmt->bindParam(':tic_priority', $tic_priority);
+				$update_stmt->bindParam(':ticket_id', $ticket_id);
+
+				if ($update_stmt->execute())
+				{
+					echo "<div class='alert alert-success' role='alert'>Ticket actualizado exitosamente.</div>";
+					header("Location: RolSupport.php");
+					exit;
+				}
+				else
+				{
+					echo "<div class='alert alert-danger' role='alert'>Error al actualizar el ticket.</div>";
+				}
+			}
 
 		}
-		else
+        elseif (isset($_POST['close']))
 		{
-			echo "<div class='alert alert-danger' role='alert'>Error al actualizar el ticket.</div>";
+			// Actualizar el estado del ticket a 'cerrado' en la base de datos
+			$close_stmt = $conn->prepare("UPDATE pps_tickets SET tic_resolution_time = NOW(), tic_user_solver = :user_solver WHERE tic_id = :ticket_id");
+			$close_stmt->bindParam(':ticket_id', $ticket_id);
+			$close_stmt->bindParam(':user_solver', $_SESSION["UserID"]);
+
+			if ($close_stmt->execute())
+			{
+				echo "<div class='alert alert-success' role='alert'>Ticket cerrado exitosamente.</div>";
+				header("Location: RolSupport.php");
+				exit;
+			}
+			else
+			{
+				echo "<div class='alert alert-danger' role='alert'>Error al cerrar el ticket.</div>";
+			}
 		}
 	}
 ?>
@@ -85,14 +113,13 @@
     <h1 class="mb-4">Editar Ticket</h1>
     <form method="post">
         <input type="hidden" name="ticket_id" value="<?php echo htmlspecialchars($ticket_id); ?>">
-        <input type="hidden" name="update" value="1">
         <div class="mb-3">
             <label for="tic_title" class="form-label">Título</label>
-            <input type="text" class="form-control" id="tic_title" name="tic_title" value="<?php echo htmlspecialchars($ticket['tic_title']); ?>" required>
+            <input type="text" class="form-control" id="tic_title" name="tic_title" value="<?php echo htmlspecialchars($ticket['tic_title']); ?>" readonly>
         </div>
         <div class="mb-3">
             <label for="tic_message" class="form-label">Mensaje</label>
-            <textarea class="form-control" id="tic_message" name="tic_message" rows="3" required><?php echo htmlspecialchars($ticket['tic_message']); ?></textarea>
+            <textarea class="form-control" id="tic_message" name="tic_message" rows="3" readonly><?php echo htmlspecialchars($ticket['tic_message']); ?></textarea>
         </div>
         <div class="mb-3">
             <label for="tic_priority" class="form-label">Prioridad</label>
@@ -104,7 +131,8 @@
 				<?php endforeach; ?>
             </select>
         </div>
-        <button type="submit" class="btn btn-primary">Actualizar Ticket</button>
+        <button type="submit" class="btn btn-primary" name="update">Actualizar Ticket</button>
+        <button type="submit" class="btn btn-danger" name="close">Cerrar Ticket</button>
     </form>
 </div>
 

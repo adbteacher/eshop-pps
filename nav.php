@@ -36,10 +36,19 @@
 	if (isset($_SESSION["UserID"]))
 	{
 		$NameToDisplay = $_SESSION["UserName"];
+		$Query2 = $conn->prepare("SELECT usu_image FROM pps_users WHERE usu_id = " . $_SESSION["UserID"]);
+		$Query2->execute();
+		$Image ="/0images/". $Query2->fetchColumn();
+
+        if (($Image== "/0images/"))
+		{
+			$Image = "/0images/default_user.png";
+        }
 	}
 	else
 	{
 		$NameToDisplay = "Invitado";
+        $Image = "/0images/default_user.png";
 	}
 
 	// Manejar la lógica de eliminación del carrito
@@ -110,10 +119,13 @@
             </ul>
 
             <ul class="navbar-nav ms-auto">
-				<?php if (!empty($_SESSION["UserRol"])): ?>
+				<?php if (!empty($_SESSION["UserRol"])):
+
+                    ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="/0images/default_user.png" alt="User" class="profile-image">
+
+                            <img src= " <?php echo $Image ?> " class="profile-image" alt="User">
 							<?php echo $NameToDisplay ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="width: 230px;">

@@ -1,5 +1,8 @@
 <?php
-	session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
 	require '../autoload.php'; // Archivo donde configuras la conexión a la base de datos
 
 	// Verificar si el usuario está autenticado

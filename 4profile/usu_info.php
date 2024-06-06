@@ -18,8 +18,6 @@ if (empty($_SESSION['csrf_token'])) {
 	$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$csrf_token = $_SESSION['csrf_token'];
-
 // Functions
 function cleanInput($input): array|string
 {
@@ -198,7 +196,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 			}
 			?>
 			<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-				<input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
 				<div class="mb-3">
 					<label for="name" class="form-label"><b>Nombre:</b></label>
 					<input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($UserRow['usu_name']); ?>" pattern="[a-zA-Z\s]{1,50}" title="Solo letras y espacios, máximo 50 caracteres" required>
