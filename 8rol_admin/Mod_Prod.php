@@ -1,4 +1,8 @@
 <?php
+/*
+	Esta pagina permite modificar los productos de la tienda y añadir nuevas imagenes, controlando
+	todo lo psoible inyección SQL y diferentes vuln.
+	 */
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
 
     session_start();

@@ -1,4 +1,8 @@
 <?php
+/*
+	 Esta pagina tiene la capacidad de crear un usuario y mostrar los usuarios del sistema en una tabla,
+	 ademas tambien se pueden modificar y eliminar usuarios.
+	 */
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
 
 	session_start();

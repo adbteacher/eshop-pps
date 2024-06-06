@@ -1,4 +1,8 @@
 <?php
+/*
+	 Este código muestra los productos de la tienda a demas de tener la capacidad de editar
+	 y eliminar dichos productos junto con la capacidad de exportar e importar CSV's
+	 */
 	require_once '../autoload.php';
 
 	session_start();
@@ -211,7 +215,7 @@
 			{
 				$msg = array();
 
-				// Validar campos requeridos
+				// Validar campos 
 				if (empty($_POST['nombre']))
 				{
 					$msg[] = 'El nombre del producto es obligatorio.';
@@ -288,7 +292,7 @@
 				}
 				else
 				{
-					$offer_price = null; // Establecer el precio de oferta a NULL si no está en oferta
+					$offer_price = null; 
 				}
 
 				if (empty($_FILES['imagen']['name']))
@@ -433,8 +437,6 @@
 
 </div>
 
-<!-- Enlace al archivo JavaScript de Bootstrap -->
-<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
 <?php include "../footer.php"; ?>
 </body>
 </html>

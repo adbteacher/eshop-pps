@@ -1,4 +1,8 @@
 <?php
+/*
+	Este codigo procesa el formulario de modificacion de usuario e inserta en
+	la BD los datos correspondientes
+	 */
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
 	session_start();
 	functions::checkAdminAccess();

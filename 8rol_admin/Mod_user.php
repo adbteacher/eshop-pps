@@ -1,4 +1,8 @@
 <?php
+/*
+	Esta pagina permite modificar los usuarios de la tienda, controlando
+	todo lo psoible inyección SQL y diferentes vuln.
+	 */
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
 
     session_start();

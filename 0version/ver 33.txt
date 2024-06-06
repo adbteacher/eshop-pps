@@ -1,0 +1,4 @@
+33 - CETI - Christian - Admin fixes
+
+- Changed some queries.
+- Added restrictions
