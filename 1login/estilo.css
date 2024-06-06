@@ -539,3 +539,19 @@ body {
     color: #6c757d;
     margin-top: 20px;
 }
+
+.forgot-password {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.forgot-password .btn-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.forgot-password .btn-link:hover {
+    color: var(--primary-hover-color);
+    text-decoration: underline;
+}
