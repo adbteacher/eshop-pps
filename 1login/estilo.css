@@ -1,0 +1,557 @@
+:root {
+    --main-bg-color: #f4f4f4;
+    --main-text-color: #333;
+    --secondary-bg-color: #f2f2f2;
+    --secondary-text-color: #fff;
+    --primary-color: #007BFF;
+    --primary-hover-color: #0056b3;
+    --secondary-button-color: #6c757d;
+    --secondary-button-hover-color: #5a6268;
+    --error-bg-color: #ffc0c0;
+    --error-text-color: #900;
+    --info-bg-color: #ccffcc;
+    --info-text-color: #006600;
+    --warning-bg-color: #ffcccc;
+    --warning-text-color: #660000;
+    --font-family: 'Arial', sans-serif;
+}
+
+/* General Styles */
+body {
+    font-family: var(--font-family);
+    background-color: var(--main-bg-color);
+    color: var(--main-text-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Container */
+.container {
+    width: 80%;
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow: hidden;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Section */
+.section {
+    margin-bottom: 20px;
+}
+
+/* Accordion Styles */
+.accordion-button::after {
+    content: '\002B'; /* Plus sign */
+    font-size: 1.5rem;
+    float: right;
+}
+
+.accordion-button[aria-expanded="true"]::after {
+    content: '\2212'; /* Minus sign */
+}
+
+.accordion-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.accordion-body > div {
+    padding: 10px;
+}
+
+.status-success {
+    color: green;
+}
+
+.status-failed {
+    color: red;
+}
+
+/* Header Styles */
+.header {
+    background-color: var(--secondary-bg-color);
+    padding: 20px 0;
+    text-align: center;
+    border-bottom: 1px solid #e1e1e1;
+    margin-bottom: 20px; /* Adds a bottom margin to separate from content */
+}
+
+
+/* Navbar */
+.navbar {
+    background-color: #333;
+    color: var(--secondary-text-color);
+    overflow: auto;
+}
+
+.navbar a {
+    float: left;
+    padding: 12px;
+    color: var(--secondary-text-color);
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: var(--main-text-color);
+}
+
+/* Content */
+.content {
+    padding: 20px;
+    background: #f9f9f9;
+    min-height: 400px;
+}
+
+/* Footer */
+.footer {
+    background-color: #333;
+    color: var(--secondary-text-color);
+    text-align: center;
+    padding: 10px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Form Box */
+.form-box {
+    width: 90%; /* Adjust width for mobile */
+    max-width: 400px; /* Reduce max width */
+    padding: 20px;
+    background-color: var(--secondary-text-color);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.form-box h1 {
+    margin: 0 0 20px 0;
+}
+
+.form-box label,
+.form-box input[type="email"],
+.form-box input[type="password"],
+.form-box input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Specific button styles */
+.btn-2fa {
+    width: 100%;
+    padding: 15px; /* Make this button larger */
+    background-color: var(--primary-color);
+    color: var(--secondary-text-color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    margin-bottom: 15px; /* Bottom margin to separate buttons */
+    font-size: 18px; /* Larger font size */
+}
+
+.btn-2fa:hover {
+    background-color: var(--primary-hover-color);
+}
+
+.btn-2fa:focus {
+    outline: 2px solid var(--primary-hover-color);
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 16px; /* Keep this button smaller */
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    color: var(--secondary-text-color);
+    background-color: var(--secondary-button-color);
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.2s, opacity 0.2s;
+    margin-top: 10px; /* Top margin to separate from previous button */
+}
+
+.button:hover {
+    background-color: var(--secondary-button-hover-color);
+}
+
+.button:focus {
+    outline: 2px solid var(--secondary-button-hover-color);
+}
+
+.version {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Login button */
+.login-button {
+    width: 100%;
+    padding: 15px; /* Make this button larger */
+    background-color: var(--primary-color);
+    color: var(--secondary-text-color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    margin-top: 10px; /* Top margin to separate from previous button */
+    font-size: 18px; /* Larger font size */
+}
+
+.login-button:hover {
+    background-color: var(--primary-hover-color);
+}
+
+.login-button:focus {
+    outline: 2px solid var(--primary-hover-color);
+}
+
+/* Alert Messages */
+.info, .warning, .error {
+    width: 100%;
+    text-align: center;
+    padding: 10px 20px; /* Adjust padding for uniformity */
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin: 10px 0; /* Add margin to separate from content */
+}
+
+.info {
+    background-color: var(--info-bg-color);
+    color: var(--info-text-color);
+    border: 1px solid var(--info-text-color);
+}
+
+.warning {
+    background-color: var(--warning-bg-color);
+    color: var(--warning-text-color);
+    border: 1px solid var(--warning-text-color);
+}
+
+.error {
+    background-color: var(--error-bg-color);
+    color: var(--error-text-color);
+    border: 1px solid var(--error-text-color);
+}
+
+/* Table Styles */
+.table-container {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #f4f4f4;
+}
+
+.table th:first-child {
+    text-align: left;
+}
+
+.table th:nth-child(2), .table td:nth-child(2) {
+    text-align: center;
+}
+
+.table th:last-child, .table td:last-child {
+    text-align: right;
+}
+
+.table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.btn-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.accordion-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.accordion-body > div {
+    padding: 10px;
+}
+
+.status-success {
+    color: green;
+}
+
+.status-failed {
+    color: red;
+}
+
+/* Map Styles */
+.map-container {
+    width: 100%;
+    text-align: right;
+}
+
+.map {
+    width: 300px;
+    height: 150px;
+    border: 0;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .form-box {
+        width: 90%; /* Adjust width for mobile */
+        padding: 15px; /* Adjust padding for mobile */
+    }
+
+    .login-button, .btn-2fa {
+        padding: 12px; /* Adjust button padding for mobile */
+        font-size: 16px; /* Adjust button font size for mobile */
+    }
+
+    .container {
+        width: 95%; /* Adjust container width for mobile */
+        margin-top: 20px; /* Reduce top margin */
+    }
+
+    .header h1 {
+        font-size: 2rem; /* Adjust header font size */
+    }
+}
+
+/* Very Small Device Styles */
+@media (max-width: 480px) {
+    .form-box {
+        width: 100%; /* Full width for very small screens */
+        padding: 10px; /* Adjust padding */
+    }
+
+    .login-button, .btn-2fa {
+        padding: 10px; /* Adjust button padding */
+        font-size: 14px; /* Adjust button font size */
+    }
+
+    .header h1 {
+        font-size: 1.8rem; /* Adjust header font size */
+    }
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column; /* Change to column */
+    gap: 10px;
+    width: 100%;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Expand width of "Verify" button */
+    padding: 15px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    font-size: 18px;
+}
+
+.btn-2fa {
+    width: 100%;
+    padding: 15px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    margin-top: 10px;
+    font-size: 18px;
+}
+.btn-2fa:hover {
+    background-color: #0056b3;
+}
+.btn-2fa:focus {
+    outline: 2px solid #0056b3;
+}
+
+.login-button {
+    width: 100%;
+    padding: 15px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    margin-top: 10px;
+    font-size: 18px;
+}
+.login-button:hover {
+    background-color: #0056b3;
+}
+.login-button:focus {
+    outline: 2px solid #0056b3;
+}
+
+.form-box {
+    width: 90%; /* Reduced full width */
+    max-width: 400px; /* Reduced max width */
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+}
+.form-box h1 {
+    width: 100%;
+    text-align: center;
+}
+.form-group {
+    width: 100%;
+}
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+.button-group {
+    display: flex;
+    flex-direction: column; /* Changed to column */
+    gap: 10px;
+    width: 100%;
+}
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Expanded width of "Verify" button */
+    padding: 15px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    font-size: 18px;
+}
+.btn-primary {
+    background-color: #007BFF;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+.btn-primary:focus {
+    outline: 2px solid #0056b3;
+}
+.btn-secondary {
+    background-color: #6c757d;
+}
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+.btn-secondary:focus {
+    outline: 2px solid #5a6268;
+}
+.message-container {
+    width: 100%;
+    min-height: 24px;
+    margin-bottom: 10px;
+}
+
+.container {
+    margin-top: 50px;
+}
+.table thead {
+    background-color: #007BFF;
+    color: #ffffff;
+}
+.status-icon {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+.status-success {
+    background-color: green;
+}
+.status-failed {
+    background-color: red;
+}
+.btn-primary {
+    background-color: #007BFF;
+    border-color: #007BFF;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.header h1 {
+    font-size: 2.5rem;
+    color: #007BFF;
+}
+.no-records {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin-top: 20px;
+}
+
+.forgot-password {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.forgot-password .btn-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.forgot-password .btn-link:hover {
+    color: var(--primary-hover-color);
+    text-decoration: underline;
+}
