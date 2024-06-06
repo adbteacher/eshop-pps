@@ -28,6 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } 
     // Check if there have been too many login attempts
     else if (CheckLoginAttempts($Email)) {
+        sleep(5);
         $message = "Demasiados intentos de inicio de sesión fallidos. Inténtelo más tarde.";
     } 
     else {
@@ -103,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </script>
 </head>
 <body>
-    <div class="version">Versión 1.5.2</div>
+    <div class="version">Versión 1.5.3</div>
     <div class="form-box">
         <h1>Iniciar Sesión</h1>
         <form method="post">
@@ -120,6 +121,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             </button>
         </form>
+        <div class="forgot-password">
+            <a href="../2recovery/reset_password.php" class="btn btn-link">¿Olvidaste tu contraseña? Espabila...</a>
+        </div>
         <a href="/3register/register.form.php" class="button">¿No tienes cuenta? ¡Regístrate!</a>
         <br>
         <a href="../index.php" class="button">Volver</a>
