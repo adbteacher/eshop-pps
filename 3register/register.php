@@ -88,7 +88,7 @@ if (isset($_POST['register']))
 			$Errors[] = 'CompanyWeb';
 		}
 	}
-	
+
 
 	// Validación del prefijo del número de teléfono
 	if (!is_numeric($Prefix) OR strlen($Prefix) > 5 or empty($Prefix))
@@ -99,7 +99,7 @@ if (isset($_POST['register']))
 	{
 		$Prefix = '+' . $Prefix;
 	}
-	
+
 	// Validación del teléfono
 	if (!is_numeric($PhoneNumber) OR strlen($PhoneNumber) > 11 or empty($PhoneNumber))
 	{
@@ -112,7 +112,7 @@ if (isset($_POST['register']))
 	{
 		$Errors[] = 'Email';
 	}
-	
+
     $PatternEmail = '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+$/';
 
 	if (!preg_match($PatternEmail, $Email))
@@ -149,7 +149,7 @@ if (isset($_POST['register']))
 
 	// Hash de la contraseña
 	$Password = password_hash($Password, PASSWORD_DEFAULT);
-	
+
 	// Muestra de errores de los formularios
 	if (!empty($Errors))
 	{
@@ -159,11 +159,11 @@ if (isset($_POST['register']))
 		header('Location: register.form.php');
 		exit;
 	}
-	
+
 	// Comprobación de usuario existente
 	$Query       = ("SELECT usu_email FROM pps_users WHERE usu_email = '$Email';");
 	$ResultQuery = $Conn->query($Query);
-	
+
 	// Muestra de error de que el usuario ya existe
 	if ($ResultQuery->rowCount() > 0)
 	{
@@ -174,9 +174,12 @@ if (isset($_POST['register']))
 		header('Location: register.form.php');
 		exit;
 	}
-	
-	$Query       = ("SELECT usu_cif FROM pps_users WHERE usu_cif = '$Cif';");
-	$ResultQuery = $Conn->query($Query);
+
+	if (!empty($Cif))
+	{
+		$Query       = ("SELECT usu_cif FROM pps_users WHERE usu_cif = '$Cif';");
+		$ResultQuery = $Conn->query($Query);
+	}
 
 	if ($ResultQuery->rowCount() > 0)
 	{
@@ -188,16 +191,18 @@ if (isset($_POST['register']))
 		exit;
 	}
 
-	if (!UploadCompanyDocuments($CompanyDocuments, $Cif) or empty($CompanyDocuments))
+	if (!empty($CompanyDocuments))
 	{
-		$Errors[] = 'CompanyDocuments';
-		// Guardar los errores en la sesión
-		$_SESSION['Errors'] = $Errors;
-		// Redirigir a la página de registro
-		header('Location: register.form.php');
-		exit;
+		if (!UploadCompanyDocuments($CompanyDocuments, $Cif) or empty($CompanyDocuments))
+		{
+			$Errors[] = 'CompanyDocuments';
+			// Guardar los errores en la sesión
+			$_SESSION['Errors'] = $Errors;
+			// Redirigir a la página de registro
+			header('Location: register.form.php');
+			exit;
+		}
 	}
-
 	$CompanyDocuments = GetCompanyDocuments($CompanyDocuments, $Cif);
 
 	// Variable con fecha y hora
