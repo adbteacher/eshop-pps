@@ -6,7 +6,11 @@
 
 require_once '../autoload.php'; // Autoload necessary classes and Database connection
 
-session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+
 class JWTHandler
 {
     private static string $secretKey;
