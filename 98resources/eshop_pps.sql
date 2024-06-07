@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 07, 2024 at 03:40 PM
+-- Generation Time: Jun 07, 2024 at 05:26 PM
 -- Server version: 11.2.2-MariaDB
 -- PHP Version: 8.2.13
 
@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS `pps_logs_login` (
   PRIMARY KEY (`lol_id`),
   UNIQUE KEY `rlo_id` (`lol_id`,`lol_user`),
   KEY `lol_user` (`lol_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_logs_login`
@@ -207,7 +207,10 @@ INSERT INTO `pps_logs_login` (`lol_id`, `lol_user`, `lol_ip`, `lol_was_correct_l
 (65, 12, '::1', 1, '2024-06-07 16:33:44'),
 (66, 11, '::1', 1, '2024-06-07 17:03:37'),
 (67, 10, '::1', 1, '2024-06-07 17:30:50'),
-(68, 11, '::1', 1, '2024-06-07 17:33:38');
+(68, 11, '::1', 1, '2024-06-07 17:33:38'),
+(69, 15, '::1', 1, '2024-06-07 19:16:46'),
+(70, 15, '::1', 1, '2024-06-07 19:20:46'),
+(71, 15, '::1', 1, '2024-06-07 19:25:31');
 
 -- --------------------------------------------------------
 
@@ -923,11 +926,11 @@ CREATE TABLE IF NOT EXISTS `pps_users` (
   `usu_web` varchar(50) NOT NULL,
   `usu_documents` varchar(200) NOT NULL,
   `usu_2fa` char(16) DEFAULT NULL,
-  `usu_reset_token` varchar(255) NOT NULL,
-  `usu_image` varchar(255) NOT NULL,
+  `usu_reset_token` varchar(255) DEFAULT NULL,
+  `usu_image` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`usu_id`),
   UNIQUE KEY `usu_id` (`usu_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Users' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Users' ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_users`
@@ -940,7 +943,9 @@ INSERT INTO `pps_users` (`usu_id`, `usu_type`, `usu_rol`, `usu_status`, `usu_ver
 (10, 'U', 'A', 'A', '', '2024-05-21 17:40:45', 'admin', 'admin', '', 696969696, 'admin@admin.com', '$2y$10$jwYGuXH17AmryF.phRISquTikhF5VYtwwBgayHtZbRQtgbzKeVOKi', '', '', '', '', '', '', 'soy_admin.jpg'),
 (11, 'U', 'U', 'A', '', '2024-05-21 17:43:24', 'user', 'user', '', 333333333, 'user@user.com', '$2y$10$iIZuw5VZ7f1BkITuFPn2VupQvnMAl6Boffs00AKUiocQ5eBgsEH6K', '', '', '', '', '', '', 'user.jpg'),
 (12, 'V', 'V', 'A', '', '2024-05-21 17:45:44', 'company', 'company', '', 666666666, 'company@company.com', '$2y$10$Sk7CTffGw6.gyJOXtn0NauNREJFAyb3lkTB82g5sgjf2R4tx4a0Qm', '', '', '', '', '', '', 'vendor.jpeg'),
-(13, 'U', 'S', 'A', '', '2024-05-21 17:58:39', 'support', 'support', '', 2147483647, 'support@support.com', '$2y$10$4MzwXMZz/qG/R3.Ys19DFO9hh3rc0Yc0K0bnhCLw3V5VE78KQdTOC', '', '', '', '', '', '', 'support.jpg');
+(13, 'U', 'S', 'A', '', '2024-05-21 17:58:39', 'support', 'support', '', 2147483647, 'support@support.com', '$2y$10$4MzwXMZz/qG/R3.Ys19DFO9hh3rc0Yc0K0bnhCLw3V5VE78KQdTOC', '', '', '', '', '', '', 'support.jpg'),
+(14, 'V', 'V', 'N', 'dkuqAGqFvXuFAFqX', '2024-06-07 16:37:21', '', '', '+34', 666999666, 'a@a.com', '$2y$10$cY3KbuZFCoyDjbTR3RDg/epNaIbDNcKP7DoPH4iXhtWVypRicJgG.', 'aaa', '48712026G', 'a.com', 'D:uploads-eshop48712026G1.pdf^_D:uploads-eshop48712026G2.pdf', '', NULL, NULL),
+(15, 'V', 'V', 'A', 'kjkZZPVq1j1jyVnq', '2024-06-07 17:15:46', '', '', '+34', 666999666, 'ivimm333@gmail.com', '$2y$10$2/Hj1qr4qkg5eqtvka5XQe4WR7nwjr5akbAsHuZu8oN.r8rHOBWQS', 'aaa', '48712027M', 'a.com', 'C:uploads-eshop48712027M1.pdf^_C:uploads-eshop48712027M2.pdf', '', NULL, NULL);
 
 --
 -- Constraints for dumped tables
