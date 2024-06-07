@@ -5,7 +5,10 @@
 	 */
 	require_once '../autoload.php';
 	require_once '../vendor/autoload.php';
-    session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
 
 	// Verificar si el usuario está autenticado
 	functions::ActiveSession();

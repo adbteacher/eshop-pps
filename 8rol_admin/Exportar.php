@@ -5,7 +5,11 @@
 	 */
 // Establecer conexión a la base de datos
 require_once '../autoload.php';
-session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+
 functions::checkAdminAccess();
 
 	// Verificar si el usuario está autenticado

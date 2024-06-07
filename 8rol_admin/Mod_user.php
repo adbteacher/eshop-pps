@@ -1,11 +1,14 @@
 <?php
 /*
 	Esta pagina permite modificar los usuarios de la tienda, controlando
-	todo lo psoible inyección SQL y diferentes vuln.
+	 lo psoible inyección SQL y diferentes vuln.
 	 */
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
 
-    session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
 
 	// Verificar si el usuario está autenticado
 	functions::ActiveSession();

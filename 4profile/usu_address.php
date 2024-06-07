@@ -1,5 +1,9 @@
 <?php
-session_start(); // Iniciar la sesión si aún no se ha iniciado
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+ // Iniciar la sesión si aún no se ha iniciado
 
 require_once '../autoload.php';
 

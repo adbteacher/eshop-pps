@@ -3,7 +3,11 @@
 	 Este código muestra las tendencias de los usaurios junto con el promedio de ventas
      por cada usuario y las reseñas de los productos por categoria
 	 */
-session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+
 require_once '../autoload.php';
 
 	// Verificar si el usuario está autenticado

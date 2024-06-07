@@ -4,7 +4,10 @@
 	la BD los datos correspondientes
 	 */
 	require_once '../autoload.php'; // Incluye el archivo de conexión PDO
-	session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
 
 	// Verificar si el usuario está autenticado
 	functions::ActiveSession();

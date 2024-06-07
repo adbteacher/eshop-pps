@@ -3,7 +3,11 @@
 	Esta pagina es la "estructura" del panel de control de adminsitrador y
     permite la capacidad de navegar por los diferentes puntos del Rol.
 	 */
-session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
+
 require_once '../autoload.php';
 
 	// Verificar si el usuario está autenticado
