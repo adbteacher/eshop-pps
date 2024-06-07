@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 06, 2024 at 06:34 PM
+-- Generation Time: Jun 07, 2024 at 03:40 PM
 -- Server version: 11.2.2-MariaDB
 -- PHP Version: 8.2.13
 
@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS `pps_logs_login` (
   PRIMARY KEY (`lol_id`),
   UNIQUE KEY `rlo_id` (`lol_id`,`lol_user`),
   KEY `lol_user` (`lol_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Registro de intentos de login' ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_logs_login`
@@ -203,7 +203,11 @@ INSERT INTO `pps_logs_login` (`lol_id`, `lol_user`, `lol_ip`, `lol_was_correct_l
 (61, 11, '::1', 1, '2024-06-06 17:26:00'),
 (62, 10, '::1', 1, '2024-06-06 18:47:37'),
 (63, 12, '::1', 1, '2024-06-06 18:53:10'),
-(64, 13, '::1', 1, '2024-06-06 19:23:31');
+(64, 13, '::1', 1, '2024-06-06 19:23:31'),
+(65, 12, '::1', 1, '2024-06-07 16:33:44'),
+(66, 11, '::1', 1, '2024-06-07 17:03:37'),
+(67, 10, '::1', 1, '2024-06-07 17:30:50'),
+(68, 11, '::1', 1, '2024-06-07 17:33:38');
 
 -- --------------------------------------------------------
 
@@ -754,7 +758,7 @@ INSERT INTO `pps_products` (`prd_id`, `prd_name`, `prd_category`, `prd_details`,
 (24, 'Mango', 6, 'Mangos Ataulfo frescos, dulces y jugosos, perfectos para batidos y postres.', 2.00, 30, '/0images/mango-ataulfo.png', 1, 1.80),
 (25, 'Pepino Holandés', 3, 'Pepino Holandés, ideal para ensaladas, fresco y con un sabor suave.', 0.80, 50, '/0images/pepino-holandes.png', 0, NULL),
 (26, 'Tomate Cherry', 3, 'Tomate Cherry, pequeños y dulces, perfectos para ensaladas y snacks.', 2.00, 30, '/0images/tomate-cherry.png', 0, NULL),
-(27, 'la fruta de Iván', 6, 'La jefa de todas las frutas', 33.00, 69, 'img_665a17f8f38b86.71616740.jpg', 0, NULL);
+(27, 'la fruta de Iván', 6, 'La jefa de todas las frutas', 33.00, 69, '/0images/crown.png', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -875,11 +879,11 @@ CREATE TABLE IF NOT EXISTS `pps_tickets` (
   `tic_creation_time` datetime NOT NULL,
   `tic_user_solver` int(11) DEFAULT NULL,
   `tic_priority` varchar(1) NOT NULL,
-  `tic_resolution_time` datetime NOT NULL,
+  `tic_resolution_time` datetime DEFAULT NULL,
   PRIMARY KEY (`tic_id`),
   KEY `tic_user_creator` (`tic_user_creator`),
   KEY `pps_tickets_ibfk_2` (`tic_user_solver`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `pps_tickets`
@@ -888,7 +892,11 @@ CREATE TABLE IF NOT EXISTS `pps_tickets` (
 INSERT INTO `pps_tickets` (`tic_id`, `tic_title`, `tic_message`, `tic_user_creator`, `tic_creation_time`, `tic_user_solver`, `tic_priority`, `tic_resolution_time`) VALUES
 (7, 'help', 'help me pls', 13, '2024-05-29 17:23:15', 13, 'B', '2024-06-06 19:48:25'),
 (8, 'help me', 'I\'m stuck', 13, '2024-05-29 17:24:16', NULL, 'M', '0000-00-00 00:00:00'),
-(10, 'NUCLEAR FUSION', 'ALERT, NUCLEAR EXPLOSION IMMINENT', 13, '2024-05-29 18:08:43', NULL, 'A', '0000-00-00 00:00:00');
+(10, 'NUCLEAR FUSION', 'ALERT, NUCLEAR EXPLOSION IMMINENT', 13, '2024-05-29 18:08:43', NULL, 'A', '0000-00-00 00:00:00'),
+(11, 'vv', 'vv', 12, '2024-06-07 14:46:08', NULL, 'B', NULL),
+(12, 'adad', 'adad', 11, '2024-06-07 15:06:41', NULL, 'B', NULL),
+(13, 'adad', 'adad', 11, '2024-06-07 15:07:54', NULL, 'B', NULL),
+(14, 'bb', 'yy', 11, '2024-06-07 15:08:06', NULL, 'B', NULL);
 
 -- --------------------------------------------------------
 
