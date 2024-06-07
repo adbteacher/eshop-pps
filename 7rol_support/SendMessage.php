@@ -61,7 +61,5 @@
         <a href="ViewMessage.php" class="btn btn-secondary">Atrás</a>
     </form>
 </div>
-
-<!--<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>-->
 </body>
 </html>

@@ -144,8 +144,6 @@
 
 <?php include "../footer.php"; // Incluye el footer ?>
 
-<script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
 <?php
 // End output buffering and flush the output
 ob_end_flush();

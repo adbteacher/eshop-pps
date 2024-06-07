@@ -110,7 +110,6 @@
     </form>
 </div>
 <?php include "../footer.php"; // Incluye el footer ?>
-<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 

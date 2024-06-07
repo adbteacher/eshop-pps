@@ -99,7 +99,5 @@
 	<?php endif; ?>
     <a href="SendMessage.php" class="btn btn-primary">Crear Mensaje</a>
 </div>
-
-<!--<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>-->
 </body>
 </html>

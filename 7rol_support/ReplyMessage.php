@@ -87,7 +87,5 @@
     </form>
 <!--    <a href="javascript:history.back()" class="btn btn-secondary mt-3">Atrás</a>-->
 </div>
-
-<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
