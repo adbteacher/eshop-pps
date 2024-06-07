@@ -8,6 +8,11 @@
 
 if(session_status() != PHP_SESSION_ACTIVE) session_start();
 
+if ($_SESSION["UserID"])
+{
+    header("Location: ../index.php");
+}
+
 $Errors = isset($_SESSION['Errors']) ? $_SESSION['Errors'] : array();
 if (!empty($_SESSION['Errors']))
 {

@@ -214,7 +214,7 @@ if (isset($_POST['register']))
 	{
 		// Preparación de datos a la base de datos
 		//
-		$Query = ("INSERT INTO pps_users ( usu_type, usu_rol, usu_status, usu_verification_code, usu_datetime, usu_name, usu_surnames, usu_prefix, usu_phone, usu_email, usu_password, usu_company, usu_cif, usu_web, usu_documents, usu_2fa ) VALUES ( 'V', '$UserType', 'N', '$VerificationCode', '$DateTime','$CustomerName', '$CustomerSurNames', '$Prefix', '$PhoneNumber', '$Email', '$Password', '$CompanyName', '$Cif', '$CompanyWeb', '$CompanyDocuments', '')");
+		$Query = ("INSERT INTO pps_users ( usu_type, usu_rol, usu_status, usu_verification_code, usu_datetime, usu_name, usu_surnames, usu_prefix, usu_phone, usu_email, usu_password, usu_company, usu_cif, usu_web, usu_documents, usu_2fa ) VALUES ( '$UserType', '$UserType', 'N', '$VerificationCode', '$DateTime','$CustomerName', '$CustomerSurNames', '$Prefix', '$PhoneNumber', '$Email', '$Password', '$CompanyName', '$Cif', '$CompanyWeb', '$CompanyDocuments', '')");
 		$stmt = $Conn->prepare($Query);
 
 		if ($stmt->execute())

@@ -77,10 +77,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 		exit;
 	}
 
-	if (!preg_match("/^[a-zA-Z\s]{1,30}$/", $Surnames)) {
-		$_SESSION['error_message'] = 'Apellidos inválidos. (Sin acentos)';
-		header("Location: usu_info.php");
-		exit;
+    if ($_SESSION["UserRol"] == "U")
+	{
+        if (!preg_match("/^[a-zA-Z\s]{1,30}$/", $Surnames)) {
+            $_SESSION['error_message'] = 'Apellidos inválidos. (Sin acentos)';
+            header("Location: usu_info.php");
+            exit;
+	    }
 	}
 
 	if (!preg_match("/^\d{9}$/", $Phone)) {
@@ -97,19 +100,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
 
 	// Update user data
 	try {
-		$sql = "UPDATE pps_users SET 
+        if ($_SESSION["UserRol"] == "U")
+		{
+			$sql = "UPDATE pps_users SET 
 			usu_name = ?,  
 			usu_surnames = ?,
 			usu_phone = ?,
 			usu_email = ? 
 			WHERE usu_id = ?";
 
-		$stmt = $connection->prepare($sql);
-		$stmt->bindValue(1, $Name);
-		$stmt->bindValue(2, $Surnames);
-		$stmt->bindValue(3, $Phone);
-		$stmt->bindValue(4, $Email);
-		$stmt->bindValue(5, $user_id);
+			$stmt = $connection->prepare($sql);
+			$stmt->bindValue(1, $Name);
+			$stmt->bindValue(2, $Surnames);
+			$stmt->bindValue(3, $Phone);
+			$stmt->bindValue(4, $Email);
+			$stmt->bindValue(5, $user_id);
+
+		}else
+			if ($_SESSION["UserRol"] == "V")
+			{
+            $sql = "UPDATE pps_users SET 
+			usu_company = ?,  
+			usu_phone = ?,
+			usu_email = ? 
+			WHERE usu_id = ?";
+
+				$stmt = $connection->prepare($sql);
+				$stmt->bindValue(1, $Name);
+				$stmt->bindValue(2, $Phone);
+				$stmt->bindValue(3, $Email);
+				$stmt->bindValue(4, $user_id);
+
+			}
 
 		if ($stmt->execute()) {
 			if ($Email !== $user_email) {
@@ -205,13 +227,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitPersonalInfo']))
                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <div class="mb-3">
 					<label for="name" class="form-label"><b>Nombre:</b></label>
-					<input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($UserRow['usu_name']); ?>" pattern="[a-zA-Z\s]{1,50}" title="Solo letras y espacios, máximo 50 caracteres" required>
+					<input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($UserRow['usu_name'] ?:$UserRow['usu_company']); ?>" pattern="[a-zA-Z\s]{1,50}" title="Solo letras y espacios, máximo 50 caracteres" required>
 				</div>
 
+                <?php if ($_SESSION["UserRol"] == "U")
+					{?>
 				<div class="mb-3">
 					<label for="surnames" class="form-label"><b>Apellidos:</b></label>
 					<input type="text" class="form-control" name="surnames" value="<?php echo htmlspecialchars($UserRow['usu_surnames']); ?>" pattern="[a-zA-Z\s]{1,50}" title="Solo letras y espacios, máximo 50 caracteres" required>
 				</div>
+                <?php } ?>
 
 				<div class="mb-3">
 					<label for="email" class="form-label"><b>Email:</b></label>

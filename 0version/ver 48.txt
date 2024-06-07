@@ -1,0 +1,4 @@
+48 - CETI - Iván - Late night fixes v2
+
+- Register fixes
+- Profile update fixes
