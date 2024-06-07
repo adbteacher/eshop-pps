@@ -49,7 +49,3 @@ jQuery(document).ready(function ($) {
         }
     });
 });
-
-
-
-

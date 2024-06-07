@@ -8,7 +8,8 @@ require_once '../autoload.php';
 $Conn = Database::LoadDatabase();
 
 // Control de problemas
-if (!isset($_SESSION['VerificationPending'])) {
+if (!isset($_SESSION['VerificationPending']))
+{
     header('Location: ../1login/login.php');
     exit();
 }
