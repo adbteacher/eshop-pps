@@ -44,30 +44,22 @@
 
 <?php 
 
-	if (session_status() == PHP_SESSION_NONE)
-	{
-		session_start();
-	}
-
-	// Start output buffering
-	ob_start();
-
-	require_once '../autoload.php';
-	require_once 'biblioteca.php';
-    include "../nav.php"; // Incluye el Navbar
-
-	// Verificar si el usuario está autenticado
-	functions::ActiveSession();
-
-	//Comprobar permisos al programa
-	functions::HasPermissions(basename(__FILE__));
-
-	if (session_status() == PHP_SESSION_NONE) {
+    if (session_status() == PHP_SESSION_NONE) {
         session_start();
     }
 
+    // Start output buffering
+    ob_start();
+
     require_once '../autoload.php';
     require_once 'biblioteca.php';
+    include "../nav.php"; // Incluye el Navbar
+
+    // Verificar si el usuario está autenticado
+    functions::ActiveSession();
+
+    // Comprobar permisos al programa
+    functions::HasPermissions(basename(__FILE__));
 
     // Generar y almacenar el token CSRF si no existe
     if (empty($_SESSION['csrf_token'])) {
@@ -93,11 +85,27 @@
         }
     }
 
-    // Consulta para obtener la lista de todos los clientes con su dirección
+    // Consulta para obtener la lista de clientes con usu_rol="U" y al menos una entrada en pps_orders
     $sql = "
-    SELECT u.usu_name, u.usu_email, a.adr_line1, a.adr_line2, a.adr_city, a.adr_state, a.adr_postal_code, a.adr_country
-    FROM pps_users u
-    LEFT JOIN pps_addresses_per_user a ON u.usu_id = a.adr_user
+    SELECT 
+        u.usu_name, 
+        u.usu_email, 
+        a.adr_line1, 
+        a.adr_line2, 
+        a.adr_city, 
+        a.adr_state, 
+        a.adr_postal_code, 
+        a.adr_country
+    FROM 
+        pps_users u
+    LEFT JOIN 
+        pps_addresses_per_user a ON u.usu_id = a.adr_user
+    INNER JOIN 
+        pps_orders o ON u.usu_id = o.ord_user_id
+    WHERE 
+        u.usu_rol = 'U'
+    GROUP BY 
+        u.usu_id
     ";
 
     $stmt = $conn->prepare($sql);

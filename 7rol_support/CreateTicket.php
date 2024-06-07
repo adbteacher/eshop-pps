@@ -40,6 +40,7 @@
 		$stmt->bindParam(':tic_message', $SanitizedMessage);
 		$stmt->bindParam(':tic_creation_time', $tic_creation_time);
 		$stmt->bindParam(':tic_priority', $tic_priority);
+		//$stmt->bindParam(':tic_resolution_time', $tic_resolution_time);
 
 		if ($stmt->execute())
 		{
