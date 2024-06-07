@@ -3,11 +3,11 @@ session_start(); // Iniciar la sesión si aún no se ha iniciado
 
 require_once '../autoload.php';
 
-	// Verificar si el usuario está autenticado
-	functions::ActiveSession();
+// Verificar si el usuario está autenticado
+functions::ActiveSession();
 
-	//Comprobar permisos al programa
-	functions::HasPermissions(basename(__FILE__));
+//Comprobar permisos al programa
+functions::HasPermissions(basename(__FILE__));
 
 $user_email = $_SESSION['UserEmail'];
 $user_id    = $_SESSION['UserID'];
