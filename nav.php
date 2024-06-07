@@ -109,13 +109,6 @@
                         <i class="bi bi-box-seam"></i> Productos
                     </a>
                 </li>
-				<?php //if ($isVendor): ?>
-                <!--    <li class="nav-item">-->
-                <!--        <a class="nav-link" href="/5rol_vendor/mainpage.php">-->
-                <!--            <i class="bi bi-box-seam"></i> Manage-->
-                <!--        </a>-->
-                <!--    </li>-->
-				<?php //endif; ?>
             </ul>
 
             <ul class="navbar-nav ms-auto">
@@ -149,18 +142,20 @@
                                         <hr class="dropdown-divider">
                                     </li>
 								<?php endif; ?>
-                                <li>
-                                    <a class="dropdown-item" href="/4profile/main_profile.php"><i class="bi bi-person-circle"></i>
-                                        Perfil</a>
-                                </li>
-								<?php if ($isVendor): ?>
+                                <?php if ($isVendor): ?>
                                     <li>
                                         <a class="dropdown-item" href="/5rol_vendor/mainpage.php">
                                             <i class="bi bi-box-seam"></i> Manage
                                         </a>
                                     </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
 								<?php endif; ?>
-
+                                <li>
+                                    <a class="dropdown-item" href="/4profile/main_profile.php"><i class="bi bi-person-circle"></i>
+                                        Perfil</a>
+                                </li>
                                 <li>
                                     <a class="dropdown-item" href="/11my_orders/pps_orders-index.php"><i class="bi bi-tools"></i>
                                         Pedidos</a>
