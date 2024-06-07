@@ -240,7 +240,7 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item text-center" href="/9shopping/cart.php">Ver Carrito</a></li>
+                            <li><a class="dropdown-item text-center" href="/9shopping/Cart.php">Ver Carrito</a></li>
 						<?php else : // Muestra cuando no hay productos en el carrito ?>
                             <li class="dropdown-item text-center">No hay productos en el carrito.</li>
 						<?php endif; ?>
