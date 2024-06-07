@@ -34,6 +34,7 @@
 		echo "<p>$mensaje</p>";
 		echo "<p><a href='$url'>Volver</a></p>";
 		exit();
+		exit();
 	}
 
 	if (isset($_GET['id']))
@@ -184,6 +185,5 @@
 	}
 ?>
 <?php include "../footer.php"; // Incluye el footer ?>
-<script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

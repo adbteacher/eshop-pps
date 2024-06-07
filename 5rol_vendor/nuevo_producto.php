@@ -199,8 +199,6 @@
 		$conn = null;
 	}
 ?>
-
-<script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <?php include "../footer.php"; // Incluye el footer ?>
 </body>
 </html>
