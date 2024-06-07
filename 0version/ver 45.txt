@@ -1,0 +1,3 @@
+45 - CETI - Sergio - Login and verify
+
+- Verifying "NotVerified" users
