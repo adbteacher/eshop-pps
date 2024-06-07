@@ -8,11 +8,11 @@ if (!isset($_SESSION['UserID'])) {
     exit();
 }
 
-	// Conexión a la base de datos
-	$conn = database::LoadDatabase();
+// Conexión a la base de datos
+$conn = database::LoadDatabase();
 
-	// Calcular los costos de envío
-	$shippingCost = 1.10; // Costo fijo de envío
+// Calcular los costos de envío
+$shippingCost = 1.10; // Costo fijo de envío
 
 // Calcular total del carrito
 $total = 0;
@@ -33,8 +33,8 @@ if (!empty($_SESSION['cart'])) {
     }
 }
 
-	// Inicializar descuento del cupón
-	$couponDiscount = 0;
+// Inicializar descuento del cupón
+$couponDiscount = 0;
 
 // Manejar la aplicación del cupón
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['apply_coupon'])) {
@@ -59,8 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['apply_coupon'])) {
     }
 }
 
-	// Calcular el total final incluyendo costos de envío y descuento del cupón
-	$grandTotal = $total + $shippingCost - $couponDiscount;
+// Calcular el total final incluyendo costos de envío y descuento del cupón
+$grandTotal = $total + $shippingCost - $couponDiscount;
 
 // Manejar la confirmación de la compra
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['confirm_purchase']) || isset($_POST['bank_transfer']))) {
@@ -68,12 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['confirm_purchase']) |
         // Aquí puedes añadir la lógica para guardar la orden en la base de datos y procesar el pago
         // ...
 
-			// Limpiar el carrito
-			unset($_SESSION['cart']);
+        // Limpiar el carrito
+        unset($_SESSION['cart']);
 
         // Redirigir a la página de métodos de pago o transferencia bancaria
         if (isset($_POST['bank_transfer'])) {
-            header("Location: Bank_Transfer.html");
+            header("Location: Bank_Transfer.php");
         } else {
             header("Location: Payment_Methods.php");
         }
@@ -101,21 +101,15 @@ $stmt->execute([$user_id]);
 $main_method = $stmt->fetchColumn();
 
 // Convertir el código del método a un texto legible
-    if ($main_method)
-	{
-        if ($main_method == 1)
-		{
-			$main_method_text = "Tarjeta de Crédito";
-		}
-        elseif ($main_method == 2)
-		{
-			$main_method_text = "PayPal";
-		}
-	}
-    else
-	{
-		$main_method_text = "No hay metodo de pago seleccionado";
+if ($main_method) {
+    if ($main_method == 1) {
+        $main_method_text = "Tarjeta de Crédito";
+    } elseif ($main_method == 2) {
+        $main_method_text = "PayPal";
     }
+} else {
+    $main_method_text = "No hay metodo de pago seleccionado";
+}
 
 // Obtener la dirección principal del usuario
 $stmt = $conn->prepare("SELECT adr_line1, adr_line2, adr_city, adr_state, adr_postal_code, adr_country FROM pps_addresses_per_user WHERE adr_user = ? AND adr_is_main = 1");
@@ -138,8 +132,6 @@ $main_address_text = $main_address ?
     <title>Confirmar Compra</title>
     <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="../vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
-
-<!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">-->
     <style>
         .price-original {
             text-decoration: line-through;
@@ -228,30 +220,27 @@ $main_address_text = $main_address ?
                     <p>No hay productos en el carrito.</p>
                 <?php endif; ?>
 
+                <form action="Checkout.php" method="post" class="mt-3">
+                    <div class="form-group">
+                        <label for="coupon_code">Código de Cupón:</label>
+                        <input type="text" class="form-control" id="coupon_code" name="coupon_code" maxlength="6" pattern="[A-Z0-9]{1,6}" title="Máximo 6 caracteres, solo letras mayúsculas y números.">
+                        <button type="submit" name="apply_coupon" class="btn btn-primary mt-2">Aplicar Cupón</button>
+                    </div>
+                </form>
+
                 <form action="Process.php" method="post" class="mt-3">
-    <div class="form-group">
-        <label for="coupon_code">Código de Cupón:</label>
-        <input type="text" class="form-control" id="coupon_code" name="coupon_code" maxlength="6" pattern="[A-Z0-9]{1,6}" title="Máximo 6 caracteres, solo letras mayúsculas y números.">
-        <button type="submit" name="apply_coupon" class="btn btn-primary mt-2">Aplicar Cupón</button>
-    </div>
-    <div class="form-check mt-3">
-        <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-        <label class="form-check-label" for="terms">He leído y acepto los <a href="Terms.php">términos y condiciones</a>.</label>
-    </div>
-                    <?php if (($main_method_text != "No hay metodo de pago seleccionado"))
-                     {?>
-    <button type="submit" name="confirm_purchase" class="btn btn-success mt-3">Confirmar Compra</button>
-  
-                    <?php }
-                    else
-					{?>
-						<div class="alert alert-warning">
-					¡Revisa que la información del método de pago o la dirección son correctas!.
-                         </div>
-						<?php
-                    }
-                        ?>
-</form>
+                    <div class="form-check mt-3">
+                        <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">He leído y acepto los <a href="Terms.php">términos y condiciones</a>.</label>
+                    </div>
+                    <?php if (($main_method_text != "No hay metodo de pago seleccionado")) { ?>
+                        <button type="submit" name="confirm_purchase" class="btn btn-success mt-3">Confirmar Compra</button>
+                    <?php } else { ?>
+                        <div class="alert alert-warning">
+                            ¡Revisa que la información del método de pago o la dirección son correctas!.
+                        </div>
+                    <?php } ?>
+                </form>
 
             </div>
         </div>
