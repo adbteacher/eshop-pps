@@ -15,6 +15,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 $message = '';
 $Email = '';
+$UserId = 0; // Inicializa UserId como entero
 
 // Check if the request method is POST (form submission)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -24,42 +25,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // Validate the email format
     if (!filter_var($Email, FILTER_VALIDATE_EMAIL)) {
-        $message = "Formato de correo electrónico inválido.";
-    } 
-    // Check if there have been too many login attempts
-    else if (CheckLoginAttempts($Email)) {
-        sleep(5);
-        $message = "Demasiados intentos de inicio de sesión fallidos. Inténtelo más tarde.";
-    } 
-    else {
-        // Validate the CSRF token
-        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-            $message = "Error, vuelva a intentarlo más tarde.";
-            error_log("Error en la validación CSRF para el usuario con email: $Email");
-        } 
-        else {
-            // Verify the user's credentials
-            $LoginSuccessful = VerifyUser($Email, $Password, $message);
-            $UserId = GetUserIdByEmail($Email);
+        $message = "Credenciales incorrectas.";
+    } else {
+        // Get UserId to check login attempts
+        $UserId = GetUserIdByEmail($Email);
 
-            // If login is successful, set session variables and redirect
-            if ($LoginSuccessful) {
-                $User = GetUserByEmail($Email);
-                $_SESSION['UserID'] = $User['usu_id'];
-                $_SESSION['UserName'] = $User['usu_name'];
-                $_SESSION['UserEmail'] = $User['usu_email'];
-                $_SESSION['UserRol'] = $User['usu_rol'];
+        // Check if there have been too many login attempts
+        if (CheckLoginAttempts($UserId)) {
+            sleep(5);
+            $message = "Demasiados intentos de inicio de sesión fallidos. Inténtelo más tarde.";
+        } else {
+            // Validate the CSRF token
+            if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+                $message = "Error, vuelva a intentarlo más tarde.";
+                error_log("Error en la validación CSRF para el usuario con email: " . htmlspecialchars($Email, ENT_QUOTES, 'UTF-8'));
+            } else {
+                // Verify the user's credentials
+                $LoginSuccessful = VerifyUser($Email, $Password, $UserId, $message);
 
-                // Check if 2FA is enabled and redirect accordingly
-                $redirectUrl = Has2FA($Email) ? 'verify_2fa.php' : '../10products/products.php';
-                header('Location: ' . $redirectUrl);
-                exit;
-            } 
-            else {
-                // Log the failed login attempt and set the error message
-                LogLoginAttempt($UserId, $_SERVER['REMOTE_ADDR'], false);
-                sleep(1); // Delay to mitigate brute force attacks
-                $message = "Credenciales incorrectas.";
+                // If login is successful, set session variables and redirect
+                if ($LoginSuccessful) {
+                    $User = GetUserById($UserId);
+                    if ($User['usu_status'] == 'A') {
+                        // Usuario verificado
+                        $_SESSION['TempUserID'] = $User['usu_id']; // Use a temporary session variable
+                        $_SESSION['UserEmail'] = $User['usu_email'];
+
+                        // Check if 2FA is enabled and redirect accordingly
+                        if (Has2FA($User['usu_id'])) {
+                            header('Location: verify_2fa.php');
+                        } else {
+                            // Set permanent session variables
+                            $_SESSION['UserID'] = $User['usu_id'];
+                            $_SESSION['UserName'] = $User['usu_name'];
+                            $_SESSION['UserRol'] = $User['usu_rol'];
+                            header('Location: ../10products/products.php');
+                        }
+                        exit;
+                    } else {
+                        // Usuario no verificado
+                        $_SESSION['VerificationPending'] = $User['usu_email'];
+                        header('Location: ../3register/verifycode.php');
+                        exit;
+                    }
+                } else {
+                    // Log the failed login attempt and set the error message
+                    if (isset($UserId) && $UserId > 0) {
+                        LogLoginAttempt($UserId, $_SERVER['REMOTE_ADDR'], false);
+                    }
+                    sleep(1); // Delay to mitigate brute force attacks
+                    $message = "Credenciales incorrectas.";
+                }
             }
         }
     }
@@ -104,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </script>
 </head>
 <body>
-    <div class="version">Versión 1.5.3</div>
+    <div class="version">Versión 1.6</div>
     <div class="form-box">
         <h1>Iniciar Sesión</h1>
         <form method="post">
