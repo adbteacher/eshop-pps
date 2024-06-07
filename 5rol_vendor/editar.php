@@ -34,7 +34,6 @@
 		echo "<p>$mensaje</p>";
 		echo "<p><a href='$url'>Volver</a></p>";
 		exit();
-		exit();
 	}
 
 	if (isset($_GET['id']))
