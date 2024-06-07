@@ -268,15 +268,15 @@ $count_pages = "SELECT COUNT(*) AS count
 										<?php $columnname = "ord_det_id";
 											$sort_link    = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link    = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_det_id&sort=" . $sort_link . ">idDetallePedido</a></th>";
+											echo "<th><a href=?search=$search&order=ord_det_id&sort=" . $sort_link . ">DetallePedido</a></th>";
 											$columnname = "ord_det_order_id";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_det_order_id&sort=" . $sort_link . ">idPedido</a></th>";
+											echo "<th><a href=?search=$search&order=ord_det_order_id&sort=" . $sort_link . ">Pedido</a></th>";
 											$columnname = "ord_det_prod_id";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_det_prod_id&sort=" . $sort_link . ">idProducto</a></th>";
+											echo "<th><a href=?search=$search&order=ord_det_prod_id&sort=" . $sort_link . ">Producto</a></th>";
 											$columnname = "qty";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;

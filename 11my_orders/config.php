@@ -75,6 +75,3 @@
 		// printf("Current character set: %s", $link->character_set_name());
 		$current_charset = $link->character_set_name();
 	}
-
-
-?>

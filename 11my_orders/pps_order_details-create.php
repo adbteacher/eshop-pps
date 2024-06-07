@@ -75,7 +75,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <head>
     <meta charset="UTF-8">
     <title><?php translate('Add New Record') ?></title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link href="../vendor/twbs/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="../vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
 </head>
 <?php require_once('navbar.php'); ?>
 <body>

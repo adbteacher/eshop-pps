@@ -1,3 +1,14 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Ticket</title>
+    <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<?php include "../nav.php"; ?>
+
 <?php
 	require_once("../autoload.php");
 
@@ -53,16 +64,6 @@
 	}
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Ticket</title>
-    <link href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<?php include "../nav.php"; ?>
 
 <div class="container mt-5">
     <h1 class="mb-4">Crear Nuevo Ticket</h1>

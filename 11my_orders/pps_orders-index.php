@@ -72,6 +72,8 @@ $total_pages = ceil($total_rows / $no_of_records_per_page);
 
 //Column sorting on column name
 $columns = array('ord_id', 'ord_user_id', 'ord_purchase_date', 'ord_shipping_date', 'ord_order_status', 'ord_shipping_address');
+//$columns = array('ID', 'Usuario', 'Fecha de compra', 'Fecha de envío', 'Estado', 'Dirección de envío');
+
 // Order by primary key on default
 $order = 'ord_id';
 if (isset($_GET['order']) && in_array($_GET['order'], $columns))
@@ -150,7 +152,7 @@ $count_pages = "SELECT COUNT(*) AS count
     <meta charset="UTF-8">
     <title>eshop-pps</title>
     <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-    <link href="/vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
+    <link href="../vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
 
     <style type="text/css">
         .page-header h2 {
@@ -210,27 +212,27 @@ $count_pages = "SELECT COUNT(*) AS count
 										<?php $columnname = "ord_id";
 											$sort_link    = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link    = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_id&sort=" . $sort_link . ">ord_id</a></th>";
+											echo "<th><a href=?search=$search&order=ord_id&sort=" . $sort_link . ">ID</a></th>";
 											$columnname = "ord_user_id";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_user_id&sort=" . $sort_link . ">ord_user_id</a></th>";
+											echo "<th><a href=?search=$search&order=ord_user_id&sort=" . $sort_link . ">Usuario</a></th>";
 											$columnname = "ord_purchase_date";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_purchase_date&sort=" . $sort_link . ">ord_purchase_date</a></th>";
+											echo "<th><a href=?search=$search&order=ord_purchase_date&sort=" . $sort_link . ">Fecha de compra</a></th>";
 											$columnname = "ord_shipping_date";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_shipping_date&sort=" . $sort_link . ">ord_shipping_date</a></th>";
+											echo "<th><a href=?search=$search&order=ord_shipping_date&sort=" . $sort_link . ">Fecha de envío</a></th>";
 											$columnname = "ord_order_status";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_order_status&sort=" . $sort_link . ">ord_order_status</a></th>";
+											echo "<th><a href=?search=$search&order=ord_order_status&sort=" . $sort_link . ">Estado</a></th>";
 											$columnname = "ord_shipping_address";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_shipping_address&sort=" . $sort_link . ">ord_shipping_address</a></th>";
+											echo "<th><a href=?search=$search&order=ord_shipping_address&sort=" . $sort_link . ">Dirección de envío</a></th>";
 										?>
                                         <th><?php translate('Actions'); ?></th>
                                     </tr>

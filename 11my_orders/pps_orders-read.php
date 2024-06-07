@@ -156,7 +156,7 @@
 					}
 				?>
                 <div class="form-group">
-                    <h4>ord_purchase_date</h4>
+                    <h4>Fecha de compra</h4>
 					<?php if ($has_link_file): ?>
                         <p class="form-control-static"><?php echo $link_file ?><?php echo convert_date($row["ord_purchase_date"]); ?><?php echo $end_link_file ?></p>
 					<?php endif ?>
@@ -174,7 +174,7 @@
 					}
 				?>
                 <div class="form-group">
-                    <h4>ord_shipping_date</h4>
+                    <h4>Fecha de envío</h4>
 					<?php if ($has_link_file): ?>
                         <p class="form-control-static"><?php echo $link_file ?><?php echo convert_date($row["ord_shipping_date"]); ?><?php echo $end_link_file ?></p>
 					<?php endif ?>
@@ -192,8 +192,8 @@
 					}
 				?>
                 <div class="form-group">
-                    <h4>ord_order_status*</h4>
-					<? echo "status" . htmlspecialchars($row['ord_order_status']) ?>
+                    <h4>Estado*</h4>
+					<?php echo "status" . htmlspecialchars($row['ord_order_status']) ?>
 					<?php if ($has_link_file): ?>
                         <p class="form-control-static"><?php echo $link_file ?><?php echo htmlspecialchars($row["ord_order_status"] ?? ""); ?><?php echo $end_link_file ?></p>
 					<?php endif ?>
@@ -211,7 +211,7 @@
 					}
 				?>
                 <div class="form-group">
-                    <h4>ord_shipping_address*</h4>
+                    <h4>Dirección de envío</h4>
 					<?php if ($has_link_file): ?>
                         <p class="form-control-static"><?php echo $link_file ?><?php echo htmlspecialchars($row["ord_shipping_address"] ?? ""); ?><?php echo $end_link_file ?></p>
 					<?php endif ?>

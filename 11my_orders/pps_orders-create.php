@@ -78,7 +78,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <head>
     <meta charset="UTF-8">
     <title><?php translate('Add New Record') ?></title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link href="../vendor/twbs/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="../vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
 </head>
 <?php require_once('navbar.php'); ?>
 <body>
@@ -95,7 +96,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
 
                         <div class="form-group">
-                                            <label for="ord_user_id">ord_user_id</label>
+                                            <label for="ord_user_id">ID</label>
                                             <select class="form-control" id="ord_user_id" name="ord_user_id"><option value="">Null</option> <?php
                                     $sql = "SELECT `usu_id`, `usu_name`, `usu_surnames`, `usu_id` FROM `pps_users` ORDER BY `usu_id`, `usu_name`, `usu_surnames`";
                                     $result = mysqli_query($link, $sql);
@@ -114,15 +115,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                     </select>
                                         </div>
 						<div class="form-group">
-                                            <label for="ord_purchase_date">ord_purchase_date</label>
+                                            <label for="ord_purchase_date">Fecha de compra</label>
                                             <input type="date" name="ord_purchase_date" id="ord_purchase_date" class="form-control" value="<?php echo @$ord_purchase_date; ?>">
                                         </div>
 						<div class="form-group">
-                                            <label for="ord_shipping_date">ord_shipping_date</label>
+                                            <label for="ord_shipping_date">Fecha de envío</label>
                                             <input type="date" name="ord_shipping_date" id="ord_shipping_date" class="form-control" value="<?php echo @$ord_shipping_date; ?>">
                                         </div>
 						<div class="form-group">
-                                            <label for="ord_order_status">ord_order_status*</label>
+                                            <label for="ord_order_status">Estado*</label>
                                             <select name="ord_order_status" class="form-control" id="ord_order_status"><?php 
 							 $enum_ord_order_status = array('Creado','PendienteEnvio','Enviado','Pendiente Devolución','Reembolsado');
                                                 foreach ($enum_ord_order_status as  $val){
@@ -134,7 +135,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                                 ?></select>
                                         </div>
 						<div class="form-group">
-                                            <label for="ord_shipping_address">ord_shipping_address*</label>
+                                            <label for="ord_shipping_address">Dirección de envío*</label>
                                             <input type="text" name="ord_shipping_address" id="ord_shipping_address" maxlength="255" class="form-control" value="<?php echo @$ord_shipping_address; ?>">
                                         </div>
 

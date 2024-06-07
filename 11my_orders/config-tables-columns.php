@@ -1,6 +1,9 @@
 <?php
 	require_once '../autoload.php';
-	session_start();
+	if (session_status() == PHP_SESSION_NONE)
+	{
+		session_start();
+	}
 
 	// Verificar si el usuario está autenticado
 	functions::ActiveSession();
@@ -16,7 +19,7 @@
     array (
       'ord_det_id' => 
       array (
-        'columndisplay' => 'idDetallePedido',
+        'columndisplay' => 'DetallePedido',
         'is_file' => 0,
         'columnvisible' => 1,
         'columninpreview' => 0,
@@ -26,7 +29,7 @@
       ),
       'ord_det_order_id' => 
       array (
-        'columndisplay' => 'idPedido',
+        'columndisplay' => 'Pedido',
         'is_file' => 0,
         'columnvisible' => 1,
         'columninpreview' => 0,
@@ -36,7 +39,7 @@
       ),
       'ord_det_prod_id' => 
       array (
-        'columndisplay' => 'idProducto',
+        'columndisplay' => 'Producto',
         'is_file' => 0,
         'columnvisible' => 1,
         'columninpreview' => 0,
@@ -475,5 +478,3 @@
     ),
   ),
 );
-
-?>

@@ -220,23 +220,23 @@ $count_pages = "SELECT COUNT(*) AS count
 										<?php $columnname = "ord_hist_id";
 											$sort_link    = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link    = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_hist_id&sort=" . $sort_link . ">ord_hist_id</a></th>";
+											echo "<th><a href=?search=$search&order=ord_hist_id&sort=" . $sort_link . ">ID</a></th>";
 											$columnname = "ord_hist_order_id";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_hist_order_id&sort=" . $sort_link . ">ord_hist_order_id</a></th>";
+											echo "<th><a href=?search=$search&order=ord_hist_order_id&sort=" . $sort_link . ">Pedido</a></th>";
 											$columnname = "ord_hist_transaction_type";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_hist_transaction_type&sort=" . $sort_link . ">ord_hist_transaction_type</a></th>";
+											echo "<th><a href=?search=$search&order=ord_hist_transaction_type&sort=" . $sort_link . ">Método de pago</a></th>";
 											$columnname = "ord_hist_transaction_date";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_hist_transaction_date&sort=" . $sort_link . ">ord_hist_transaction_date</a></th>";
+											echo "<th><a href=?search=$search&order=ord_hist_transaction_date&sort=" . $sort_link . ">Fecha</a></th>";
 											$columnname = "ord_hist_amount";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "asc" ? "desc" : "asc";
 											$sort_link  = isset($_GET["order"]) && $_GET["order"] == $columnname && $_GET["sort"] == "desc" ? "asc" : $sort_link;
-											echo "<th><a href=?search=$search&order=ord_hist_amount&sort=" . $sort_link . ">ord_hist_amount</a></th>";
+											echo "<th><a href=?search=$search&order=ord_hist_amount&sort=" . $sort_link . ">Cantidad</a></th>";
 										?>
                                         <th><?php translate('Actions'); ?></th>
                                     </tr>
