@@ -71,8 +71,7 @@ function GetPrefix($Prefix): string
 // Devuelve la carpeta raíz para subida de ficheros
 function GetRootUploadDir(): string
 {
-	//$RootUploadDir = 'C:\\uploads-eshop\\';
-	$RootUploadDir = '/var/www/uploads-eshop/';
+	$RootUploadDir = '/pps/uploads-eshop/';
 
 	return $RootUploadDir;
 }
@@ -87,7 +86,7 @@ function SetRootUploadDir(): bool
 	{
 		mkdir(
 			$RootUploadDir,
-			0770,
+			0550,
 			false
 		);
 	}
@@ -99,7 +98,6 @@ function SetRootUploadDir(): bool
 function GetCompanyUserDir($Cif): string
 {
 	$RootUploadDir  = GetRootUploadDir();
-	//$CompanyUserDir = $RootUploadDir . $Cif . '\\';
 	$CompanyUserDir = $RootUploadDir . $Cif . '/';
 
 	return $CompanyUserDir;
@@ -115,7 +113,7 @@ function SetCompanyUserDir($Cif): bool
 	{
 		mkdir(
 			$CompanyUserDir,
-			0770,
+			0550,
 			false
 		);
 	}
@@ -123,61 +121,34 @@ function SetCompanyUserDir($Cif): bool
 	return true;
 }
 
-// Subida de los documentos de la empresa
-function UploadCompanyDocuments($CompanyDocuments, $Cif): bool
+// Recogida y limpieza de los 2 documentos PDF como máximo que se pueden subir al servidor.
+function GetCompanyDocuments($CompanyDocuments, $Cif): string
 {
 	SetRootUploadDir();
 	SetCompanyUserDir($Cif);
 
-	$MaxDocumentsToUpload    = 2;                       // Se suben como maximo 2 archivos
 	$CompanyUserDir          = GetCompanyUserDir($Cif); // Ruta de los archivos del usuario específico
+	$MaxDocumentsToUpload    = 2;                       // Se suben como maximo 2 archivos
 	$AllowedCompanyDocuments = 'application/pdf';       // Documentos válidos: PDF
-	$UnitSeparator           = '^_';                    // Separador para la inserción en la DB.
-
-	for ($i = 0; $i < $MaxDocumentsToUpload; $i++)
-	{
-		$CompanyDocumentsTmp  = $CompanyDocuments['tmp_name'][$i];
-		$CompanyDocumentsType = mime_content_type($CompanyDocumentsTmp);
-
-		if ($CompanyDocumentsType != $AllowedCompanyDocuments)
-		{
-			return false;
-		}
-	}
-
-	if (count($CompanyDocuments["tmp_name"]) > $MaxDocumentsToUpload)
-	{
-		return false;
-	}
-
-	for ($i = 0; $i < 2; $i++)
-	{
-		$CompanyDocumentsToUpload = $CompanyDocuments['tmp_name'][$i];
-		$CompanyDocumentsPathDir  = $CompanyUserDir . '/' . $i . '.pdf';
-
-		if (!move_uploaded_file($CompanyDocumentsToUpload, $CompanyDocumentsPathDir)
-		{
-			return false;
-		}
-		die('se ha subido.');
-	}
-
-	return true;
-}
-
-// Subida de los documentos de la empresa
-function GetCompanyDocuments($CompanyDocuments, $Cif): string
-{
-	$MaxDocumentsToUpload    = 2;                       // Se suben como maximo 2 archivos
-	$CompanyUserDir          = GetCompanyUserDir($Cif); // Ruta de los archivos del usuario específico
 	$UnitSeparator           = '^_';                    // Separador para la inserción en la DB.
 	$CompanyDocumentsPathDB  = '';                      // Campo para la inserción en la DB.
 
-	// Path para la base de datos
+	if (count($CompanyDocuments["name"]) > $MaxDocumentsToUpload)
+	{
+		$Errors[] = 'CompanyDocuments';
+	}
+
 	for ($i = 0; $i < $MaxDocumentsToUpload; $i++)
 	{
 		$CompanyDocumentsName = $i+1 . '.pdf';
+		$CompanyDocumentsTmp  = $CompanyDocuments['tmp_name'][$i];
+		$CompanyDocumentsType = mime_content_type($CompanyDocumentsTmp);
 		$CompanyDocumentsPath = $CompanyUserDir . $CompanyDocumentsName;
+
+		if ($CompanyDocumentsType != $AllowedCompanyDocuments)
+		{
+			$Errors[] = 'CompanyDocuments';
+		}
 
 		if ($i == ($MaxDocumentsToUpload - 1))
 		{
@@ -190,6 +161,20 @@ function GetCompanyDocuments($CompanyDocuments, $Cif): string
 	}
 
 	return $CompanyDocumentsPathDB;
+}
+
+// por hacer
+function UploadCompanyDocuments($CompanyDocuments,$Cif): bool
+{
+	SetCompanyUserDir($Cif);
+
+	if (!move_uploaded_file($CompanyDocumentsTmp, $CompanyUserDir))
+	{
+		echo 'no se ha movido<br>';
+		return false;
+	}
+
+	return true;
 }
 
 function GetVerificationCode(): string
@@ -251,12 +236,11 @@ function SendMail($Email, $VerificationCode): bool
 		// Content
 		$Mail->isHTML(true);			// Set email format to HTML
 		$Mail->Subject = 'Verification Code';
-		$Mail->Body    = _("Hola,<br><br>su cdigo de verificacion es: ") . $VerificationCode . ".<br><br>Fruteria del barrio.";
+		$Mail->Body    = _("Hola,<br><br>su código de verificación es: ") . $VerificationCode . ".<br><br>Frutería del barrio.";
 
-		if ($Mail->send())
-		{
-			return true;
-		}
+		echo $Mail->send();
+		echo _('Correo enviado.');
+		return true;
 	}
 	catch (Exception $e)
 	{
