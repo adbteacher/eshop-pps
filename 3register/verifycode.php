@@ -1,126 +1,120 @@
-<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-
 <?php
-/**
- * Josevi
- * CETI
- * PPS - Puesta en Producción Segura
- *
- */
-
-if(session_status() != PHP_SESSION_ACTIVE) session_start();
+if (session_status() != PHP_SESSION_ACTIVE) session_start();
 
 require("functions.php");
 include "../nav.php";
+require_once '../autoload.php';
 
-$Conn = database::LoadDatabase();
+$Conn = Database::LoadDatabase();
 
 // Control de problemas
-if (!isset($UserID) OR !is_int($UserID) OR !isset($_SESSION['UserStatus']))
+if (!isset($_SESSION['VerificationPending']))
 {
-	header('Location: ../1login/login.php');
-	exit();
+    header('Location: ../1login/login.php');
+    exit();
 }
 
-// Usuario validado
-if ($_SESSION['UserStatus'] == 'A' OR $_SESSION['UserStatus'] == 'B')
-{
-	echo "Tu cuenta ya está verificada.";
-	exit();
-}
-
+$Email = $_SESSION['VerificationPending'];
 $Fields = array(
-	'VerifyCode' => 'Código inválido.',
+    'VerifyCode' => 'Código inválido.',
 );
-
 $Errors = array();
 
-// Submit button
-if (isset($_POST['VerifyCode']))
-{
-	// Guardamos la respuesta para verificarla
-	$VerificationCodeRequested = htmlspecialchars($_POST['VerificationCode']); // functions.php
-
-	if (!VerificationCodeValidation($VerificationCodeRequested))
-	{
-		// Guardar los errores
-		$Errors[] = 'VerifyCode';
-
-		// Redirigir a la página de registro
-		header('Location: verifycode.php');
-		exit;
-	}
-
-	// Query para guardar el código que el usuario debe verificar
-	$Query = ("SELECT usu_verification_code FROM pps_users WHERE usu_id = $UserID;");
-
-	try
-	{
-		// Query a la base de datos
-		$Stmt = $Conn->prepare($Query);
-		if ($Stmt->execute())
-		{
-			// Código de verificación
-			$VerificationCode = reset($Stmt->fetch(PDO::FETCH_ASSOC));
-
-			if ($VerificationCode == $VerificationCodeRequested)
-			{
-				// Actualizar el estado del usuario
-			    $Query = ("UPDATE pps_users SET usu_status = 'A' WHERE usu_id = $UserID;");
-				$Stmt = $Conn->prepare($Query);
-
-				if ($Stmt->execute())
-				{
-					$_SESSION['UserStatus'] = 'A';
-					echo "Verificación exitosa. Tu cuenta ha sido activada.";
-					header('Refresh: 1; Location: ../1login/login.php');
-					exit();
-				}
-				else
-				{
-					// Si no hay filas afectadas, asumimos un error
-					throw new Exception("Error.");
-				}
-			}
-			else
-			{
-				$Errors[] = 'VerifyCode';
-			}
-		}
-		else
-		{
-			// Si no hay filas afectadas, asumimos un error
-			throw new Exception("Error.");
-		}
-	}
-	finally
-	{
-		// Cierra la conexión
-		$Conn = null;
-	}
+// Añadir un token CSRF para prevenir ataques Cross-Site Request Forgery
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Submit button
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Verificar el token CSRF
+    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        die('Token CSRF inválido.');
+    }
+
+    // Añadir un pequeño retraso anti-fuerza bruta
+    usleep(500000); // 500,000 microsegundos = 0.5 segundos
+
+    // Guardamos la respuesta para verificarla
+    $VerificationCodeRequested = htmlspecialchars($_POST['VerificationCode'], ENT_QUOTES, 'UTF-8');
+
+	if (!VerificationCodeValidation($VerificationCodeRequested)) {
+		$Errors[] = 'VerifyCode';
+	
+		if (!isset($_SESSION['verification_attempts'])) {
+			$_SESSION['verification_attempts'] = 0;
+		}
+	
+		$_SESSION['verification_attempts']++;
+	
+		// Si el usuario ha superado los 5 intentos fallidos
+		if ($_SESSION['verification_attempts'] > 5) {
+			$message = "Demasiados intentos fallidos. Inténtelo más tarde.";
+			// Añadir un tiempo de espera
+			sleep(5);  // Espera de 5 segundos
+			header('Location: login.php');
+			exit();
+		}
+	}	
+	
+
+    // Query para obtener el código de verificación del usuario
+    $Query = ("SELECT usu_verification_code, usu_id, usu_name, usu_email, usu_rol FROM pps_users WHERE usu_email = :email LIMIT 1;");
+    $Stmt = $Conn->prepare($Query);
+    $Stmt->bindParam(':email', $Email, PDO::PARAM_STR);
+    $Stmt->execute();
+
+    // Código de verificación
+    $User = $Stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($User && hash_equals($User['usu_verification_code'], $VerificationCodeRequested)) {
+        // Actualizar el estado del usuario
+        $Query = ("UPDATE pps_users SET usu_status = 'A' WHERE usu_email = :email;");
+        $Stmt = $Conn->prepare($Query);
+        $Stmt->bindParam(':email', $Email, PDO::PARAM_STR);
+        $Stmt->execute();
+
+        if ($Stmt->rowCount() > 0) {
+            // Establecer las variables de sesión completas
+            $_SESSION['UserID'] = $User['usu_id'];
+            $_SESSION['UserName'] = $User['usu_name'];
+            $_SESSION['UserEmail'] = $User['usu_email'];
+            $_SESSION['UserRol'] = $User['usu_rol'];
+            unset($_SESSION['VerificationPending']);
+            unset($_SESSION['csrf_token']);
+
+            // Redirigir al usuario a la página de productos
+            header('Location: ../10products/products.php');
+            exit();
+        } else {
+            throw new Exception("Error.");
+        }
+    } else {
+        $Errors[] = 'VerifyCode';
+    }
+}
 ?>
 
-<br>
-<h2 class="mb3">Verificación de Cuenta</h2>
-<form method="post">
-	<label class="mb3" for="VerificationCode">Código de Verificación:</label>
-	<input type="text" id="VerificationCode" name="VerificationCode" required>
-	<div class="dataError <?php echo in_array('VerifyCode', $Errors) ? '' : ' hidden';?>"><?php echo $Fields['VerifyCode'];?></div>
-	<br>
-	<button class="btn btn-primary" name="VerifyCode" type="submit">Verificar</button>
-</form>
-
-<style type="text/css">
-.hidden
-{
-	display: none;
-}
-.dataError
-{
-	color: #c00;
-	font-size: 0.8em
-}
-</style>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <style type="text/css">
+        .hidden { display: none; }
+        .dataError { color: #c00; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+    <br>
+    <h2 class="mb3">Verificación de Cuenta</h2>
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
+        <label class="mb3" for="VerificationCode">Código de Verificación:</label>
+        <input type="text" id="VerificationCode" name="VerificationCode" required>
+        <div class="dataError <?php echo in_array('VerifyCode', $Errors) ? '' : 'hidden';?>"><?php echo htmlspecialchars($Fields['VerifyCode'], ENT_QUOTES, 'UTF-8');?></div>
+        <br>
+        <button class="btn btn-primary" name="VerifyCode" type="submit">Verificar</button>
+    </form>
+</body>
+</html>
